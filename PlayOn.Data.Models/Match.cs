@@ -1,0 +1,85 @@
+﻿using PlayOn.Data.Models.Enums;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using static PlayOn.Common.EntityConstants.MatchConstants;
+
+
+namespace PlayOn.Data.Models
+{
+    public class Match
+    {
+
+        [Key]
+        public int Id { get; set; }
+
+        [Required]
+        public string OrganiserId { get; set; } = null!;
+
+
+        [ForeignKey(nameof(OrganiserId))]
+        public virtual ApplicationUser Organiser { get; set; } = null!;
+
+
+        [Required]
+        public int CourtId { get; set; }
+
+        [ForeignKey(nameof(CourtId))]
+        public virtual Court Court { get; set; } = null!;
+
+
+
+        [Required]
+        [MaxLength(TitleMaxLength)]
+        public string Title { get; set; } = null!;
+
+        [MaxLength(DescriptionMaxLenght)]
+        public string? Description { get; set; }
+
+        [Required]
+        public DateTime StartsAt { get; set; }
+
+        [Required]
+        public int DurationMinutes { get; set; }
+
+        [Required]
+        public int MinPlayers { get; set; }
+
+        [Required]
+        public int MaxPlayers { get; set; }
+
+
+        [Required]
+        public SkillLevel MinSkill { get; set; }
+
+        [Required]
+        public SkillLevel MaxSkill { get; set; }
+
+
+        [Required]
+        public decimal PricePerPlayer { get; set; }
+
+
+        [Required]
+        public MatchStatus Status { get; set; }
+
+        [MaxLength(CancelReasonMaxLenght)]
+        public string? CancelReason { get; set; }
+
+        [Required]
+        public bool IsHidden { get; set; }
+
+        [Required]
+        public bool IsDeleted { get; set; }
+
+
+        [Required]
+        public byte[] RowVersion { get; set; } = null!;
+
+
+        public virtual ICollection<MatchParticipant> Participants { get; set; }
+            = new List<MatchParticipant>();
+
+        public virtual ICollection<PlayerRating> Ratings { get; set; }
+            = new List<PlayerRating>();
+    }
+}
