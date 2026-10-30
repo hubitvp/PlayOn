@@ -1,4 +1,4 @@
-﻿namespace PlayOn.Data.Models.Enums
+﻿namespace PlayOn.Common.Enums
 {
 
     public enum NotificationType
