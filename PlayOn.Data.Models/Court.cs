@@ -1,5 +1,5 @@
 ﻿using PlayOn.Common.EntityConstants;
-using PlayOn.Data.Models.Enums;
+using PlayOn.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
