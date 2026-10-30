@@ -21,7 +21,7 @@ namespace PlayOn.Data
         {
             base.OnModelCreating(modelBuilder);
 
-
+            modelBuilder.ApplyConfiguration(new ApplicationUserConfiguration());
             modelBuilder.ApplyConfiguration(new CourtConfiguration());
             modelBuilder.ApplyConfiguration(new MatchConfiguration());
             modelBuilder.ApplyConfiguration(new MatchParticipantConfiguration());
