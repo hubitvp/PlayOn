@@ -31,6 +31,13 @@ namespace PlayOn.Data.Models
         [Required]
         public decimal Longitude { get; set; }
 
+
+        [Required]
+        public DateOnly Date { get; set; }
+
+        [Required]
+        public TimeOnly MatchStartsAt { get; set; }
+
         [Required]
         public TimeOnly OpensAt { get; set; }
 
@@ -43,7 +50,7 @@ namespace PlayOn.Data.Models
         [Required]
         public bool IsDeleted { get; set; }
 
-        public virtual ICollection<Court> Courts { get; set; }
-            = new List<Court>();
+
+        public virtual Event? Event { get; set; } = null!;
     }
 }

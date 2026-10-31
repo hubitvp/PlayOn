@@ -16,6 +16,7 @@ namespace PlayOn.Data.Configurations
             builder.Property(x => x.Longitude)
                 .HasPrecision(DecimalPrecision, DecimalScale);
 
+
             builder.HasData(
                 new Venue { Id = 1, Name = "Central Sports Park", Address = "1 Main Street", City = "Sofia", Latitude = 42.697700m, Longitude = 23.321900m, OpensAt = new TimeOnly(7, 0), ClosesAt = new TimeOnly(23, 0), PhotoUrl = null, IsDeleted = false },
                 new Venue { Id = 2, Name = "Eastside Arena", Address = "12 East Boulevard", City = "Plovdiv", Latitude = 42.135400m, Longitude = 24.745300m, PhotoUrl = null, OpensAt = new TimeOnly(8, 0), ClosesAt = new TimeOnly(22, 0), IsDeleted = false },

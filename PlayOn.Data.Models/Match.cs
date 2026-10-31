@@ -20,23 +20,14 @@ namespace PlayOn.Data.Models
         public virtual ApplicationUser Organiser { get; set; } = null!;
 
 
-        [Required]
-        public int CourtId { get; set; }
-
-        [ForeignKey(nameof(CourtId))]
-        public virtual Court Court { get; set; } = null!;
-
-
 
         [Required]
         [MaxLength(TitleMaxLength)]
         public string Title { get; set; } = null!;
 
-        [MaxLength(DescriptionMaxLenght)]
+        [MaxLength(DescriptionMaxLength)]
         public string? Description { get; set; }
 
-        [Required]
-        public DateTime StartsAt { get; set; }
 
         [Required]
         public int DurationMinutes { get; set; }
@@ -62,7 +53,7 @@ namespace PlayOn.Data.Models
         [Required]
         public MatchStatus Status { get; set; }
 
-        [MaxLength(CancelReasonMaxLenght)]
+        [MaxLength(CancelReasonMaxLength)]
         public string? CancelReason { get; set; }
 
         [Required]
@@ -76,10 +67,14 @@ namespace PlayOn.Data.Models
         public byte[] RowVersion { get; set; } = null!;
 
 
+
         public virtual ICollection<MatchParticipant> Participants { get; set; }
             = new List<MatchParticipant>();
 
         public virtual ICollection<PlayerRating> Ratings { get; set; }
             = new List<PlayerRating>();
+
+
+        public virtual Event? Event { get; set; } = null!;
     }
 }

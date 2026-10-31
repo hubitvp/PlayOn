@@ -1,8 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using PlayOn.Data;
 using PlayOn.Data.Models;
+using PlayOn.Services;
+using PlayOn.Services.Contracts;
+using PlayOn.Services.Repositories;
+using PlayOn.Services.Repositories.Contracts;
 
-namespace PlayOn
+namespace PlayOn.Web
 {
     public class Program
     {
@@ -19,6 +23,16 @@ namespace PlayOn
             builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<PlayOnDbContext>();
             builder.Services.AddControllersWithViews();
+
+
+
+            builder.Services.AddScoped<IHomeRepository, HomeRepository>();
+            builder.Services.AddScoped<IMatchesRepository, MatchesRepository>();
+
+
+            builder.Services.AddScoped<IHomeService, HomeService>();
+            builder.Services.AddScoped<IMatchesService, MatchesService>();
+
 
             var app = builder.Build();
 
@@ -37,6 +51,7 @@ namespace PlayOn
             app.UseHttpsRedirection();
             app.UseRouting();
 
+            //app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();

@@ -10,11 +10,11 @@ namespace PlayOn.Data.Models
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(NameMaxLenght)]
+        [MaxLength(NameMaxLength)]
         public string Name { get; set; } = null!;
 
 
-        [MaxLength(IconClassMaxLenght)]
+        [MaxLength(IconClassMaxLength)]
         public string? IconClass { get; set; }
 
         [Required]
@@ -24,10 +24,20 @@ namespace PlayOn.Data.Models
         [Required]
         public int DefaultMaxPlayers { get; set; }
 
-        public virtual ICollection<SportPreference> SportPreferences { get; set; }
+
+
+        public virtual ICollection<CourtSport> Courts { get; set; }
+            = new List<CourtSport>();
+
+        public virtual ICollection<Match> Matches { get; set; }
+            = new List<Match>();
+
+
+        public virtual ICollection<SportPreference> Preferences { get; set; }
             = new List<SportPreference>();
 
-        public virtual ICollection<Court> Courts { get; set; }
-            = new List<Court>();
+
+        public virtual ICollection<Event> Events { get; set; }
+            = new List<Event>();
     }
 }

@@ -1,7 +1,6 @@
 ﻿using PlayOn.Common.EntityConstants;
 using PlayOn.Common.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 
 namespace PlayOn.Data.Models
@@ -13,7 +12,7 @@ namespace PlayOn.Data.Models
 
 
         [Required]
-        [MaxLength(CourtConstants.NameMaxLenght)]
+        [MaxLength(CourtConstants.NameMaxLength)]
         public string Name { get; set; } = null!;
 
 
@@ -26,20 +25,16 @@ namespace PlayOn.Data.Models
         [Required]
         public decimal HourlyPrice { get; set; }
 
-        [Required]
-        public int VenueId { get; set; }
+        public virtual Venue? Venue { get; set; }
 
-        [ForeignKey(nameof(VenueId))]
-        public virtual Venue Venue { get; set; } = null!;
-
-
-        [Required]
-        public int SportId { get; set; }
-
-        [ForeignKey(nameof(SportId))]
-        public virtual Sport Sport { get; set; } = null!;
+        public virtual ICollection<CourtSport> Sports { get; set; }
+            = new List<CourtSport>();
 
         public virtual ICollection<Match> Matches { get; set; }
             = new List<Match>();
+
+
+        public virtual ICollection<Event> Events { get; set; }
+            = new List<Event>();
     }
 }
