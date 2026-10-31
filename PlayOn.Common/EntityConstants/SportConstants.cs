@@ -2,12 +2,12 @@
 {
     public static class SportConstants
     {
-        public const int NameMinLenght = 2;
+        public const int NameMinLength = 2;
 
-        public const int NameMaxLenght = 40;
+        public const int NameMaxLength = 40;
 
 
-        public const int IconClassMaxLenght = 100;
+        public const int IconClassMaxLength = 100;
 
 
     }

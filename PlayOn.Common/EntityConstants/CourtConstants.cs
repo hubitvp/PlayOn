@@ -2,8 +2,8 @@
 {
     public static class CourtConstants
     {
-        public const int NameMinLenght = 2;
-        public const int NameMaxLenght = 40;
+        public const int NameMinLength = 2;
+        public const int NameMaxLength = 40;
 
 
         public const int DecimalPrecision = 10;
