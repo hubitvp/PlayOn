@@ -74,80 +74,6 @@ namespace PlayOn.Data.Migrations
                     b.ToTable("AspNetRoleClaims", (string)null);
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(21)
-                        .HasColumnType("nvarchar(21)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
-
-                    b.UseTphMappingStrategy();
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
                     b.Property<int>("Id")
@@ -233,6 +159,301 @@ namespace PlayOn.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("PlayOn.Data.Models.ApplicationUser", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("MatchesPlayed")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ReliabilityScore")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NormalizedEmail")
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex")
+                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+
+                    b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "11111111-1111-1111-1111-111111111111",
+                            AccessFailedCount = 0,
+                            City = "Sofia",
+                            ConcurrencyStamp = "0b8d5f31-1f24-4b9b-8c4a-0c1a8c21f001",
+                            DisplayName = "Alex Morgan",
+                            Email = "alex.morgan@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 4,
+                            NormalizedEmail = "ALEX.MORGAN@EXAMPLE.COM",
+                            NormalizedUserName = "ALEX.MORGAN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "alex.morgan"
+                        },
+                        new
+                        {
+                            Id = "22222222-2222-2222-2222-222222222222",
+                            AccessFailedCount = 0,
+                            City = "Plovdiv",
+                            ConcurrencyStamp = "3e9a1d72-5c66-4a80-9f31-52e2d4b8f002",
+                            DisplayName = "Jordan Lee",
+                            Email = "jordan.lee@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 3,
+                            NormalizedEmail = "JORDAN.LEE@EXAMPLE.COM",
+                            NormalizedUserName = "JORDAN.LEE",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "jordan.lee"
+                        },
+                        new
+                        {
+                            Id = "33333333-3333-3333-3333-333333333333",
+                            AccessFailedCount = 0,
+                            City = "Varna",
+                            ConcurrencyStamp = "7a4c2e90-8b13-46fd-a275-91c3e6f4a003",
+                            DisplayName = "Sam Taylor",
+                            Email = "sam.taylor@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 4,
+                            NormalizedEmail = "SAM.TAYLOR@EXAMPLE.COM",
+                            NormalizedUserName = "SAM.TAYLOR",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "sam.taylor"
+                        },
+                        new
+                        {
+                            Id = "44444444-4444-4444-4444-444444444444",
+                            AccessFailedCount = 0,
+                            City = "Burgas",
+                            ConcurrencyStamp = "d18f6b42-2a97-4e51-b803-6c7d9a5f4004",
+                            DisplayName = "Casey Wilson",
+                            Email = "casey.wilson@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 3,
+                            NormalizedEmail = "CASEY.WILSON@EXAMPLE.COM",
+                            NormalizedUserName = "CASEY.WILSON",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "casey.wilson"
+                        },
+                        new
+                        {
+                            Id = "55555555-5555-5555-5555-555555555555",
+                            AccessFailedCount = 0,
+                            City = "Sofia",
+                            ConcurrencyStamp = "f5b27c68-9d40-43ae-8b16-2e7a4c9d5005",
+                            DisplayName = "Morgan Kim",
+                            Email = "morgan.kim@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 2,
+                            NormalizedEmail = "MORGAN.KIM@EXAMPLE.COM",
+                            NormalizedUserName = "MORGAN.KIM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 67,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "morgan.kim"
+                        },
+                        new
+                        {
+                            Id = "66666666-6666-6666-6666-666666666666",
+                            AccessFailedCount = 0,
+                            City = "Ruse",
+                            ConcurrencyStamp = "6c1e8a53-74b9-4fd2-a605-3b9c7e2f6006",
+                            DisplayName = "Riley Adams",
+                            Email = "riley.adams@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 2,
+                            NormalizedEmail = "RILEY.ADAMS@EXAMPLE.COM",
+                            NormalizedUserName = "RILEY.ADAMS",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "riley.adams"
+                        },
+                        new
+                        {
+                            Id = "77777777-7777-7777-7777-777777777777",
+                            AccessFailedCount = 0,
+                            City = "Sofia",
+                            ConcurrencyStamp = "a92d4f17-6e80-4b35-9c21-7d5a8e3f7007",
+                            DisplayName = "Taylor Brown",
+                            Email = "taylor.brown@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 3,
+                            NormalizedEmail = "TAYLOR.BROWN@EXAMPLE.COM",
+                            NormalizedUserName = "TAYLOR.BROWN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "taylor.brown"
+                        },
+                        new
+                        {
+                            Id = "88888888-8888-8888-8888-888888888888",
+                            AccessFailedCount = 0,
+                            City = "Plovdiv",
+                            ConcurrencyStamp = "4f7b2c19-a638-45de-8b04-6e9d1a5c8008",
+                            DisplayName = "Jamie Davis",
+                            Email = "jamie.davis@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 0,
+                            NormalizedEmail = "JAMIE.DAVIS@EXAMPLE.COM",
+                            NormalizedUserName = "JAMIE.DAVIS",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 0,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "jamie.davis"
+                        },
+                        new
+                        {
+                            Id = "99999999-9999-9999-9999-999999999999",
+                            AccessFailedCount = 0,
+                            City = "Varna",
+                            ConcurrencyStamp = "8e3a6d25-1b74-4c90-a582-9f6b2d7e9009",
+                            DisplayName = "Quinn Clark",
+                            Email = "quinn.clark@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 4,
+                            NormalizedEmail = "QUINN.CLARK@EXAMPLE.COM",
+                            NormalizedUserName = "QUINN.CLARK",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "quinn.clark"
+                        },
+                        new
+                        {
+                            Id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                            AccessFailedCount = 0,
+                            City = "Ruse",
+                            ConcurrencyStamp = "b6c1f843-5a29-47de-9082-4e7d3a1f0010",
+                            DisplayName = "Drew Hall",
+                            Email = "drew.hall@example.com",
+                            EmailConfirmed = true,
+                            IsActive = true,
+                            LockoutEnabled = false,
+                            MatchesPlayed = 4,
+                            NormalizedEmail = "DREW.HALL@EXAMPLE.COM",
+                            NormalizedUserName = "DREW.HALL",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "drew.hall"
+                        });
+                });
+
             modelBuilder.Entity("PlayOn.Data.Models.Court", b =>
                 {
                     b.Property<int>("Id")
@@ -253,22 +474,215 @@ namespace PlayOn.Data.Migrations
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
+                    b.Property<int>("Surface")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VenueId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VenueId");
+
+                    b.ToTable("Courts");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Capacity = 22,
+                            HourlyPrice = 80m,
+                            Name = "Main Football Pitch",
+                            Surface = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Capacity = 10,
+                            HourlyPrice = 45m,
+                            Name = "Arena Basketball 1",
+                            Surface = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Capacity = 4,
+                            HourlyPrice = 25m,
+                            Name = "Riverside Tennis 1",
+                            Surface = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Capacity = 12,
+                            HourlyPrice = 35m,
+                            Name = "South Volleyball Court",
+                            Surface = 4
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Capacity = 4,
+                            HourlyPrice = 30m,
+                            Name = "Mountain Padel 1",
+                            Surface = 1
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Capacity = 4,
+                            HourlyPrice = 20m,
+                            Name = "West Badminton 1",
+                            Surface = 2
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Capacity = 14,
+                            HourlyPrice = 50m,
+                            Name = "Sea Handball Court",
+                            Surface = 5
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Capacity = 30,
+                            HourlyPrice = 90m,
+                            Name = "Maritsa Rugby Field",
+                            Surface = 0
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Capacity = 22,
+                            HourlyPrice = 75m,
+                            Name = "Green Hockey Field",
+                            Surface = 1
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Capacity = 18,
+                            HourlyPrice = 65m,
+                            Name = "Danube Baseball Field",
+                            Surface = 0
+                        });
+                });
+
+            modelBuilder.Entity("PlayOn.Data.Models.CourtSport", b =>
+                {
+                    b.Property<int>("CourtId")
+                        .HasColumnType("int");
+
                     b.Property<int>("SportId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Surface")
+                    b.HasKey("CourtId", "SportId");
+
+                    b.HasIndex("SportId");
+
+                    b.ToTable("CourtSports");
+
+                    b.HasData(
+                        new
+                        {
+                            CourtId = 1,
+                            SportId = 1
+                        },
+                        new
+                        {
+                            CourtId = 2,
+                            SportId = 2
+                        },
+                        new
+                        {
+                            CourtId = 3,
+                            SportId = 3
+                        },
+                        new
+                        {
+                            CourtId = 4,
+                            SportId = 4
+                        },
+                        new
+                        {
+                            CourtId = 5,
+                            SportId = 5
+                        },
+                        new
+                        {
+                            CourtId = 6,
+                            SportId = 6
+                        },
+                        new
+                        {
+                            CourtId = 7,
+                            SportId = 7
+                        },
+                        new
+                        {
+                            CourtId = 8,
+                            SportId = 8
+                        },
+                        new
+                        {
+                            CourtId = 9,
+                            SportId = 9
+                        },
+                        new
+                        {
+                            CourtId = 10,
+                            SportId = 10
+                        },
+                        new
+                        {
+                            CourtId = 2,
+                            SportId = 4
+                        },
+                        new
+                        {
+                            CourtId = 2,
+                            SportId = 7
+                        },
+                        new
+                        {
+                            CourtId = 7,
+                            SportId = 2
+                        },
+                        new
+                        {
+                            CourtId = 1,
+                            SportId = 9
+                        });
+                });
+
+            modelBuilder.Entity("PlayOn.Data.Models.Event", b =>
+                {
+                    b.Property<int>("MatchId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SportId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CourtId")
                         .HasColumnType("int");
 
                     b.Property<int>("VenueId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("MatchId", "SportId", "CourtId", "VenueId");
+
+                    b.HasIndex("CourtId");
+
+                    b.HasIndex("MatchId")
+                        .IsUnique();
 
                     b.HasIndex("SportId");
 
-                    b.HasIndex("VenueId");
+                    b.HasIndex("VenueId")
+                        .IsUnique();
 
-                    b.ToTable("Courts");
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Match", b =>
@@ -282,9 +696,6 @@ namespace PlayOn.Data.Migrations
                     b.Property<string>("CancelReason")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<int>("CourtId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Description")
                         .HasMaxLength(1000)
@@ -325,9 +736,6 @@ namespace PlayOn.Data.Migrations
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("rowversion");
 
-                    b.Property<DateTime>("StartsAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -338,11 +746,172 @@ namespace PlayOn.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourtId");
-
                     b.HasIndex("OrganiserId");
 
                     b.ToTable("Matches");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Description = "Casual five-a-side football.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 22,
+                            MaxSkill = 2,
+                            MinPlayers = 6,
+                            MinSkill = 0,
+                            OrganiserId = "11111111-1111-1111-1111-111111111111",
+                            PricePerPlayer = 8m,
+                            Status = 3,
+                            Title = "Tuesday Evening Football"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Description = "Competitive five-on-five game.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 10,
+                            MaxSkill = 2,
+                            MinPlayers = 4,
+                            MinSkill = 1,
+                            OrganiserId = "22222222-2222-2222-2222-222222222222",
+                            PricePerPlayer = 5m,
+                            Status = 3,
+                            Title = "Downtown Basketball"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Description = "Friendly doubles session.",
+                            DurationMinutes = 120,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 4,
+                            MaxSkill = 1,
+                            MinPlayers = 2,
+                            MinSkill = 0,
+                            OrganiserId = "33333333-3333-3333-3333-333333333333",
+                            PricePerPlayer = 6m,
+                            Status = 3,
+                            Title = "Saturday Tennis Doubles"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Description = "Three-on-three beach volleyball.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 12,
+                            MaxSkill = 2,
+                            MinPlayers = 6,
+                            MinSkill = 0,
+                            OrganiserId = "44444444-4444-4444-4444-444444444444",
+                            PricePerPlayer = 7m,
+                            Status = 3,
+                            Title = "Beach Volleyball Morning"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Description = "Fast-paced padel games.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 4,
+                            MaxSkill = 2,
+                            MinPlayers = 2,
+                            MinSkill = 1,
+                            OrganiserId = "55555555-5555-5555-5555-555555555555",
+                            PricePerPlayer = 9m,
+                            Status = 1,
+                            Title = "Padel After Work"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Description = "Singles and doubles rotation.",
+                            DurationMinutes = 120,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 4,
+                            MaxSkill = 1,
+                            MinPlayers = 2,
+                            MinSkill = 0,
+                            OrganiserId = "66666666-6666-6666-6666-666666666666",
+                            PricePerPlayer = 4m,
+                            Status = 1,
+                            Title = "Badminton Open Play"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Description = "A structured handball session.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 14,
+                            MaxSkill = 2,
+                            MinPlayers = 8,
+                            MinSkill = 1,
+                            OrganiserId = "77777777-7777-7777-7777-777777777777",
+                            PricePerPlayer = 6m,
+                            Status = 0,
+                            Title = "Handball Skills Match"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Description = "Non-contact touch rugby.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 30,
+                            MaxSkill = 1,
+                            MinPlayers = 10,
+                            MinSkill = 0,
+                            OrganiserId = "88888888-8888-8888-8888-888888888888",
+                            PricePerPlayer = 8m,
+                            Status = 0,
+                            Title = "Weekend Rugby Touch"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Description = "Small-sided field hockey.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 22,
+                            MaxSkill = 2,
+                            MinPlayers = 6,
+                            MinSkill = 0,
+                            OrganiserId = "99999999-9999-9999-9999-999999999999",
+                            PricePerPlayer = 7m,
+                            Status = 3,
+                            Title = "Hockey Training Game"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CancelReason = "Venue maintenance",
+                            Description = "Relaxed practice game for all levels.",
+                            DurationMinutes = 120,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 18,
+                            MaxSkill = 1,
+                            MinPlayers = 6,
+                            MinSkill = 0,
+                            OrganiserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                            PricePerPlayer = 5m,
+                            Status = 2,
+                            Title = "Baseball Practice Game"
+                        });
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.MatchParticipant", b =>
@@ -379,6 +948,528 @@ namespace PlayOn.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("MatchParticipants");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 9, 29, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 4, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "22222222-2222-2222-2222-222222222222"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 4, 6, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "33333333-3333-3333-3333-333333333333"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 4, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 4, 18, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 5, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "66666666-6666-6666-6666-666666666666"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 5, 6, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "77777777-7777-7777-7777-777777777777"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 5, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 5, 18, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 19, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            IsLateCancel = true,
+                            JoinedOn = new DateTime(2026, 10, 3, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 1,
+                            Status = 2,
+                            StatusChangedOn = new DateTime(2026, 10, 13, 16, 50, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "88888888-8888-8888-8888-888888888888"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 9, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 2,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 14, 20, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "22222222-2222-2222-2222-222222222222"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 5, 1, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 2,
+                            Status = 4,
+                            StatusChangedOn = new DateTime(2026, 10, 14, 20, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 5, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 2,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 14, 20, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 5, 13, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 2,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 14, 20, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 3, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 3,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 17, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "33333333-3333-3333-3333-333333333333"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 7, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 3,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 17, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 7, 22, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 3,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 17, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 8, 4, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 3,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 17, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 4, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 4,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 18, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 8, 15, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 4,
+                            Status = 4,
+                            StatusChangedOn = new DateTime(2026, 10, 18, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "88888888-8888-8888-8888-888888888888"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 8, 21, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 4,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 18, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "33333333-3333-3333-3333-333333333333"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 9, 3, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 4,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 18, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 9, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 4,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 18, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "66666666-6666-6666-6666-666666666666"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 9, 15, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 4,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 18, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "77777777-7777-7777-7777-777777777777"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 9, 21, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 4,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 18, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 10, 3, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 4,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 18, 10, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 5,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 5,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 5,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "22222222-2222-2222-2222-222222222222"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 5,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 5,
+                            Status = 1,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 6,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "66666666-6666-6666-6666-666666666666"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 6,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 6,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "77777777-7777-7777-7777-777777777777"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 7,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "77777777-7777-7777-7777-777777777777"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 7,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 7,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                        },
+                        new
+                        {
+                            Id = 38,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 8,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "88888888-8888-8888-8888-888888888888"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 8,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "33333333-3333-3333-3333-333333333333"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 8,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 41,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 8,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 42,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 8,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "66666666-6666-6666-6666-666666666666"
+                        },
+                        new
+                        {
+                            Id = 43,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 11, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 9,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 25, 15, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 44,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 15, 20, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 9,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 25, 15, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "77777777-7777-7777-7777-777777777777"
+                        },
+                        new
+                        {
+                            Id = 45,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 16, 2, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 9,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 25, 15, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                        },
+                        new
+                        {
+                            Id = 46,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 16, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 9,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 25, 15, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 16, 14, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 9,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 25, 15, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "22222222-2222-2222-2222-222222222222"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 16, 20, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 9,
+                            Status = 3,
+                            StatusChangedOn = new DateTime(2026, 10, 25, 15, 30, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "33333333-3333-3333-3333-333333333333"
+                        },
+                        new
+                        {
+                            Id = 49,
+                            IsLateCancel = true,
+                            JoinedOn = new DateTime(2026, 10, 15, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 9,
+                            Status = 2,
+                            StatusChangedOn = new DateTime(2026, 10, 25, 12, 50, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "88888888-8888-8888-8888-888888888888"
+                        },
+                        new
+                        {
+                            Id = 50,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 10,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                        },
+                        new
+                        {
+                            Id = 51,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 10,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "77777777-7777-7777-7777-777777777777"
+                        },
+                        new
+                        {
+                            Id = 52,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 10,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        });
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Notification", b =>
@@ -418,6 +1509,108 @@ namespace PlayOn.Data.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = false,
+                            Link = "/Matches/Details/10",
+                            Message = "Baseball Practice Game was cancelled: Venue maintenance.",
+                            Type = 2,
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = false,
+                            Link = "/Matches/Details/10",
+                            Message = "Baseball Practice Game was cancelled: Venue maintenance.",
+                            Type = 2,
+                            UserId = "77777777-7777-7777-7777-777777777777"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = false,
+                            Link = "/Matches/Details/10",
+                            Message = "Baseball Practice Game was cancelled: Venue maintenance.",
+                            Type = 2,
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = true,
+                            Link = "/Matches/Details/5",
+                            Message = "Padel After Work has enough players and will go ahead.",
+                            Type = 1,
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = false,
+                            Link = "/Matches/Details/5",
+                            Message = "Padel After Work has enough players and will go ahead.",
+                            Type = 1,
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedOn = new DateTime(2026, 10, 30, 18, 30, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = false,
+                            Link = "/Matches/Details/5",
+                            Message = "A spot opened in Padel After Work. You moved off the waitlist.",
+                            Type = 0,
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedOn = new DateTime(2026, 10, 25, 12, 50, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = true,
+                            Link = "/Matches/Details/9",
+                            Message = "You left Hockey Training Game less than 2 hours before the start. A strike was added.",
+                            Type = 4,
+                            UserId = "88888888-8888-8888-8888-888888888888"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedOn = new DateTime(2026, 10, 14, 20, 40, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = false,
+                            Link = "/Matches/Details/2",
+                            Message = "You were marked as a no-show for Downtown Basketball. A strike was added.",
+                            Type = 4,
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedOn = new DateTime(2026, 10, 14, 1, 30, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = true,
+                            Link = "/Matches/Details/1",
+                            Message = "Alex Morgan rated you 5/5 after Tuesday Evening Football.",
+                            Type = 3,
+                            UserId = "22222222-2222-2222-2222-222222222222"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedOn = new DateTime(2026, 10, 15, 2, 30, 0, 0, DateTimeKind.Unspecified),
+                            IsRead = false,
+                            Link = "/Matches/Details/2",
+                            Message = "Jordan Lee rated you 3/5 after Downtown Basketball.",
+                            Type = 3,
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        });
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.PlayerRating", b =>
@@ -458,6 +1651,106 @@ namespace PlayOn.Data.Migrations
                     b.HasIndex("RaterId");
 
                     b.ToTable("PlayerRatings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Comment = "Superb teammate, great energy.",
+                            IsHidden = false,
+                            MatchId = 1,
+                            RatedUserId = "22222222-2222-2222-2222-222222222222",
+                            RaterId = "11111111-1111-1111-1111-111111111111",
+                            Score = 5
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Comment = "Decent game, nothing special.",
+                            IsHidden = false,
+                            MatchId = 1,
+                            RatedUserId = "33333333-3333-3333-3333-333333333333",
+                            RaterId = "22222222-2222-2222-2222-222222222222",
+                            Score = 3
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Comment = "Decent game, nothing special.",
+                            IsHidden = false,
+                            MatchId = 1,
+                            RatedUserId = "44444444-4444-4444-4444-444444444444",
+                            RaterId = "33333333-3333-3333-3333-333333333333",
+                            Score = 3
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Comment = "Decent game, nothing special.",
+                            IsHidden = false,
+                            MatchId = 2,
+                            RatedUserId = "11111111-1111-1111-1111-111111111111",
+                            RaterId = "22222222-2222-2222-2222-222222222222",
+                            Score = 3
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Comment = "Decent game, nothing special.",
+                            IsHidden = false,
+                            MatchId = 2,
+                            RatedUserId = "44444444-4444-4444-4444-444444444444",
+                            RaterId = "11111111-1111-1111-1111-111111111111",
+                            Score = 3
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Comment = "Superb teammate, great energy.",
+                            IsHidden = false,
+                            MatchId = 3,
+                            RatedUserId = "99999999-9999-9999-9999-999999999999",
+                            RaterId = "33333333-3333-3333-3333-333333333333",
+                            Score = 5
+                        },
+                        new
+                        {
+                            Id = 7,
+                            IsHidden = false,
+                            MatchId = 3,
+                            RatedUserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                            RaterId = "99999999-9999-9999-9999-999999999999",
+                            Score = 4
+                        },
+                        new
+                        {
+                            Id = 8,
+                            IsHidden = false,
+                            MatchId = 4,
+                            RatedUserId = "33333333-3333-3333-3333-333333333333",
+                            RaterId = "44444444-4444-4444-4444-444444444444",
+                            Score = 4
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Comment = "Superb teammate, great energy.",
+                            IsHidden = false,
+                            MatchId = 4,
+                            RatedUserId = "55555555-5555-5555-5555-555555555555",
+                            RaterId = "33333333-3333-3333-3333-333333333333",
+                            Score = 5
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Comment = "Superb teammate, great energy.",
+                            IsHidden = false,
+                            MatchId = 9,
+                            RatedUserId = "77777777-7777-7777-7777-777777777777",
+                            RaterId = "99999999-9999-9999-9999-999999999999",
+                            Score = 5
+                        });
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Sport", b =>
@@ -489,6 +1782,88 @@ namespace PlayOn.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("Sports");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DefaultMaxPlayers = 22,
+                            DefaultMinPlayers = 6,
+                            IconClass = "fa-solid fa-futbol",
+                            Name = "Football"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DefaultMaxPlayers = 10,
+                            DefaultMinPlayers = 4,
+                            IconClass = "fa-solid fa-basketball",
+                            Name = "Basketball"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DefaultMaxPlayers = 4,
+                            DefaultMinPlayers = 2,
+                            IconClass = "fa-solid fa-table-tennis-paddle-ball",
+                            Name = "Tennis"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            DefaultMaxPlayers = 12,
+                            DefaultMinPlayers = 4,
+                            IconClass = "fa-solid fa-volleyball",
+                            Name = "Volleyball"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            DefaultMaxPlayers = 4,
+                            DefaultMinPlayers = 2,
+                            IconClass = "fa-solid fa-table-tennis-paddle-ball",
+                            Name = "Padel"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            DefaultMaxPlayers = 4,
+                            DefaultMinPlayers = 2,
+                            IconClass = "fa-solid fa-feather",
+                            Name = "Badminton"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            DefaultMaxPlayers = 14,
+                            DefaultMinPlayers = 6,
+                            IconClass = "fa-solid fa-hand",
+                            Name = "Handball"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            DefaultMaxPlayers = 30,
+                            DefaultMinPlayers = 10,
+                            IconClass = "fa-solid fa-football",
+                            Name = "Rugby"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            DefaultMaxPlayers = 22,
+                            DefaultMinPlayers = 6,
+                            IconClass = "fa-solid fa-hockey-puck",
+                            Name = "Hockey"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            DefaultMaxPlayers = 18,
+                            DefaultMinPlayers = 6,
+                            IconClass = "fa-solid fa-baseball",
+                            Name = "Baseball"
+                        });
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.SportPreference", b =>
@@ -507,6 +1882,122 @@ namespace PlayOn.Data.Migrations
                     b.HasIndex("SportId");
 
                     b.ToTable("SportPreferences");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "11111111-1111-1111-1111-111111111111",
+                            SportId = 1,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "22222222-2222-2222-2222-222222222222",
+                            SportId = 2,
+                            SkillLevel = 2
+                        },
+                        new
+                        {
+                            UserId = "33333333-3333-3333-3333-333333333333",
+                            SportId = 3,
+                            SkillLevel = 0
+                        },
+                        new
+                        {
+                            UserId = "44444444-4444-4444-4444-444444444444",
+                            SportId = 4,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "55555555-5555-5555-5555-555555555555",
+                            SportId = 5,
+                            SkillLevel = 2
+                        },
+                        new
+                        {
+                            UserId = "66666666-6666-6666-6666-666666666666",
+                            SportId = 6,
+                            SkillLevel = 0
+                        },
+                        new
+                        {
+                            UserId = "77777777-7777-7777-7777-777777777777",
+                            SportId = 7,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "88888888-8888-8888-8888-888888888888",
+                            SportId = 8,
+                            SkillLevel = 0
+                        },
+                        new
+                        {
+                            UserId = "99999999-9999-9999-9999-999999999999",
+                            SportId = 9,
+                            SkillLevel = 2
+                        },
+                        new
+                        {
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                            SportId = 10,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "11111111-1111-1111-1111-111111111111",
+                            SportId = 2,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "44444444-4444-4444-4444-444444444444",
+                            SportId = 2,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "55555555-5555-5555-5555-555555555555",
+                            SportId = 2,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "11111111-1111-1111-1111-111111111111",
+                            SportId = 5,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "22222222-2222-2222-2222-222222222222",
+                            SportId = 5,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "44444444-4444-4444-4444-444444444444",
+                            SportId = 5,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "99999999-9999-9999-9999-999999999999",
+                            SportId = 5,
+                            SkillLevel = 2
+                        },
+                        new
+                        {
+                            UserId = "99999999-9999-9999-9999-999999999999",
+                            SportId = 7,
+                            SkillLevel = 1
+                        },
+                        new
+                        {
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                            SportId = 7,
+                            SkillLevel = 1
+                        });
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Venue", b =>
@@ -530,6 +2021,9 @@ namespace PlayOn.Data.Migrations
                     b.Property<TimeOnly>("ClosesAt")
                         .HasColumnType("time");
 
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -540,6 +2034,9 @@ namespace PlayOn.Data.Migrations
                     b.Property<decimal>("Longitude")
                         .HasPrecision(9, 6)
                         .HasColumnType("decimal(9,6)");
+
+                    b.Property<TimeOnly>("MatchStartsAt")
+                        .HasColumnType("time");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -556,13 +2053,148 @@ namespace PlayOn.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Venues");
-                });
 
-            modelBuilder.Entity("PlayOn.Data.Models.ApplicationUser", b =>
-                {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
-
-                    b.HasDiscriminator().HasValue("ApplicationUser");
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "1 Main Street",
+                            City = "Sofia",
+                            ClosesAt = new TimeOnly(23, 0, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 42.697700m,
+                            Longitude = 23.321900m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "Central Sports Park",
+                            OpensAt = new TimeOnly(7, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "12 East Boulevard",
+                            City = "Plovdiv",
+                            ClosesAt = new TimeOnly(22, 0, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 42.135400m,
+                            Longitude = 24.745300m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "Eastside Arena",
+                            OpensAt = new TimeOnly(8, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Address = "8 River Road",
+                            City = "Varna",
+                            ClosesAt = new TimeOnly(22, 30, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 43.214100m,
+                            Longitude = 27.914700m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "Riverside Courts",
+                            OpensAt = new TimeOnly(6, 30, 0)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Address = "24 South Park",
+                            City = "Burgas",
+                            ClosesAt = new TimeOnly(21, 30, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 42.504800m,
+                            Longitude = 27.462600m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "South Field Complex",
+                            OpensAt = new TimeOnly(7, 30, 0)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Address = "5 Vitosha Avenue",
+                            City = "Sofia",
+                            ClosesAt = new TimeOnly(23, 0, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 42.650700m,
+                            Longitude = 23.347000m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "Mountain Sports Hall",
+                            OpensAt = new TimeOnly(8, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Address = "44 West Street",
+                            City = "Sofia",
+                            ClosesAt = new TimeOnly(22, 0, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 42.705000m,
+                            Longitude = 23.270000m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "West End Club",
+                            OpensAt = new TimeOnly(9, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Address = "19 Coast Lane",
+                            City = "Varna",
+                            ClosesAt = new TimeOnly(21, 0, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 43.207000m,
+                            Longitude = 27.922000m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "Black Sea Sports",
+                            OpensAt = new TimeOnly(7, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Address = "31 Maritsa Road",
+                            City = "Plovdiv",
+                            ClosesAt = new TimeOnly(22, 0, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 42.145000m,
+                            Longitude = 24.760000m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "Maritsa Activity Center",
+                            OpensAt = new TimeOnly(8, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Address = "7 Garden Street",
+                            City = "Ruse",
+                            ClosesAt = new TimeOnly(21, 30, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 43.835000m,
+                            Longitude = 25.965000m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "Green Court Club",
+                            OpensAt = new TimeOnly(7, 30, 0)
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Address = "16 Harbor Avenue",
+                            City = "Ruse",
+                            ClosesAt = new TimeOnly(22, 30, 0),
+                            Date = new DateOnly(1, 1, 1),
+                            IsDeleted = false,
+                            Latitude = 43.848000m,
+                            Longitude = 25.960000m,
+                            MatchStartsAt = new TimeOnly(0, 0, 0),
+                            Name = "Danube Sports Hub",
+                            OpensAt = new TimeOnly(8, 30, 0)
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -576,7 +2208,7 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("PlayOn.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -585,7 +2217,7 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("PlayOn.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -600,7 +2232,7 @@ namespace PlayOn.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("PlayOn.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -609,7 +2241,7 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                    b.HasOne("PlayOn.Data.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -618,17 +2250,61 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("PlayOn.Data.Models.Court", b =>
                 {
+                    b.HasOne("PlayOn.Data.Models.Venue", "Venue")
+                        .WithMany()
+                        .HasForeignKey("VenueId");
+
+                    b.Navigation("Venue");
+                });
+
+            modelBuilder.Entity("PlayOn.Data.Models.CourtSport", b =>
+                {
+                    b.HasOne("PlayOn.Data.Models.Court", "Court")
+                        .WithMany("Sports")
+                        .HasForeignKey("CourtId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("PlayOn.Data.Models.Sport", "Sport")
                         .WithMany("Courts")
                         .HasForeignKey("SportId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("PlayOn.Data.Models.Venue", "Venue")
-                        .WithMany("Courts")
-                        .HasForeignKey("VenueId")
+                    b.Navigation("Court");
+
+                    b.Navigation("Sport");
+                });
+
+            modelBuilder.Entity("PlayOn.Data.Models.Event", b =>
+                {
+                    b.HasOne("PlayOn.Data.Models.Court", "Court")
+                        .WithMany("Events")
+                        .HasForeignKey("CourtId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("PlayOn.Data.Models.Match", "Match")
+                        .WithOne("Event")
+                        .HasForeignKey("PlayOn.Data.Models.Event", "MatchId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlayOn.Data.Models.Sport", "Sport")
+                        .WithMany("Events")
+                        .HasForeignKey("SportId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("PlayOn.Data.Models.Venue", "Venue")
+                        .WithOne("Event")
+                        .HasForeignKey("PlayOn.Data.Models.Event", "VenueId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Court");
+
+                    b.Navigation("Match");
 
                     b.Navigation("Sport");
 
@@ -637,19 +2313,11 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("PlayOn.Data.Models.Match", b =>
                 {
-                    b.HasOne("PlayOn.Data.Models.Court", "Court")
-                        .WithMany("Matches")
-                        .HasForeignKey("CourtId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("PlayOn.Data.Models.ApplicationUser", "Organiser")
                         .WithMany()
                         .HasForeignKey("OrganiserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("Court");
 
                     b.Navigation("Organiser");
                 });
@@ -714,7 +2382,7 @@ namespace PlayOn.Data.Migrations
             modelBuilder.Entity("PlayOn.Data.Models.SportPreference", b =>
                 {
                     b.HasOne("PlayOn.Data.Models.Sport", "Sport")
-                        .WithMany("SportPreferences")
+                        .WithMany("Preferences")
                         .HasForeignKey("SportId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -732,11 +2400,15 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("PlayOn.Data.Models.Court", b =>
                 {
-                    b.Navigation("Matches");
+                    b.Navigation("Events");
+
+                    b.Navigation("Sports");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Match", b =>
                 {
+                    b.Navigation("Event");
+
                     b.Navigation("Participants");
 
                     b.Navigation("Ratings");
@@ -746,12 +2418,14 @@ namespace PlayOn.Data.Migrations
                 {
                     b.Navigation("Courts");
 
-                    b.Navigation("SportPreferences");
+                    b.Navigation("Events");
+
+                    b.Navigation("Preferences");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Venue", b =>
                 {
-                    b.Navigation("Courts");
+                    b.Navigation("Event");
                 });
 #pragma warning restore 612, 618
         }
