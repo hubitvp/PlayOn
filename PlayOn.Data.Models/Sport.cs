@@ -29,9 +29,6 @@ namespace PlayOn.Data.Models
         public virtual ICollection<CourtSport> Courts { get; set; }
             = new List<CourtSport>();
 
-        public virtual ICollection<Match> Matches { get; set; }
-            = new List<Match>();
-
 
         public virtual ICollection<SportPreference> Preferences { get; set; }
             = new List<SportPreference>();

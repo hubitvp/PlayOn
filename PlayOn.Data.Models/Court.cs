@@ -30,9 +30,6 @@ namespace PlayOn.Data.Models
         public virtual ICollection<CourtSport> Sports { get; set; }
             = new List<CourtSport>();
 
-        public virtual ICollection<Match> Matches { get; set; }
-            = new List<Match>();
-
 
         public virtual ICollection<Event> Events { get; set; }
             = new List<Event>();
