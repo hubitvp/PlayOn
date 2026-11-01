@@ -17,5 +17,9 @@ namespace PlayOn.Data.Models
 
         [ForeignKey(nameof(SportId))]
         public virtual Sport Sport { get; set; } = null!;
+
+
+        public virtual ICollection<Event> Events { get; set; }
+            = new List<Event>();
     }
 }

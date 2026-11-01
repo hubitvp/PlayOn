@@ -25,7 +25,6 @@ namespace PlayOn.Data.Models
         [Required]
         public decimal HourlyPrice { get; set; }
 
-        public virtual Venue? Venue { get; set; }
 
         public virtual ICollection<CourtSport> Sports { get; set; }
             = new List<CourtSport>();

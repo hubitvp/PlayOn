@@ -32,5 +32,6 @@ namespace PlayOn.Data.Models
 
         [ForeignKey(nameof(VenueId))]
         public Venue Venue { get; set; } = null!;
+        public virtual CourtSport CourtSport { get; set; } = null!;
     }
 }
