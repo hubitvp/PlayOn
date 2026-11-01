@@ -477,12 +477,7 @@ namespace PlayOn.Data.Migrations
                     b.Property<int>("Surface")
                         .HasColumnType("int");
 
-                    b.Property<int?>("VenueId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("VenueId");
 
                     b.ToTable("Courts");
 
@@ -672,8 +667,6 @@ namespace PlayOn.Data.Migrations
 
                     b.HasKey("MatchId", "SportId", "CourtId", "VenueId");
 
-                    b.HasIndex("CourtId");
-
                     b.HasIndex("MatchId")
                         .IsUnique();
 
@@ -682,7 +675,81 @@ namespace PlayOn.Data.Migrations
                     b.HasIndex("VenueId")
                         .IsUnique();
 
+                    b.HasIndex("CourtId", "SportId");
+
                     b.ToTable("Events");
+
+                    b.HasData(
+                        new
+                        {
+                            MatchId = 1,
+                            SportId = 1,
+                            CourtId = 1,
+                            VenueId = 1
+                        },
+                        new
+                        {
+                            MatchId = 2,
+                            SportId = 2,
+                            CourtId = 2,
+                            VenueId = 2
+                        },
+                        new
+                        {
+                            MatchId = 3,
+                            SportId = 3,
+                            CourtId = 3,
+                            VenueId = 3
+                        },
+                        new
+                        {
+                            MatchId = 4,
+                            SportId = 4,
+                            CourtId = 4,
+                            VenueId = 4
+                        },
+                        new
+                        {
+                            MatchId = 5,
+                            SportId = 5,
+                            CourtId = 5,
+                            VenueId = 5
+                        },
+                        new
+                        {
+                            MatchId = 6,
+                            SportId = 6,
+                            CourtId = 6,
+                            VenueId = 6
+                        },
+                        new
+                        {
+                            MatchId = 7,
+                            SportId = 7,
+                            CourtId = 7,
+                            VenueId = 7
+                        },
+                        new
+                        {
+                            MatchId = 8,
+                            SportId = 8,
+                            CourtId = 8,
+                            VenueId = 8
+                        },
+                        new
+                        {
+                            MatchId = 9,
+                            SportId = 9,
+                            CourtId = 9,
+                            VenueId = 9
+                        },
+                        new
+                        {
+                            MatchId = 10,
+                            SportId = 10,
+                            CourtId = 10,
+                            VenueId = 10
+                        });
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Match", b =>
@@ -2035,9 +2102,6 @@ namespace PlayOn.Data.Migrations
                         .HasPrecision(9, 6)
                         .HasColumnType("decimal(9,6)");
 
-                    b.Property<TimeOnly>("MatchStartsAt")
-                        .HasColumnType("time");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(80)
@@ -2050,6 +2114,9 @@ namespace PlayOn.Data.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("nvarchar(2048)");
 
+                    b.Property<TimeOnly>("StartsAt")
+                        .HasColumnType("time");
+
                     b.HasKey("Id");
 
                     b.ToTable("Venues");
@@ -2061,13 +2128,13 @@ namespace PlayOn.Data.Migrations
                             Address = "1 Main Street",
                             City = "Sofia",
                             ClosesAt = new TimeOnly(23, 0, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 10, 13),
                             IsDeleted = false,
                             Latitude = 42.697700m,
                             Longitude = 23.321900m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "Central Sports Park",
-                            OpensAt = new TimeOnly(7, 0, 0)
+                            OpensAt = new TimeOnly(7, 0, 0),
+                            StartsAt = new TimeOnly(18, 0, 0)
                         },
                         new
                         {
@@ -2075,13 +2142,13 @@ namespace PlayOn.Data.Migrations
                             Address = "12 East Boulevard",
                             City = "Plovdiv",
                             ClosesAt = new TimeOnly(22, 0, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 10, 14),
                             IsDeleted = false,
                             Latitude = 42.135400m,
                             Longitude = 24.745300m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "Eastside Arena",
-                            OpensAt = new TimeOnly(8, 0, 0)
+                            OpensAt = new TimeOnly(8, 0, 0),
+                            StartsAt = new TimeOnly(19, 0, 0)
                         },
                         new
                         {
@@ -2089,13 +2156,13 @@ namespace PlayOn.Data.Migrations
                             Address = "8 River Road",
                             City = "Varna",
                             ClosesAt = new TimeOnly(22, 30, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 10, 17),
                             IsDeleted = false,
                             Latitude = 43.214100m,
                             Longitude = 27.914700m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "Riverside Courts",
-                            OpensAt = new TimeOnly(6, 30, 0)
+                            OpensAt = new TimeOnly(6, 30, 0),
+                            StartsAt = new TimeOnly(10, 0, 0)
                         },
                         new
                         {
@@ -2103,13 +2170,13 @@ namespace PlayOn.Data.Migrations
                             Address = "24 South Park",
                             City = "Burgas",
                             ClosesAt = new TimeOnly(21, 30, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 10, 18),
                             IsDeleted = false,
                             Latitude = 42.504800m,
                             Longitude = 27.462600m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "South Field Complex",
-                            OpensAt = new TimeOnly(7, 30, 0)
+                            OpensAt = new TimeOnly(7, 30, 0),
+                            StartsAt = new TimeOnly(9, 0, 0)
                         },
                         new
                         {
@@ -2117,13 +2184,13 @@ namespace PlayOn.Data.Migrations
                             Address = "5 Vitosha Avenue",
                             City = "Sofia",
                             ClosesAt = new TimeOnly(23, 0, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 11, 9),
                             IsDeleted = false,
                             Latitude = 42.650700m,
                             Longitude = 23.347000m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "Mountain Sports Hall",
-                            OpensAt = new TimeOnly(8, 0, 0)
+                            OpensAt = new TimeOnly(8, 0, 0),
+                            StartsAt = new TimeOnly(18, 30, 0)
                         },
                         new
                         {
@@ -2131,13 +2198,13 @@ namespace PlayOn.Data.Migrations
                             Address = "44 West Street",
                             City = "Sofia",
                             ClosesAt = new TimeOnly(22, 0, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 11, 10),
                             IsDeleted = false,
                             Latitude = 42.705000m,
                             Longitude = 23.270000m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "West End Club",
-                            OpensAt = new TimeOnly(9, 0, 0)
+                            OpensAt = new TimeOnly(9, 0, 0),
+                            StartsAt = new TimeOnly(17, 0, 0)
                         },
                         new
                         {
@@ -2145,13 +2212,13 @@ namespace PlayOn.Data.Migrations
                             Address = "19 Coast Lane",
                             City = "Varna",
                             ClosesAt = new TimeOnly(21, 0, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 11, 11),
                             IsDeleted = false,
                             Latitude = 43.207000m,
                             Longitude = 27.922000m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "Black Sea Sports",
-                            OpensAt = new TimeOnly(7, 0, 0)
+                            OpensAt = new TimeOnly(7, 0, 0),
+                            StartsAt = new TimeOnly(19, 30, 0)
                         },
                         new
                         {
@@ -2159,13 +2226,13 @@ namespace PlayOn.Data.Migrations
                             Address = "31 Maritsa Road",
                             City = "Plovdiv",
                             ClosesAt = new TimeOnly(22, 0, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 11, 14),
                             IsDeleted = false,
                             Latitude = 42.145000m,
                             Longitude = 24.760000m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "Maritsa Activity Center",
-                            OpensAt = new TimeOnly(8, 0, 0)
+                            OpensAt = new TimeOnly(8, 0, 0),
+                            StartsAt = new TimeOnly(11, 0, 0)
                         },
                         new
                         {
@@ -2173,13 +2240,13 @@ namespace PlayOn.Data.Migrations
                             Address = "7 Garden Street",
                             City = "Ruse",
                             ClosesAt = new TimeOnly(21, 30, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 10, 25),
                             IsDeleted = false,
                             Latitude = 43.835000m,
                             Longitude = 25.965000m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "Green Court Club",
-                            OpensAt = new TimeOnly(7, 30, 0)
+                            OpensAt = new TimeOnly(7, 30, 0),
+                            StartsAt = new TimeOnly(14, 0, 0)
                         },
                         new
                         {
@@ -2187,13 +2254,13 @@ namespace PlayOn.Data.Migrations
                             Address = "16 Harbor Avenue",
                             City = "Ruse",
                             ClosesAt = new TimeOnly(22, 30, 0),
-                            Date = new DateOnly(1, 1, 1),
+                            Date = new DateOnly(2026, 11, 15),
                             IsDeleted = false,
                             Latitude = 43.848000m,
                             Longitude = 25.960000m,
-                            MatchStartsAt = new TimeOnly(0, 0, 0),
                             Name = "Danube Sports Hub",
-                            OpensAt = new TimeOnly(8, 30, 0)
+                            OpensAt = new TimeOnly(8, 30, 0),
+                            StartsAt = new TimeOnly(15, 0, 0)
                         });
                 });
 
@@ -2248,15 +2315,6 @@ namespace PlayOn.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("PlayOn.Data.Models.Court", b =>
-                {
-                    b.HasOne("PlayOn.Data.Models.Venue", "Venue")
-                        .WithMany()
-                        .HasForeignKey("VenueId");
-
-                    b.Navigation("Venue");
-                });
-
             modelBuilder.Entity("PlayOn.Data.Models.CourtSport", b =>
                 {
                     b.HasOne("PlayOn.Data.Models.Court", "Court")
@@ -2302,7 +2360,15 @@ namespace PlayOn.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("PlayOn.Data.Models.CourtSport", "CourtSport")
+                        .WithMany("Events")
+                        .HasForeignKey("CourtId", "SportId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Court");
+
+                    b.Navigation("CourtSport");
 
                     b.Navigation("Match");
 
@@ -2403,6 +2469,11 @@ namespace PlayOn.Data.Migrations
                     b.Navigation("Events");
 
                     b.Navigation("Sports");
+                });
+
+            modelBuilder.Entity("PlayOn.Data.Models.CourtSport", b =>
+                {
+                    b.Navigation("Events");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Match", b =>
