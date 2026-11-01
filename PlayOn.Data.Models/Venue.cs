@@ -36,7 +36,7 @@ namespace PlayOn.Data.Models
         public DateOnly Date { get; set; }
 
         [Required]
-        public TimeOnly MatchStartsAt { get; set; }
+        public TimeOnly StartsAt { get; set; }
 
         [Required]
         public TimeOnly OpensAt { get; set; }
