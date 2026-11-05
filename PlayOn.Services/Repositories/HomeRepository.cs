@@ -70,7 +70,7 @@ namespace PlayOn.Services.Repositories
                     Id = x.Id,
                     Title = x.Title,
                     SportName = x.Event!.Sport.Name,
-                    SportIcon = x.Event!.Sport.IconClass,
+                    SportIcon = x.Event!.Sport.Icon,
                     VenueName = x.Event!.Venue.Name,
                     City = x.Event!.Venue.City,
                     Date = x.Event!.Venue.Date,

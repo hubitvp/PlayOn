@@ -54,6 +54,7 @@ namespace PlayOn.Services
                     Id = x.Id,
                     Title = x.Title,
                     SportName = x.SportName,
+                    SportIcon = x.SportIcon,
                     VenueName = x.VenueName,
                     City = x.City,
                     Date = x.Date,

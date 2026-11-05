@@ -479,7 +479,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courts", (string)null);
+                    b.ToTable("Courts");
 
                     b.HasData(
                         new
@@ -576,7 +576,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("SportId");
 
-                    b.ToTable("CourtSports", (string)null);
+                    b.ToTable("CourtSports");
 
                     b.HasData(
                         new
@@ -677,7 +677,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("CourtId", "SportId");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
 
                     b.HasData(
                         new
@@ -815,7 +815,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("OrganiserId");
 
-                    b.ToTable("Matches", (string)null);
+                    b.ToTable("Matches");
 
                     b.HasData(
                         new
@@ -1014,7 +1014,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MatchParticipants", (string)null);
+                    b.ToTable("MatchParticipants");
 
                     b.HasData(
                         new
@@ -1575,7 +1575,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
 
                     b.HasData(
                         new
@@ -1717,7 +1717,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("RaterId");
 
-                    b.ToTable("PlayerRatings", (string)null);
+                    b.ToTable("PlayerRatings");
 
                     b.HasData(
                         new
@@ -1834,9 +1834,8 @@ namespace PlayOn.Data.Migrations
                     b.Property<int>("DefaultMinPlayers")
                         .HasColumnType("int");
 
-                    b.Property<string>("IconClass")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int>("Icon")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1848,7 +1847,7 @@ namespace PlayOn.Data.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Sports", (string)null);
+                    b.ToTable("Sports");
 
                     b.HasData(
                         new
@@ -1856,7 +1855,7 @@ namespace PlayOn.Data.Migrations
                             Id = 1,
                             DefaultMaxPlayers = 22,
                             DefaultMinPlayers = 6,
-                            IconClass = "fa-solid fa-futbol",
+                            Icon = 1,
                             Name = "Football"
                         },
                         new
@@ -1864,7 +1863,7 @@ namespace PlayOn.Data.Migrations
                             Id = 2,
                             DefaultMaxPlayers = 10,
                             DefaultMinPlayers = 4,
-                            IconClass = "fa-solid fa-basketball",
+                            Icon = 2,
                             Name = "Basketball"
                         },
                         new
@@ -1872,7 +1871,7 @@ namespace PlayOn.Data.Migrations
                             Id = 3,
                             DefaultMaxPlayers = 4,
                             DefaultMinPlayers = 2,
-                            IconClass = "fa-solid fa-table-tennis-paddle-ball",
+                            Icon = 3,
                             Name = "Tennis"
                         },
                         new
@@ -1880,7 +1879,7 @@ namespace PlayOn.Data.Migrations
                             Id = 4,
                             DefaultMaxPlayers = 12,
                             DefaultMinPlayers = 4,
-                            IconClass = "fa-solid fa-volleyball",
+                            Icon = 4,
                             Name = "Volleyball"
                         },
                         new
@@ -1888,7 +1887,7 @@ namespace PlayOn.Data.Migrations
                             Id = 5,
                             DefaultMaxPlayers = 4,
                             DefaultMinPlayers = 2,
-                            IconClass = "fa-solid fa-table-tennis-paddle-ball",
+                            Icon = 3,
                             Name = "Padel"
                         },
                         new
@@ -1896,7 +1895,7 @@ namespace PlayOn.Data.Migrations
                             Id = 6,
                             DefaultMaxPlayers = 4,
                             DefaultMinPlayers = 2,
-                            IconClass = "fa-solid fa-feather",
+                            Icon = 5,
                             Name = "Badminton"
                         },
                         new
@@ -1904,7 +1903,7 @@ namespace PlayOn.Data.Migrations
                             Id = 7,
                             DefaultMaxPlayers = 14,
                             DefaultMinPlayers = 6,
-                            IconClass = "fa-solid fa-hand",
+                            Icon = 6,
                             Name = "Handball"
                         },
                         new
@@ -1912,7 +1911,7 @@ namespace PlayOn.Data.Migrations
                             Id = 8,
                             DefaultMaxPlayers = 30,
                             DefaultMinPlayers = 10,
-                            IconClass = "fa-solid fa-football",
+                            Icon = 7,
                             Name = "Rugby"
                         },
                         new
@@ -1920,7 +1919,7 @@ namespace PlayOn.Data.Migrations
                             Id = 9,
                             DefaultMaxPlayers = 22,
                             DefaultMinPlayers = 6,
-                            IconClass = "fa-solid fa-hockey-puck",
+                            Icon = 8,
                             Name = "Hockey"
                         },
                         new
@@ -1928,7 +1927,7 @@ namespace PlayOn.Data.Migrations
                             Id = 10,
                             DefaultMaxPlayers = 18,
                             DefaultMinPlayers = 6,
-                            IconClass = "fa-solid fa-baseball",
+                            Icon = 9,
                             Name = "Baseball"
                         });
                 });
@@ -1948,7 +1947,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("SportId");
 
-                    b.ToTable("SportPreferences", (string)null);
+                    b.ToTable("SportPreferences");
 
                     b.HasData(
                         new
@@ -2119,7 +2118,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Venues", (string)null);
+                    b.ToTable("Venues");
 
                     b.HasData(
                         new

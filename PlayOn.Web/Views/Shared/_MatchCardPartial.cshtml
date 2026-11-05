@@ -7,7 +7,7 @@
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-2">
             <span class="sport-chip">
-                <i class="bi @Model.SportIcon"></i>
+                <i class="@Model.SportIcon" aria-hidden="true"></i>
                 @Model.SportName
             </span>
             <partial name="_StatusBadgePartial" model="Model.Status" />

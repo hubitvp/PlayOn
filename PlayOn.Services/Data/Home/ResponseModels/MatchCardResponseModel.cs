@@ -7,7 +7,7 @@ namespace PlayOn.Services.Data.Home.ResponseModels
         public required int Id { get; init; }
         public required string Title { get; init; }
         public required string SportName { get; init; }
-        public string? SportIcon { get; init; } = null!;
+        public required SportIcon SportIcon { get; init; }
         public required string VenueName { get; init; }
         public required string City { get; init; } = null!;
         public required DateOnly Date { get; init; }
