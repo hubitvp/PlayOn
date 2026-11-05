@@ -3,14 +3,14 @@
 
     public enum SportIcon
     {
-        TrophyDefault,                 
-        Football,                 
+        TrophyDefault,
+        Football,
         Basketball,
-        TableTennisPaddle,  
+        TableTennisPaddle,
         Volleyball,
-        Badminton,                
-        Handball,                   
-        Rugby,               
+        Badminton,
+        Handball,
+        Rugby,
         HockeyPuck,
         Baseball
     }

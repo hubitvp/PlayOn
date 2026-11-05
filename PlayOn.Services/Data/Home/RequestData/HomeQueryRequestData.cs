@@ -1,7 +1,7 @@
 ﻿namespace PlayOn.Services.Data.Home.RequestData
 {
     using static PlayOn.Common.ApplicationConstants.PaginationConstants;
-    
+
     public class HomeQueryRequestData
     {
         public int? SportId { get; set; }

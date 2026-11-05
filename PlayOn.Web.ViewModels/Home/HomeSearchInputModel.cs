@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PlayOn.Web.Filters
+namespace PlayOn.Web.ViewModels.Home
 {
     public class HomeSearchInputModel : IValidatableObject
     {

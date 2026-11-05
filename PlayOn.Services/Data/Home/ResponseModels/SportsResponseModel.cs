@@ -1,4 +1,4 @@
-﻿namespace PlayOn.Services.Data.Home.Output
+﻿namespace PlayOn.Services.Data.Home.ResponseModels
 {
     public class SportsResponseModel
     {

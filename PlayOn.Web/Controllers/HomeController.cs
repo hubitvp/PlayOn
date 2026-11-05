@@ -1,17 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 using PlayOn.Common.Helpers;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
-using PlayOn.Web.Filters;
 using PlayOn.Web.ViewModels;
 using PlayOn.Web.ViewModels.Home;
 using PlayOn.Web.ViewModels.Match;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.Globalization;
+using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.Controllers
 {

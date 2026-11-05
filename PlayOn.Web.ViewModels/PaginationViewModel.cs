@@ -6,7 +6,7 @@
 
         public int TotalPages { get; init; }
 
-        
+
         public required Func<int, string> PageUrl { get; init; }
     }
 }

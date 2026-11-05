@@ -1,6 +1,4 @@
-﻿using PlayOn.Services.Data.Home.ResponseModels;
-
-namespace PlayOn.Services.Data.Home.Output
+﻿namespace PlayOn.Services.Data.Home.ResponseModels
 {
     public class HomeIndexResponseModel
     {
