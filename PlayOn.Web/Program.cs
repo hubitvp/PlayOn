@@ -27,11 +27,9 @@ namespace PlayOn.Web
 
 
             builder.Services.AddScoped<IHomeRepository, HomeRepository>();
-            builder.Services.AddScoped<IMatchesRepository, MatchesRepository>();
 
 
             builder.Services.AddScoped<IHomeService, HomeService>();
-            builder.Services.AddScoped<IMatchesService, MatchesService>();
 
 
             var app = builder.Build();

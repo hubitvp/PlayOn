@@ -18,7 +18,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PlayOn.Common\PlayOn.Common.csproj" />
     <ProjectReference Include="..\PlayOn.Services\PlayOn.Services.csproj" />
+    <ProjectReference Include="..\PlayOn.Web.ViewModels\PlayOn.Web.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

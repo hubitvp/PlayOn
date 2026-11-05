@@ -1,8 +1,78 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Find a game";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@section Hero {
+    <section class="hero text-white py-5">
+        <div class="container">
+            <h1 class="display-5 fw-bold">Find a game tonight.</h1>
+            <p class="lead">Join matches near you, fill your roster, and play with people you can rely on.</p>
+
+
+            <form asp-controller="Home"
+                  asp-action="Index"
+                  method="get"
+                  class="row g-2 hero-search">
+                <div asp-validation-summary="ModelOnly" class="fs-4 text-warning"></div>
+                <div class="col-md-4">
+                    <select asp-for="SportId"
+                            asp-items="@Model.Sports"
+                            class="form-select form-select-lg">
+                        <option value="">Any sport</option>
+                    </select>
+                    <span asp-validation-for="SportId" class="fs-4 text-warning"></span>
+
+                </div>
+
+                <div class="col-md-3">
+                    <input asp-for="City"
+                           class="form-control form-control-lg"
+                           placeholder="City" />
+                    <span asp-validation-for="City" class="fs-4 text-warning"></span>
+
+                </div>
+
+                <div class="col-md-3">
+                    <input asp-for="From"
+                           type="date"
+                           class="form-control form-control-lg" />
+                    <span asp-validation-for="From" class="fs-4 text-warning"></span>
+
+                </div>
+
+
+
+
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-light btn-lg" type="submit">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+}
+
+
+
+@if (Model.MatchCards.Count == 0)
+{
+    <div class="alert alert-info">
+        No upcoming matches
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        @foreach (var match in Model.MatchCards)
+        {
+            <div class="col"><partial name="_MatchCardPartial" model="match" /></div>
+        }
+    </div>
+}
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

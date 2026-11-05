@@ -479,7 +479,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courts");
+                    b.ToTable("Courts", (string)null);
 
                     b.HasData(
                         new
@@ -576,7 +576,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("SportId");
 
-                    b.ToTable("CourtSports");
+                    b.ToTable("CourtSports", (string)null);
 
                     b.HasData(
                         new
@@ -677,7 +677,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("CourtId", "SportId");
 
-                    b.ToTable("Events");
+                    b.ToTable("Events", (string)null);
 
                     b.HasData(
                         new
@@ -815,7 +815,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("OrganiserId");
 
-                    b.ToTable("Matches");
+                    b.ToTable("Matches", (string)null);
 
                     b.HasData(
                         new
@@ -1014,7 +1014,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MatchParticipants");
+                    b.ToTable("MatchParticipants", (string)null);
 
                     b.HasData(
                         new
@@ -1575,7 +1575,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", (string)null);
 
                     b.HasData(
                         new
@@ -1717,7 +1717,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("RaterId");
 
-                    b.ToTable("PlayerRatings");
+                    b.ToTable("PlayerRatings", (string)null);
 
                     b.HasData(
                         new
@@ -1848,7 +1848,7 @@ namespace PlayOn.Data.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Sports");
+                    b.ToTable("Sports", (string)null);
 
                     b.HasData(
                         new
@@ -1948,7 +1948,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("SportId");
 
-                    b.ToTable("SportPreferences");
+                    b.ToTable("SportPreferences", (string)null);
 
                     b.HasData(
                         new
@@ -2119,7 +2119,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Venues");
+                    b.ToTable("Venues", (string)null);
 
                     b.HasData(
                         new
