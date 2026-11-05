@@ -27,10 +27,10 @@ namespace PlayOn.Web
 
 
             builder.Services.AddScoped<IHomeRepository, HomeRepository>();
-
-
             builder.Services.AddScoped<IHomeService, HomeService>();
 
+            builder.Services.AddScoped<IVenueRepository, VenueRepository>();
+            builder.Services.AddScoped<IVenueService, VenueService>();
 
             var app = builder.Build();
 

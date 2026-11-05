@@ -2,7 +2,7 @@
 
 namespace PlayOn.Common.Helpers
 {
-    public static class SportIconExtensions
+    public static class SportIconExtension
     {
 
         private static readonly Dictionary<SportIcon, string> CssClasses = new()

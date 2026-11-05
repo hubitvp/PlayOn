@@ -85,7 +85,6 @@ else
         }
     </div>
 
-    
     var pagination = new PaginationViewModel
     {
         Page = Model.Page,
@@ -94,7 +93,7 @@ else
     };
 
     <div class="mt-4">
-        <partial name="_PaginationPartial" model="pagination" />
+        <partial name="_PaginationPartial" model="@pagination" />
     </div>
 }
 

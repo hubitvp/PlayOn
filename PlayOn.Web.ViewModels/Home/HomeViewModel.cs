@@ -4,7 +4,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.ViewModels.Home
 {
-    public class HomeViewModel
+    public class HomeViewModel : PagedViewModel
     {
         public int? SportId { get; init; }
         public string? City { get; init; }
@@ -12,11 +12,6 @@ namespace PlayOn.Web.ViewModels.Home
 
         public required IReadOnlyCollection<MatchCardViewModel> MatchCards { get; init; }
         public required IEnumerable<SelectListItem> Sports { get; init; }
-
-
-        public int Page { get; init; } = FirstPage;
-        public int PageSize { get; init; } = DefaultPageSize;
-        public int TotalPages { get; init; } = 0;
     }
 
 }

@@ -142,7 +142,7 @@ namespace PlayOn.Web.Controllers
                 MaxPlayers = response.MaxPlayers,
                 Waitlisted = response.Waitlisted,
                 MinSkill = response.MinSkill,
-                PricePerPlayer = response.PricePerPlayer.ToString("0.00", CultureInfo.InvariantCulture),
+                PricePerPlayer = response.PricePerPlayer.ToFormattedString(),
                 Status = response.Status
             };
         }
