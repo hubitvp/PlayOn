@@ -1,4 +1,5 @@
-﻿using PlayOn.Services.Data;
+﻿using PlayOn.Common.Helpers;
+using PlayOn.Services.Data;
 using PlayOn.Services.Data.Home.Output;
 using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
@@ -12,7 +13,7 @@ namespace PlayOn.Services.Contracts
 
         Task<IEnumerable<SportsResponseModel>> GetSportsAsync();
 
-        Task<ServiceResponse<IEnumerable<MatchCardResponseModel>>>
+        Task<ServiceResponse<PagedResult<MatchCardResponseModel>>>
             GetMatchCardsAsync(HomeQueryRequestData query);
     }
 }

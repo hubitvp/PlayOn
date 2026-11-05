@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PlayOn.Common.Enums;
+using PlayOn.Common.Helpers;
 using PlayOn.Data;
 using PlayOn.Services.Repositories.Contracts;
 using PlayOn.Services.Repositories.Data.Input;
@@ -28,13 +29,11 @@ namespace PlayOn.Services.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<MatchCardDto>>
+        public async Task<PagedResult<MatchCardDto>>
             GetMatchCardsAsync(MatchQueryDto matchQuery)
         {
-
             var query = context.Matches
                 .AsNoTracking()
-                .AsSplitQuery()
                 .Where(x => !x.IsDeleted && !x.IsHidden)
                 .Where(x => x.Status == MatchStatus.Open ||
                             x.Status == MatchStatus.Confirmed)
@@ -49,9 +48,11 @@ namespace PlayOn.Services.Repositories
 
             if (!string.IsNullOrWhiteSpace(matchQuery.City))
             {
+                var city = matchQuery.City.Trim();
+
                 query = query.Where(x =>
-                    x.Event!.Venue.City.Contains(matchQuery.City)
-                    || matchQuery.City.Contains(x.Event!.Venue.City));
+                    x.Event!.Venue.City.Contains(city)
+                    || city.Contains(x.Event!.Venue.City));
             }
 
             if (matchQuery.From.HasValue)
@@ -60,11 +61,20 @@ namespace PlayOn.Services.Repositories
                     x.Event!.Venue.Date >= matchQuery.From.Value);
             }
 
-            return await query
+            var totalCount = await query.CountAsync();
+
+            var pageSize = Math.Clamp(matchQuery.PageSize, 1, 50);
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
+            var page = Math.Clamp(matchQuery.Page, 1, totalPages);
+
+            var items = await query
                 .OrderBy(x => x.Event!.Venue.Date)
                 .ThenBy(x => x.Event!.Venue.StartsAt)
                 .ThenBy(x => x.Event!.Sport.Name)
                 .ThenBy(x => x.Event!.Venue.Name)
+                .ThenBy(x => x.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .Select(x => new MatchCardDto
                 {
                     Id = x.Id,
@@ -76,16 +86,16 @@ namespace PlayOn.Services.Repositories
                     Date = x.Event!.Venue.Date,
                     StartsAt = x.Event!.Venue.StartsAt,
                     DurationMinutes = x.DurationMinutes,
-                    Joined = x.Participants.Count(y =>
-                        y.Status == ParticipantStatus.Joined),
+                    Joined = x.Participants.Count(y => y.Status == ParticipantStatus.Joined),
                     MaxPlayers = x.MaxPlayers,
-                    Waitlisted = x.Participants.Count(y =>
-                        y.Status == ParticipantStatus.Waitlisted),
+                    Waitlisted = x.Participants.Count(y => y.Status == ParticipantStatus.Waitlisted),
                     MinSkill = x.MinSkill,
                     PricePerPlayer = x.PricePerPlayer,
                     Status = x.Status
                 })
                 .ToListAsync();
+
+            return new PagedResult<MatchCardDto>(items, page, pageSize, totalCount);
         }
 
 

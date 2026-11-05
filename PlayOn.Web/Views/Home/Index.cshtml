@@ -70,11 +70,31 @@
 }
 else
 {
+    var first = (Model.Page - 1) * Model.PageSize + 1;
+    var last = first + Model.MatchCards.Count - 1;
+
+    <div id="matches" class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 mb-0">Upcoming matches</h2>
+        <span class="text-muted small">Showing @first&ndash;@last of @Model.TotalPages</span>
+    </div>
+
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
         @foreach (var match in Model.MatchCards)
         {
             <div class="col"><partial name="_MatchCardPartial" model="match" /></div>
         }
+    </div>
+
+    
+    var pagination = new PaginationViewModel
+    {
+        Page = Model.Page,
+        TotalPages = Model.TotalPages,
+        PageUrl = p => Url.Action("Index", "Home", new { Model.SportId, Model.City, Model.From, Page = p }, null, null, "matches")!
+    };
+
+    <div class="mt-4">
+        <partial name="_PaginationPartial" model="pagination" />
     </div>
 }
 

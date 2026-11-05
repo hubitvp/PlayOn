@@ -749,6 +749,41 @@ namespace PlayOn.Data.Migrations
                             SportId = 10,
                             CourtId = 10,
                             VenueId = 10
+                        },
+                        new
+                        {
+                            MatchId = 11,
+                            SportId = 1,
+                            CourtId = 1,
+                            VenueId = 11
+                        },
+                        new
+                        {
+                            MatchId = 12,
+                            SportId = 2,
+                            CourtId = 2,
+                            VenueId = 12
+                        },
+                        new
+                        {
+                            MatchId = 13,
+                            SportId = 4,
+                            CourtId = 2,
+                            VenueId = 13
+                        },
+                        new
+                        {
+                            MatchId = 14,
+                            SportId = 5,
+                            CourtId = 5,
+                            VenueId = 14
+                        },
+                        new
+                        {
+                            MatchId = 15,
+                            SportId = 3,
+                            CourtId = 3,
+                            VenueId = 15
                         });
                 });
 
@@ -978,6 +1013,86 @@ namespace PlayOn.Data.Migrations
                             PricePerPlayer = 5m,
                             Status = 2,
                             Title = "Baseball Practice Game"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Description = "Friendly kickabout, all levels welcome.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 22,
+                            MaxSkill = 2,
+                            MinPlayers = 6,
+                            MinSkill = 0,
+                            OrganiserId = "11111111-1111-1111-1111-111111111111",
+                            PricePerPlayer = 7m,
+                            Status = 0,
+                            Title = "Saturday Morning Football"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Description = "Full-court games, winners stay on.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 8,
+                            MaxSkill = 2,
+                            MinPlayers = 4,
+                            MinSkill = 0,
+                            OrganiserId = "22222222-2222-2222-2222-222222222222",
+                            PricePerPlayer = 5m,
+                            Status = 1,
+                            Title = "Friday Night Basketball"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Description = "Relaxed indoor volleyball with mixed teams.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 10,
+                            MaxSkill = 1,
+                            MinPlayers = 6,
+                            MinSkill = 0,
+                            OrganiserId = "44444444-4444-4444-4444-444444444444",
+                            PricePerPlayer = 6m,
+                            Status = 0,
+                            Title = "Monday Volleyball Social"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Description = "Four players, rotating partners.",
+                            DurationMinutes = 90,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 4,
+                            MaxSkill = 2,
+                            MinPlayers = 4,
+                            MinSkill = 0,
+                            OrganiserId = "55555555-5555-5555-5555-555555555555",
+                            PricePerPlayer = 9m,
+                            Status = 0,
+                            Title = "Padel Doubles Evening"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Description = "Friendly singles on clay, bring your racket.",
+                            DurationMinutes = 60,
+                            IsDeleted = false,
+                            IsHidden = false,
+                            MaxPlayers = 4,
+                            MaxSkill = 1,
+                            MinPlayers = 2,
+                            MinSkill = 0,
+                            OrganiserId = "33333333-3333-3333-3333-333333333333",
+                            PricePerPlayer = 6m,
+                            Status = 1,
+                            Title = "Sunday Tennis Singles"
                         });
                 });
 
@@ -1536,6 +1651,236 @@ namespace PlayOn.Data.Migrations
                             Status = 0,
                             StatusChangedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
                             UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 53,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 11,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        },
+                        new
+                        {
+                            Id = 54,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 28, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 11,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 28, 16, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "22222222-2222-2222-2222-222222222222"
+                        },
+                        new
+                        {
+                            Id = 55,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 28, 22, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 11,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 28, 22, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "33333333-3333-3333-3333-333333333333"
+                        },
+                        new
+                        {
+                            Id = 56,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 29, 4, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 11,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 29, 4, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 57,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 12,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "22222222-2222-2222-2222-222222222222"
+                        },
+                        new
+                        {
+                            Id = 58,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 12,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 59,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 12,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "66666666-6666-6666-6666-666666666666"
+                        },
+                        new
+                        {
+                            Id = 60,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 12,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "77777777-7777-7777-7777-777777777777"
+                        },
+                        new
+                        {
+                            Id = 61,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 12,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 62,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 12,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                        },
+                        new
+                        {
+                            Id = 63,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 12,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 12, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        },
+                        new
+                        {
+                            Id = 64,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 13, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 12,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 13, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "33333333-3333-3333-3333-333333333333"
+                        },
+                        new
+                        {
+                            Id = 65,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 14, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 12,
+                            Status = 1,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 14, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 66,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 13,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 67,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 13,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "99999999-9999-9999-9999-999999999999"
+                        },
+                        new
+                        {
+                            Id = 68,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 13,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+                        },
+                        new
+                        {
+                            Id = 69,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 13,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "11111111-1111-1111-1111-111111111111"
+                        },
+                        new
+                        {
+                            Id = 70,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 13,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "22222222-2222-2222-2222-222222222222"
+                        },
+                        new
+                        {
+                            Id = 71,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 14,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "55555555-5555-5555-5555-555555555555"
+                        },
+                        new
+                        {
+                            Id = 72,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 14,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "33333333-3333-3333-3333-333333333333"
+                        },
+                        new
+                        {
+                            Id = 73,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 14,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 8, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "44444444-4444-4444-4444-444444444444"
+                        },
+                        new
+                        {
+                            Id = 74,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 15,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 20, 9, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "33333333-3333-3333-3333-333333333333"
+                        },
+                        new
+                        {
+                            Id = 75,
+                            IsLateCancel = false,
+                            JoinedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            MatchId = 15,
+                            Status = 0,
+                            StatusChangedOn = new DateTime(2026, 10, 30, 7, 0, 0, 0, DateTimeKind.Unspecified),
+                            UserId = "77777777-7777-7777-7777-777777777777"
                         });
                 });
 
@@ -2260,6 +2605,76 @@ namespace PlayOn.Data.Migrations
                             Name = "Danube Sports Hub",
                             OpensAt = new TimeOnly(8, 30, 0),
                             StartsAt = new TimeOnly(15, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Address = "1 Main Street",
+                            City = "Sofia",
+                            ClosesAt = new TimeOnly(23, 0, 0),
+                            Date = new DateOnly(2026, 11, 7),
+                            IsDeleted = false,
+                            Latitude = 42.697700m,
+                            Longitude = 23.321900m,
+                            Name = "Central Sports Park",
+                            OpensAt = new TimeOnly(7, 0, 0),
+                            StartsAt = new TimeOnly(10, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Address = "12 East Boulevard",
+                            City = "Plovdiv",
+                            ClosesAt = new TimeOnly(22, 0, 0),
+                            Date = new DateOnly(2026, 11, 13),
+                            IsDeleted = false,
+                            Latitude = 42.135400m,
+                            Longitude = 24.745300m,
+                            Name = "Eastside Arena",
+                            OpensAt = new TimeOnly(8, 0, 0),
+                            StartsAt = new TimeOnly(20, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Address = "12 East Boulevard",
+                            City = "Plovdiv",
+                            ClosesAt = new TimeOnly(22, 0, 0),
+                            Date = new DateOnly(2026, 11, 16),
+                            IsDeleted = false,
+                            Latitude = 42.135400m,
+                            Longitude = 24.745300m,
+                            Name = "Eastside Arena",
+                            OpensAt = new TimeOnly(8, 0, 0),
+                            StartsAt = new TimeOnly(18, 30, 0)
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Address = "5 Vitosha Avenue",
+                            City = "Sofia",
+                            ClosesAt = new TimeOnly(23, 0, 0),
+                            Date = new DateOnly(2026, 11, 18),
+                            IsDeleted = false,
+                            Latitude = 42.650700m,
+                            Longitude = 23.347000m,
+                            Name = "Mountain Sports Hall",
+                            OpensAt = new TimeOnly(8, 0, 0),
+                            StartsAt = new TimeOnly(19, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Address = "8 River Road",
+                            City = "Varna",
+                            ClosesAt = new TimeOnly(22, 30, 0),
+                            Date = new DateOnly(2026, 11, 22),
+                            IsDeleted = false,
+                            Latitude = 43.214100m,
+                            Longitude = 27.914700m,
+                            Name = "Riverside Courts",
+                            OpensAt = new TimeOnly(6, 30, 0),
+                            StartsAt = new TimeOnly(9, 30, 0)
                         });
                 });
 

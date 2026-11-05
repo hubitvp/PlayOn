@@ -1,4 +1,5 @@
-﻿using PlayOn.Services.Contracts;
+﻿using PlayOn.Common.Helpers;
+using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.Home.Output;
 using PlayOn.Services.Data.Home.RequestData;
@@ -17,14 +18,16 @@ namespace PlayOn.Services
             this.repository = repository;
         }
 
-        public async Task<ServiceResponse<IEnumerable<MatchCardResponseModel>>>
+        public async Task<ServiceResponse<PagedResult<MatchCardResponseModel>>>
             GetMatchCardsAsync(HomeQueryRequestData query)
         {
             var validationErrors = ServiceRequestDataValidator.Validate(query);
 
+
             if (validationErrors.Any())
             {
-                return ServiceResponse<IEnumerable<MatchCardResponseModel>>.Failure(validationErrors);
+                return ServiceResponse<PagedResult<MatchCardResponseModel>>
+                    .Failure(validationErrors);
             }
 
             if (query.SportId.HasValue)
@@ -33,8 +36,11 @@ namespace PlayOn.Services
 
                 if (!sportExists)
                 {
-                    var error = new ValidationResult("Select a valid sport.", new[] { nameof(query.SportId) });
-                    return ServiceResponse<IEnumerable<MatchCardResponseModel>>
+                    var error = new ValidationResult(
+                        "Select a valid sport.",
+                        new[] { nameof(query.SportId) });
+
+                    return ServiceResponse<PagedResult<MatchCardResponseModel>>
                         .Failure(new[] { error });
                 }
             }
@@ -43,36 +49,37 @@ namespace PlayOn.Services
             {
                 SportId = query.SportId,
                 City = query.City?.Trim(),
-                From = query.From
+                From = query.From,
+
+                Page = query.Page,
+                PageSize = query.PageSize,
             };
 
-            var matchCards = await repository.GetMatchCardsAsync(matchQuery);
-
-            var responseData = matchCards
-                .Select(x => new MatchCardResponseModel
-                {
-                    Id = x.Id,
-                    Title = x.Title,
-                    SportName = x.SportName,
-                    SportIcon = x.SportIcon,
-                    VenueName = x.VenueName,
-                    City = x.City,
-                    Date = x.Date,
-                    StartsAt = x.StartsAt,
-                    Status = x.Status,
-                    Waitlisted = x.Waitlisted,
-                    PricePerPlayer = x.PricePerPlayer,
-                    MinSkill = x.MinSkill,
-                    MaxPlayers = x.MaxPlayers,
-                    Joined = x.Joined,
-                    DurationMinutes = x.DurationMinutes,
-                })
-                .ToList();
+            var page = await repository.GetMatchCardsAsync(matchQuery);
 
 
+            var response = page.Map(x => new MatchCardResponseModel
+            {
+                Id = x.Id,
+                Title = x.Title,
+                SportName = x.SportName,
+                SportIcon = x.SportIcon,
+                VenueName = x.VenueName,
+                City = x.City,
+                Date = x.Date,
+                StartsAt = x.StartsAt,
+                Status = x.Status,
+                Waitlisted = x.Waitlisted,
+                PricePerPlayer = x.PricePerPlayer,
+                MinSkill = x.MinSkill,
+                MaxPlayers = x.MaxPlayers,
+                Joined = x.Joined,
+                DurationMinutes = x.DurationMinutes,
+            });
 
-            return ServiceResponse<IEnumerable<MatchCardResponseModel>>
-                .Success(responseData);
+
+            return ServiceResponse<PagedResult<MatchCardResponseModel>>
+                .Success(response);
         }
 
 
@@ -95,25 +102,5 @@ namespace PlayOn.Services
             return await repository.SportExistsAsync(sportId);
         }
 
-        //public async Task<OutputHomeData> GetHomeDataAsync(HomeItemFilter itemFilter)
-        //{
-
-        //    int playersCount = await repository.GetPlayersCountAsync();
-        //    int venuesCount = await repository.GetVenuesCountAsync();
-
-        //    var sports = await repository.GetSportsAsync();
-
-        //    var matches = await repository.GetMatchCardsAsync(itemFilter);
-
-
-        //    var homeData = new OutputHomeData
-        //    {
-        //        PlayersCount = playersCount,
-        //        VenuesCount = venuesCount,
-        //        Sports = sports,
-        //        MatchCards = matches,
-        //    };
-        //    return homeData;
-        //}
     }
 }

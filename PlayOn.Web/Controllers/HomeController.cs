@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 using PlayOn.Common.Helpers;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data.Home.RequestData;
@@ -24,15 +25,18 @@ namespace PlayOn.Web.Controllers
         }
 
 
+
         [HttpGet]
-        public async Task<IActionResult> Index([FromQuery] HomeSearchInputModel searchQuery)
+        public async Task<IActionResult> Index([FromQuery] HomeSearchInputModel searchQuery, [FromQuery] int page = 1)
         {
+            ModelState.Remove(nameof(page));
+            page = Math.Max(1, page);
             if (!ModelState.IsValid)
             {
                 return View(await BuildViewModelAsync(searchQuery));
             }
 
-            var serviceResponse = await service.GetMatchCardsAsync(MapToQueryRequest(searchQuery));
+            var serviceResponse = await service.GetMatchCardsAsync(MapToQueryRequest(searchQuery, page));
 
             if (!serviceResponse.IsSuccess)
             {
@@ -43,13 +47,15 @@ namespace PlayOn.Web.Controllers
             return View(await BuildViewModelAsync(searchQuery, serviceResponse.ResponseData));
         }
 
-        private static HomeQueryRequestData MapToQueryRequest(HomeSearchInputModel searchQuery)
+        private static HomeQueryRequestData MapToQueryRequest(HomeSearchInputModel searchQuery, int page)
         {
             return new HomeQueryRequestData
             {
                 SportId = searchQuery.SportId,
                 City = searchQuery.City,
-                From = searchQuery.From != null ? DateOnly.Parse(searchQuery.From) : null
+                From = searchQuery.From != null ? DateOnly.Parse(searchQuery.From) : null,
+                Page = page,
+                PageSize = DefaultPageSize
             };
         }
 
@@ -79,16 +85,18 @@ namespace PlayOn.Web.Controllers
 
         private async Task<HomeViewModel> BuildViewModelAsync(
             HomeSearchInputModel searchQuery,
-            IEnumerable<MatchCardResponseModel>? matchCards = null)
+            PagedResult<MatchCardResponseModel>? page = null)
         {
-
             var model = new HomeViewModel
             {
                 SportId = searchQuery.SportId,
                 City = searchQuery.City,
                 From = searchQuery.From,
                 Sports = await GetSportsSelectListAsync(searchQuery.SportId),
-                MatchCards = matchCards?.Select(MapToMatchCardViewModel).ToList() ?? [],
+                MatchCards = page?.Items.Select(MapToMatchCardViewModel).ToList() ?? [],
+                Page = page?.Page ?? FirstPage,
+                PageSize = page?.PageSize ?? DefaultPageSize,
+                TotalPages = page?.TotalPages ?? 0,
             };
 
             return model;

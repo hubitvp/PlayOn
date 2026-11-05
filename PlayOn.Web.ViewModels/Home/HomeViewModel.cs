@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 using PlayOn.Web.ViewModels.Match;
 
 namespace PlayOn.Web.ViewModels.Home
@@ -11,6 +12,11 @@ namespace PlayOn.Web.ViewModels.Home
 
         public required IReadOnlyCollection<MatchCardViewModel> MatchCards { get; init; }
         public required IEnumerable<SelectListItem> Sports { get; init; }
+
+
+        public int Page { get; init; } = FirstPage;
+        public int PageSize { get; init; } = DefaultPageSize;
+        public int TotalPages { get; init; } = 0;
     }
 
 }
