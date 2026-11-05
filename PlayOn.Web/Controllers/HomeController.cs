@@ -1,6 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PlayOn.Common.Helpers;
+using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
@@ -14,11 +16,14 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly IHomeService service;
 
-        public HomeController(IHomeService service)
+        public HomeController(
+            IHomeService service,
+            UserManager<ApplicationUser> userManager)
+            : base(userManager)
         {
             this.service = service;
         }
