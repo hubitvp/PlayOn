@@ -25,3 +25,19 @@
 .reliability-ring span { display: grid; place-items: center; width: 5rem; height: 5rem; border-radius: 50%;
                          background: #fff; font-weight: 700; font-size: 1.3rem; }
 .admin-menu .list-group-item.active { background: var(--pl-navy); border-color: var(--pl-navy); }
+.not-found-scene { background: linear-gradient(160deg, #10283f 0%, #164d43 58%, #1b9e5a 100%); border-radius: 1.5rem; color: #fff; overflow: hidden; position: relative; }
+.not-found-ball { animation: bounce-ball 2.4s ease-in-out infinite; font-size: 4.5rem; position: absolute; right: 12%; top: 16%; }
+.not-found-lines { border-top: 2px dashed rgba(255, 255, 255, .35); bottom: 1.5rem; left: -5%; position: absolute; transform: rotate(-7deg); width: 110%; }
+.not-found-content { max-width: 34rem; position: relative; z-index: 1; }
+@keyframes bounce-ball { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(2.5rem) rotate(180deg); } }
+.generic-error-board { background: #10283f; border-radius: 1.5rem; color: #fff; overflow: hidden; position: relative; }
+.generic-error-board::after { border: 2px solid rgba(255, 255, 255, .16); border-radius: 50%; content: ""; height: 18rem; position: absolute; right: -5rem; top: -7rem; width: 18rem; }
+.generic-error-content { position: relative; z-index: 1; }
+.generic-error-whistle { animation: whistle-wiggle 1.8s ease-in-out infinite; font-size: 5rem; line-height: 1; }
+.generic-error-status { color: #8de0ad; font-size: .85rem; font-weight: 800; letter-spacing: .16em; margin-top: 1rem; }
+.generic-error-dots { display: flex; gap: .45rem; justify-content: center; }
+.generic-error-dots span { animation: stadium-light 1.4s ease-in-out infinite; background: #8de0ad; border-radius: 50%; height: .7rem; opacity: .35; width: .7rem; }
+.generic-error-dots span:nth-child(2) { animation-delay: .2s; }
+.generic-error-dots span:nth-child(3) { animation-delay: .4s; }
+@keyframes whistle-wiggle { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(8deg) scale(1.08); } }
+@keyframes stadium-light { 0%, 100% { opacity: .3; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.2); } }
