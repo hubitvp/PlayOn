@@ -1,0 +1,52 @@
+@model PaginationViewModel
+@{
+    
+    var numbers = new List<int?>();
+    for (var n = 1; n <= Model.TotalPages; n++)
+    {
+        if (n == 1 || n == Model.TotalPages || Math.Abs(n - Model.Page) <= 2)
+        {
+            numbers.Add(n);
+        }
+        else if (numbers[^1] is not null)
+        {
+            numbers.Add(null);
+        }
+    }
+    var hasPrevious = Model.Page > 1;
+    var hasNext = Model.Page < Model.TotalPages;
+}
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Pages">
+        <ul class="pagination justify-content-center mb-0">
+            <li class="page-item @(hasPrevious ? "" : "disabled")">
+                <a class="page-link" href="@(hasPrevious ? Model.PageUrl(Model.Page - 1) : "#")" aria-label="Previous page">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+
+            @foreach (var number in numbers)
+            {
+                if (number is null)
+                {
+                    <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                }
+                else if (number == Model.Page)
+                {
+                    <li class="page-item active" aria-current="page"><span class="page-link">@number</span></li>
+                }
+                else
+                {
+                    <li class="page-item"><a class="page-link" href="@Model.PageUrl(number.Value)">@number</a></li>
+                }
+            }
+
+            <li class="page-item @(hasNext ? "" : "disabled")">
+                <a class="page-link" href="@(hasNext ? Model.PageUrl(Model.Page + 1) : "#")" aria-label="Next page">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+}

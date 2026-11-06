@@ -1,4 +1,4 @@
-namespace PlayOn.Models
+namespace PlayOn.Web.ViewModels
 {
     public class ErrorViewModel
     {

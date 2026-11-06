@@ -1,8 +1,121 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Find a game";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@section Hero {
+    <section class="hero text-white py-5">
+        <div class="container">
+            <h1 class="display-5 fw-bold">Find a game tonight.</h1>
+            <p class="lead">Join matches near you, fill your roster, and play with people you can rely on.</p>
+
+
+            <form asp-controller="Home"
+                  asp-action="Index"
+                  method="get"
+                  class="row g-2 hero-search">
+                <div asp-validation-summary="ModelOnly" class="fs-4 text-warning"></div>
+                <div class="col-md-4">
+                    <select asp-for="SportId"
+                            asp-items="@Model.Sports"
+                            class="form-select form-select-lg">
+                        <option value="">Any sport</option>
+                    </select>
+                    <span asp-validation-for="SportId" class="fs-4 text-warning"></span>
+
+                </div>
+
+                <div class="col-md-3">
+                    <input asp-for="City"
+                           class="form-control form-control-lg"
+                           placeholder="City" />
+                    <span asp-validation-for="City" class="fs-4 text-warning"></span>
+
+                </div>
+
+                <div class="col-md-3">
+                    <div class="input-group input-group-lg">
+                        <input asp-for="From"
+                               type="date"
+                               placeholder="dd/mm/yyyy"
+                               class="form-control form-control-lg" />
+                        <button type="button" id="fromToggle" class="btn btn-light d-none" title="Pick a date" aria-label="Pick a date">
+                            <i class="bi bi-calendar-event"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="From" class="fs-4 text-warning"></span>
+
+                </div>
+
+
+
+
+                <div class="col-md-2 d-grid">
+                    <button class="btn btn-light btn-lg" type="submit">
+                        Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+}
+
+
+
+@if (Model.MatchCards.Count == 0)
+{
+    <div class="alert alert-info">
+        No upcoming matches
+    </div>
+}
+else
+{
+    var first = (Model.Page - 1) * Model.PageSize + 1;
+    var last = first + Model.MatchCards.Count - 1;
+
+    <div id="matches" class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 mb-0">Upcoming matches</h2>
+        <span class="text-muted small">Showing @first&ndash;@last of @Model.TotalPages</span>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        @foreach (var match in Model.MatchCards)
+        {
+            <div class="col"><partial name="_MatchCardPartial" model="match" /></div>
+        }
+    </div>
+
+    var pagination = new PaginationViewModel
+    {
+        Page = Model.Page,
+        TotalPages = Model.TotalPages,
+        PageUrl = p => Url.Action("Index", "Home", new { Model.SportId, Model.City, Model.From, Page = p }, null, null, "matches")!
+    };
+
+    <div class="mt-4">
+        <partial name="_PaginationPartial" model="@pagination" />
+    </div>
+}
+
+
+@section Styles {
+    <link rel="stylesheet" href="~/lib/flatpickr/dist/flatpickr.min.css" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/lib/flatpickr/dist/flatpickr.min.js"></script>
+    <script>
+        const fromPicker = flatpickr("#From", {
+            altInput: true,
+            altFormat: "d/m/Y",
+            dateFormat: "Y-m-d",
+            altInputClass: "form-control form-control-lg",
+            locale: { firstDayOfWeek: 1 }
+        });
+
+        const fromToggle = document.getElementById("fromToggle");
+        fromToggle.classList.remove("d-none");
+        fromToggle.addEventListener("click", () => fromPicker.open());
+    </script>
+}

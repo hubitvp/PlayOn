@@ -1,0 +1,12 @@
+@model MatchStatus
+@{
+    var css = Model switch
+    {
+        MatchStatus.Open => "bg-success",
+        MatchStatus.Confirmed => "bg-primary",
+        MatchStatus.Completed => "bg-secondary",
+        MatchStatus.Cancelled => "bg-danger",
+        _ => "bg-light text-dark"
+    };
+}
+<span class="badge @css">@Model</span>

@@ -27,12 +27,10 @@ namespace PlayOn.Web
 
 
             builder.Services.AddScoped<IHomeRepository, HomeRepository>();
-            builder.Services.AddScoped<IMatchesRepository, MatchesRepository>();
-
-
             builder.Services.AddScoped<IHomeService, HomeService>();
-            builder.Services.AddScoped<IMatchesService, MatchesService>();
 
+            builder.Services.AddScoped<IVenueRepository, VenueRepository>();
+            builder.Services.AddScoped<IVenueService, VenueService>();
 
             var app = builder.Build();
 
@@ -51,7 +49,7 @@ namespace PlayOn.Web
             app.UseHttpsRedirection();
             app.UseRouting();
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();

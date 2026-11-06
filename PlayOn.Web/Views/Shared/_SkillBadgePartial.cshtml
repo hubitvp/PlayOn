@@ -1,0 +1,15 @@
+@model SkillLevel?
+@if (Model is null)
+{
+    <span class="badge bg-light text-dark border">Any level</span>
+}
+else
+{
+    var css = Model switch
+    {
+        SkillLevel.Beginner => "bg-info text-dark",
+        SkillLevel.Intermediate => "bg-warning text-dark",
+        _ => "bg-dark"
+    };
+    <span class="badge @css">@Model</span>
+}

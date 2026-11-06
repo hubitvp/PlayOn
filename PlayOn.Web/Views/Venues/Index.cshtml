@@ -1,0 +1,53 @@
+@model VenueViewModel
+@{
+    ViewData["Title"] = "Venues";
+}
+
+<h1 class="h3 mb-1">Venues</h1>
+<p class="text-muted">Every venue listing is one slot: a place, a date and a start time for a single match.</p>
+
+<div class="row row-cols-1 row-cols-md-2 g-3">
+    @foreach (var venue in Model.Venues)
+    {
+        <div class="col">
+            <partial name="_VenueCardPartial" model="@venue" />
+        </div>
+    }
+</div>
+
+
+@{
+    var pagination = new PaginationViewModel
+    {
+        Page = Model.Page,
+        TotalPages = Model.TotalPages,
+        PageUrl = p => Url.Action("Index", "Venues", new { Page = p }, null, null, null)!
+    };
+
+    <div class="mt-4">
+        <partial name="_PaginationPartial" model="@pagination" />
+    </div>
+}
+
+                        
+@section Styles {
+    <link rel="stylesheet" href="~/lib/flatpickr/dist/flatpickr.min.css" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/lib/flatpickr/dist/flatpickr.min.js"></script>
+    <script>
+        const fromPicker = flatpickr("#From", {
+            altInput: true,
+            altFormat: "d/m/Y",
+            dateFormat: "Y-m-d",
+            altInputClass: "form-control form-control-lg",
+            locale: { firstDayOfWeek: 1 }
+        });
+
+        const fromToggle = document.getElementById("fromToggle");
+        fromToggle.classList.remove("d-none");
+        fromToggle.addEventListener("click", () => fromPicker.open());
+    </script>
+}

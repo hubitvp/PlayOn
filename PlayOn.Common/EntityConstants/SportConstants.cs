@@ -7,8 +7,5 @@
         public const int NameMaxLength = 40;
 
 
-        public const int IconClassMaxLength = 100;
-
-
     }
 }

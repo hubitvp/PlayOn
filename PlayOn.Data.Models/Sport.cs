@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PlayOn.Common.Enums;
+using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.EntityConstants.SportConstants;
 
 
@@ -14,8 +15,8 @@ namespace PlayOn.Data.Models
         public string Name { get; set; } = null!;
 
 
-        [MaxLength(IconClassMaxLength)]
-        public string? IconClass { get; set; }
+        [Required]
+        public SportIcon Icon { get; set; } = SportIcon.TrophyDefault;
 
         [Required]
         public int DefaultMinPlayers { get; set; }

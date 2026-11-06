@@ -1,0 +1,21 @@
+{
+  "version": "3.0",
+  "defaultProvider": "jsdelivr",
+  "libraries": [
+    {
+      "library": "@fortawesome/fontawesome-free@7.3.1",
+      "destination": "wwwroot/lib/fontawesome/",
+      "files": [ "css/all.min.css", "webfonts/*" ]
+    },
+    {
+      "library": "flatpickr@4.6.13",
+      "destination": "wwwroot/lib/flatpickr/",
+      "files": [ "dist/flatpickr.min.js", "dist/flatpickr.min.css" ]
+    },
+    {
+      "library": "bootstrap-icons@1.13.2",
+      "destination": "wwwroot/lib/bootstrap-icons/",
+      "files": [ "font/bootstrap-icons.min.css", "font/fonts/*" ]
+    }
+  ]
+}
