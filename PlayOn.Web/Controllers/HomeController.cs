@@ -7,12 +7,12 @@ using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
+using PlayOn.Web.Mappers;
 using PlayOn.Web.ViewModels;
 using PlayOn.Web.ViewModels.Home;
 using PlayOn.Web.ViewModels.Match;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
-using System.Globalization;
 using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.Controllers
@@ -21,6 +21,7 @@ namespace PlayOn.Web.Controllers
     public class HomeController : BaseController
     {
         private readonly IHomeService service;
+        private readonly WebMapper mapper = new();
 
         public HomeController(
             IHomeService service,
@@ -42,7 +43,7 @@ namespace PlayOn.Web.Controllers
                 return View(await BuildViewModelAsync(searchQuery));
             }
 
-            var serviceResponse = await service.GetMatchCardsAsync(MapToQueryRequest(searchQuery, page));
+            var serviceResponse = await service.GetMatchCardsAsync(mapper.ToHomeQuery(searchQuery, page));
 
             if (!serviceResponse.IsSuccess)
             {
@@ -51,18 +52,6 @@ namespace PlayOn.Web.Controllers
             }
 
             return View(await BuildViewModelAsync(searchQuery, serviceResponse.ResponseData));
-        }
-
-        private static HomeQueryRequestData MapToQueryRequest(HomeSearchInputModel searchQuery, int page)
-        {
-            return new HomeQueryRequestData
-            {
-                SportId = searchQuery.SportId,
-                City = searchQuery.City,
-                From = searchQuery.From != null ? DateOnly.Parse(searchQuery.From) : null,
-                Page = page,
-                PageSize = DefaultPageSize
-            };
         }
 
         private void AddServiceErrorsToModelState(IEnumerable<ValidationResult> errors)
@@ -99,7 +88,14 @@ namespace PlayOn.Web.Controllers
                 City = searchQuery.City,
                 From = searchQuery.From,
                 Sports = await GetSportsSelectListAsync(searchQuery.SportId),
-                MatchCards = page?.Items.Select(MapToMatchCardViewModel).ToList() ?? [],
+                MatchCards = page?.Items
+                    .Select(mapper.ToMatchCardViewModel)
+                    .Select(x =>
+                    {
+                        x.Slug = SlugHelper.Create(x.Title);
+                        return x;
+                    })
+                    .ToList() ?? [],
                 Page = page?.Page ?? FirstPage,
                 PageSize = page?.PageSize ?? DefaultPageSize,
                 TotalPages = page?.TotalPages ?? 0,
@@ -123,32 +119,6 @@ namespace PlayOn.Web.Controllers
                 })
                 .ToList();
         }
-
-        private static MatchCardViewModel
-            MapToMatchCardViewModel(MatchCardResponseModel response)
-        {
-            return new MatchCardViewModel
-            {
-                Id = response.Id,
-                Slug = SlugHelper.Create(response.Title),
-                Title = response.Title,
-                SportName = response.SportName,
-                SportIcon = response.SportIcon.ToCssClass(),
-                VenueName = response.VenueName,
-                City = response.City,
-                StartsAt = response.Date
-                    .ToDateTime(response.StartsAt, DateTimeKind.Utc)
-                    .ToString("dddd, dd MMMM  HH:mm", CultureInfo.InvariantCulture),
-                DurationMinutes = response.DurationMinutes,
-                Joined = response.Joined,
-                MaxPlayers = response.MaxPlayers,
-                Waitlisted = response.Waitlisted,
-                MinSkill = response.MinSkill,
-                PricePerPlayer = response.PricePerPlayer.ToFormattedString(),
-                Status = response.Status
-            };
-        }
-
 
         public IActionResult Privacy()
         {

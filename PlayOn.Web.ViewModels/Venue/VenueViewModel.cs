@@ -10,10 +10,10 @@
         public required TimeOnly StartsAt { get; init; }
         public required TimeOnly OpensAt { get; init; }
         public required TimeOnly ClosesAt { get; init; }
-        public required CourtViewModel Court { get; init; }
+        public CourtViewModel Court { get; set; } = null!;
         public required int MatchId { get; init; }
         public required string MatchTitle { get; init; }
-        public required string MatchSlug { get; init; }
+        public string MatchSlug { get; set; } = string.Empty;
     }
     public class VenueViewModel : PagedViewModel
     {

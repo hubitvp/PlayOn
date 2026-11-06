@@ -5,6 +5,7 @@ using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
 using PlayOn.Services.Repositories.Contracts;
 using PlayOn.Services.Repositories.Data.Input;
+using PlayOn.Services.Mappers;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlayOn.Services
@@ -12,6 +13,7 @@ namespace PlayOn.Services
     public class HomeService : IHomeService
     {
         private readonly IHomeRepository repository;
+        private readonly ServiceMapper mapper = new();
         public HomeService(IHomeRepository repository)
         {
             this.repository = repository;
@@ -44,37 +46,13 @@ namespace PlayOn.Services
                 }
             }
 
-            var matchQuery = new MatchQueryDto
-            {
-                SportId = query.SportId,
-                City = query.City?.Trim(),
-                From = query.From,
-
-                Page = query.Page,
-                PageSize = query.PageSize,
-            };
+            var matchQuery = mapper.ToMatchQuery(query);
+            matchQuery.City = query.City?.Trim();
 
             var page = await repository.GetMatchCardsAsync(matchQuery);
 
 
-            var response = page.Map(x => new MatchCardResponseModel
-            {
-                Id = x.Id,
-                Title = x.Title,
-                SportName = x.SportName,
-                SportIcon = x.SportIcon,
-                VenueName = x.VenueName,
-                City = x.City,
-                Date = x.Date,
-                StartsAt = x.StartsAt,
-                Status = x.Status,
-                Waitlisted = x.Waitlisted,
-                PricePerPlayer = x.PricePerPlayer,
-                MinSkill = x.MinSkill,
-                MaxPlayers = x.MaxPlayers,
-                Joined = x.Joined,
-                DurationMinutes = x.DurationMinutes,
-            });
+            var response = page.Map(mapper.ToMatchCardResponse);
 
 
             return ServiceResponse<PagedResult<MatchCardResponseModel>>
@@ -86,13 +64,7 @@ namespace PlayOn.Services
         {
             var spots = await repository.GetSportsAsync();
 
-            return spots
-                .Select(x => new SportsResponseModel
-                {
-                    Id = x.Id,
-                    Name = x.Name
-                })
-                .ToList();
+            return spots.Select(mapper.ToSportsResponse).ToList();
         }
 
 
