@@ -1,9 +1,4 @@
-﻿using PlayOn.Services.Repositories.Data.Output;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PlayOn.Services.Data.Venue.ResponseModels
+﻿namespace PlayOn.Services.Data.Venue.ResponseModels
 {
     public class VenueResponseModel
     {

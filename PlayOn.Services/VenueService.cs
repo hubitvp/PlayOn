@@ -5,9 +5,6 @@ using PlayOn.Services.Data.Venue.RequestData;
 using PlayOn.Services.Data.Venue.ResponseModels;
 using PlayOn.Services.Repositories.Contracts;
 using PlayOn.Services.Repositories.Data.Input;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PlayOn.Services
 {

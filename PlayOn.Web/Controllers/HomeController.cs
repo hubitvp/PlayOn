@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -16,6 +17,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.Controllers
 {
+
     public class HomeController : BaseController
     {
         private readonly IHomeService service;
@@ -29,7 +31,7 @@ namespace PlayOn.Web.Controllers
         }
 
 
-
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> Index([FromQuery] HomeSearchInputModel searchQuery, [FromQuery] int page = 1)
         {

@@ -5,6 +5,7 @@ using PlayOn.Data.Models;
 
 namespace PlayOn.Web.Controllers
 {
+    [Authorize]
     public abstract class BaseController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;

@@ -1,9 +1,4 @@
-﻿using PlayOn.Common.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PlayOn.Web.ViewModels.Venue
+﻿namespace PlayOn.Web.ViewModels.Venue
 {
     public class CourtViewModel
     {

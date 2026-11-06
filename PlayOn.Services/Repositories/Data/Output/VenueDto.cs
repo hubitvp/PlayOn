@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PlayOn.Services.Repositories.Data.Output
+﻿namespace PlayOn.Services.Repositories.Data.Output
 {
     public class VenueDto
     {

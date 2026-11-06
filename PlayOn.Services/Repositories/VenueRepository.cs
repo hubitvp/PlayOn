@@ -5,10 +5,6 @@ using PlayOn.Data;
 using PlayOn.Services.Repositories.Contracts;
 using PlayOn.Services.Repositories.Data.Input;
 using PlayOn.Services.Repositories.Data.Output;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace PlayOn.Services.Repositories
 {

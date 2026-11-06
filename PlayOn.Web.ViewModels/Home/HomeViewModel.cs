@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using PlayOn.Web.ViewModels.Match;
-using static PlayOn.Common.ApplicationConstants.PaginationConstants;
+
 
 namespace PlayOn.Web.ViewModels.Home
 {

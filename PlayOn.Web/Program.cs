@@ -49,7 +49,7 @@ namespace PlayOn.Web
             app.UseHttpsRedirection();
             app.UseRouting();
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapStaticAssets();
