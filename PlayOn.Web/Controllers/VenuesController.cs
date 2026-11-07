@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PlayOn.Data.Models;
 using PlayOn.Common.Helpers;
+using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data.Venue.RequestData;
 using PlayOn.Web.Mappers;

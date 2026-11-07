@@ -3,8 +3,6 @@ using PlayOn.Data;
 using PlayOn.Data.Models;
 using PlayOn.Services;
 using PlayOn.Services.Contracts;
-using PlayOn.Services.Repositories;
-using PlayOn.Services.Repositories.Contracts;
 
 namespace PlayOn.Web
 {
@@ -26,10 +24,10 @@ namespace PlayOn.Web
 
 
 
-            builder.Services.AddScoped<IHomeRepository, HomeRepository>();
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
             builder.Services.AddScoped<IHomeService, HomeService>();
 
-            builder.Services.AddScoped<IVenueRepository, VenueRepository>();
             builder.Services.AddScoped<IVenueService, VenueService>();
 
             var app = builder.Build();

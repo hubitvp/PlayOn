@@ -8,11 +8,8 @@ using PlayOn.Services.Contracts;
 using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
 using PlayOn.Web.Mappers;
-using PlayOn.Web.ViewModels;
 using PlayOn.Web.ViewModels.Home;
-using PlayOn.Web.ViewModels.Match;
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics;
 using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.Controllers
@@ -110,7 +107,7 @@ namespace PlayOn.Web.Controllers
         {
             var sports = await service.GetSportsAsync();
 
-            return sports
+            return sports.ResponseData
                 .Select(x => new SelectListItem
                 {
                     Text = x.Name,

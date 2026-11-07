@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PlayOn.Web.ViewModels.Error
+﻿namespace PlayOn.Web.ViewModels.Error
 {
     public class ErrorViewModel
     {

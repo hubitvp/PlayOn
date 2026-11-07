@@ -1,10 +1,11 @@
-﻿using PlayOn.Common.Helpers;
+﻿using Microsoft.EntityFrameworkCore;
+using PlayOn.Common.Enums;
+using PlayOn.Common.Helpers;
+using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
-using PlayOn.Services.Repositories.Contracts;
-using PlayOn.Services.Repositories.Data.Input;
 using PlayOn.Services.Mappers;
 using System.ComponentModel.DataAnnotations;
 
@@ -12,11 +13,16 @@ namespace PlayOn.Services
 {
     public class HomeService : IHomeService
     {
-        private readonly IHomeRepository repository;
+        private readonly IRepository<Match> matchRepository;
+        private readonly IRepository<Sport> sportRepository;
         private readonly ServiceMapper mapper = new();
-        public HomeService(IHomeRepository repository)
+
+        public HomeService(
+            IRepository<Match> matchRepository,
+            IRepository<Sport> sportRepository)
         {
-            this.repository = repository;
+            this.matchRepository = matchRepository;
+            this.sportRepository = sportRepository;
         }
 
         public async Task<ServiceResponse<PagedResult<MatchCardResponseModel>>>
@@ -33,7 +39,9 @@ namespace PlayOn.Services
 
             if (query.SportId.HasValue)
             {
-                bool sportExists = await repository.SportExistsAsync(query.SportId.Value);
+                bool sportExists = await sportRepository
+                    .Query()
+                    .AnyAsync(x => x.Id == query.SportId.Value);
 
                 if (!sportExists)
                 {
@@ -46,13 +54,77 @@ namespace PlayOn.Services
                 }
             }
 
-            var matchQuery = mapper.ToMatchQuery(query);
-            matchQuery.City = query.City?.Trim();
 
-            var page = await repository.GetMatchCardsAsync(matchQuery);
+            IQueryable<Match> matchQuerySource = matchRepository
+                .Query()
+                .AsSplitQuery()
+                .Include(x => x.Event!)
+                    .ThenInclude(x => x.Sport)
+                .Include(x => x.Event!)
+                    .ThenInclude(x => x.Venue)
+                .Include(x => x.Participants);
+
+            matchQuerySource = matchQuerySource
+                .Where(x => !x.IsDeleted && !x.IsHidden)
+                .Where(x => x.Status == MatchStatus.Open ||
+                            x.Status == MatchStatus.Confirmed)
+                .Where(x => x.Event != null)
+                .Where(x => !x.Event!.Venue.IsDeleted);
 
 
-            var response = page.Map(mapper.ToMatchCardResponse);
+            if (query.SportId.HasValue)
+            {
+                matchQuerySource = matchQuerySource
+                    .Where(x =>
+                        x.Event!.SportId == query.SportId.Value);
+            }
+
+            var city = query.City?.Trim();
+
+            if (!string.IsNullOrWhiteSpace(city))
+            {
+                matchQuerySource = matchQuerySource
+                    .Where(x =>
+                        x.Event!.Venue.City.Contains(city)
+                        || city.Contains(x.Event!.Venue.City));
+            }
+
+            if (query.From.HasValue)
+            {
+                matchQuerySource = matchQuerySource
+                    .Where(x =>
+                        x.Event!.Venue.Date >= query.From.Value);
+            }
+
+            var totalCount = await matchQuerySource.CountAsync();
+
+            var pageSize = Math.Clamp(query.PageSize, 1, 50);
+            var totalPages = Math.Max(1, (int)Math.Ceiling(
+                totalCount / (double)pageSize));
+            var pageNumber = Math.Clamp(query.Page, 1, totalPages);
+
+
+            matchQuerySource = matchQuerySource
+                .OrderBy(x => x.Event!.Venue.Date)
+                .ThenBy(x => x.Event!.Venue.StartsAt)
+                .ThenBy(x => x.Event!.Sport.Name)
+                .ThenBy(x => x.Event!.Venue.Name)
+                .ThenBy(x => x.Id);
+
+            var items = await matchQuerySource
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var page = new PagedResult<Match>(
+                items,
+                pageNumber,
+                pageSize,
+                totalCount);
+
+
+            PagedResult<MatchCardResponseModel> response = page
+                .Map(mapper.ToMatchCardResponse);
 
 
             return ServiceResponse<PagedResult<MatchCardResponseModel>>
@@ -60,17 +132,25 @@ namespace PlayOn.Services
         }
 
 
-        public async Task<IEnumerable<SportsResponseModel>> GetSportsAsync()
+        public async Task<ServiceResponse<IEnumerable<SportsResponseModel>>> GetSportsAsync()
         {
-            var spots = await repository.GetSportsAsync();
+            IEnumerable<SportsResponseModel> sports = await sportRepository
+                .Query()
+                .OrderBy(x => x.Name)
+                .Select(x => mapper.ToSportsResponse(x))
+                .ToListAsync();
 
-            return spots.Select(mapper.ToSportsResponse).ToList();
+            return ServiceResponse<IEnumerable<SportsResponseModel>>.Success(sports);
         }
 
 
-        public async Task<bool> SportExistsAsync(int sportId)
+        public async Task<ServiceResponse<bool>> SportExistsAsync(int sportId)
         {
-            return await repository.SportExistsAsync(sportId);
+            bool exists = await sportRepository
+                .Query()
+                .AnyAsync(x => x.Id == sportId);
+
+            return ServiceResponse<bool>.Success(exists);
         }
 
     }
