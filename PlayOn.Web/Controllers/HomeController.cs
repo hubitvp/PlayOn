@@ -20,6 +20,7 @@ namespace PlayOn.Web.Controllers
         private readonly IHomeService service;
         private readonly WebMapper mapper = new();
 
+
         public HomeController(
             IHomeService service,
             UserManager<ApplicationUser> userManager)

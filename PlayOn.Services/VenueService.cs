@@ -15,9 +15,14 @@ namespace PlayOn.Services
         private readonly IRepository<Venue> venueRepository;
         private readonly ServiceMapper mapper = new();
 
-        public VenueService(IRepository<Venue> venueRepository)
+        private readonly TimeProvider timeProvider;
+
+        public VenueService(
+            IRepository<Venue> venueRepository,
+            TimeProvider timeProvider)
         {
             this.venueRepository = venueRepository;
+            this.timeProvider = timeProvider;
         }
 
         public async Task<ServiceResponse<PagedResult<VenueResponseModel>>>
@@ -42,7 +47,8 @@ namespace PlayOn.Services
                 .Where(x =>
                     x.Event!.Match.Status == MatchStatus.Open
                     || x.Event!.Match.Status == MatchStatus.Confirmed)
-                .Where(x => x.Date >= DateOnly.FromDateTime(DateTime.UtcNow));
+                .Where(x =>
+                    x.Date >= DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime));
 
 
             var totalCount = await venueQuerySource.CountAsync();

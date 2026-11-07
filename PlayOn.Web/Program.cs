@@ -23,6 +23,8 @@ namespace PlayOn.Web
             builder.Services.AddControllersWithViews();
 
 
+            builder.Services.AddSingleton(TimeProvider.System);
+
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 

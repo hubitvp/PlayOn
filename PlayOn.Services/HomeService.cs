@@ -17,12 +17,16 @@ namespace PlayOn.Services
         private readonly IRepository<Sport> sportRepository;
         private readonly ServiceMapper mapper = new();
 
+        private readonly TimeProvider timeProvider;
+
         public HomeService(
             IRepository<Match> matchRepository,
-            IRepository<Sport> sportRepository)
+            IRepository<Sport> sportRepository,
+            TimeProvider timeProvider)
         {
             this.matchRepository = matchRepository;
             this.sportRepository = sportRepository;
+            this.timeProvider = timeProvider;
         }
 
         public async Task<ServiceResponse<PagedResult<MatchCardResponseModel>>>
@@ -89,12 +93,13 @@ namespace PlayOn.Services
                         || city.Contains(x.Event!.Venue.City));
             }
 
-            if (query.From.HasValue)
-            {
-                matchQuerySource = matchQuerySource
-                    .Where(x =>
-                        x.Event!.Venue.Date >= query.From.Value);
-            }
+
+            var from = query.From ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+
+            matchQuerySource = matchQuerySource
+                .Where(x => x.Event!.Venue.Date >= from);
+
+
 
             var totalCount = await matchQuerySource.CountAsync();
 
