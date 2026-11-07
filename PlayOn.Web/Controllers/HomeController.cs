@@ -71,6 +71,7 @@ namespace PlayOn.Web.Controllers
                 Page = page?.Page ?? FirstPage,
                 PageSize = page?.PageSize ?? DefaultPageSize,
                 TotalPages = page?.TotalPages ?? 0,
+                TotalItems = page?.TotalCount ?? 0,
             };
 
             return model;

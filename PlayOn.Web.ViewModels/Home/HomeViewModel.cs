@@ -10,6 +10,7 @@ namespace PlayOn.Web.ViewModels.Home
         public string? City { get; init; }
         public string? From { get; init; }
 
+        public int TotalItems { get; init; }
         public required IReadOnlyCollection<MatchCardViewModel> MatchCards { get; init; }
         public required IEnumerable<SelectListItem> Sports { get; init; }
     }

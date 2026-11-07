@@ -38,7 +38,8 @@
                         <input asp-for="From"
                                type="date"
                                placeholder="dd/mm/yyyy"
-                               class="form-control form-control-lg" />
+                               class="form-control form-control-lg"
+                               data-date-picker data-date-picker-button="#fromToggle" />
                         <button type="button" id="fromToggle" class="btn btn-light d-none" title="Pick a date" aria-label="Pick a date">
                             <i class="bi bi-calendar-event"></i>
                         </button>
@@ -75,7 +76,7 @@ else
 
     <div id="matches" class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h5 mb-0">Upcoming matches</h2>
-        <span class="text-muted small">Showing @first&ndash;@last of @Model.TotalPages</span>
+        <span class="text-muted small">Showing @first&ndash;@last of @Model.TotalItems</span>
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
@@ -105,17 +106,5 @@ else
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/lib/flatpickr/dist/flatpickr.min.js"></script>
-    <script>
-        const fromPicker = flatpickr("#From", {
-            altInput: true,
-            altFormat: "d/m/Y",
-            dateFormat: "Y-m-d",
-            altInputClass: "form-control form-control-lg",
-            locale: { firstDayOfWeek: 1 }
-        });
-
-        const fromToggle = document.getElementById("fromToggle");
-        fromToggle.classList.remove("d-none");
-        fromToggle.addEventListener("click", () => fromPicker.open());
-    </script>
+    <script src="~/js/date-picker.js" asp-append-version="true"></script>
 }
