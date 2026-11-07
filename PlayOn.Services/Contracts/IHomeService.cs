@@ -7,10 +7,11 @@ namespace PlayOn.Services.Contracts
 {
     public interface IHomeService
     {
+        Task<ServiceResponse<bool>>
+            SportExistsAsync(int sportId);
 
-        Task<bool> SportExistsAsync(int sportId);
-
-        Task<IEnumerable<SportsResponseModel>> GetSportsAsync();
+        Task<ServiceResponse<IEnumerable<SportsResponseModel>>>
+            GetSportsAsync();
 
         Task<ServiceResponse<PagedResult<MatchCardResponseModel>>>
             GetMatchCardsAsync(HomeQueryRequestData query);

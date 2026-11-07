@@ -3,8 +3,6 @@ using PlayOn.Data;
 using PlayOn.Data.Models;
 using PlayOn.Services;
 using PlayOn.Services.Contracts;
-using PlayOn.Services.Repositories;
-using PlayOn.Services.Repositories.Contracts;
 
 namespace PlayOn.Web
 {
@@ -25,11 +23,13 @@ namespace PlayOn.Web
             builder.Services.AddControllersWithViews();
 
 
+            builder.Services.AddSingleton(TimeProvider.System);
 
-            builder.Services.AddScoped<IHomeRepository, HomeRepository>();
+
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
             builder.Services.AddScoped<IHomeService, HomeService>();
 
-            builder.Services.AddScoped<IVenueRepository, VenueRepository>();
             builder.Services.AddScoped<IVenueService, VenueService>();
 
             var app = builder.Build();
@@ -41,13 +41,15 @@ namespace PlayOn.Web
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error/Default");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
             app.UseRouting();
+
+            app.UseStatusCodePagesWithRedirects("/Error/Index?statusCode={0}");
 
             app.UseAuthentication();
             app.UseAuthorization();

@@ -5,6 +5,7 @@ using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data.Venue.RequestData;
+using PlayOn.Web.Mappers;
 using PlayOn.Web.ViewModels.Venue;
 using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
@@ -13,6 +14,7 @@ namespace PlayOn.Web.Controllers
     public class VenuesController : BaseController
     {
         private readonly IVenueService venueService;
+        private readonly WebMapper mapper = new();
 
         public VenuesController(
             IVenueService venueService,
@@ -41,27 +43,11 @@ namespace PlayOn.Web.Controllers
             var venues = serviceResponse
                 .ResponseData
                 .Items
-                .Select(x => new VenueViewModelData
+                .Select(mapper.ToVenueViewModel)
+                .Select(x =>
                 {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Address = x.Address,
-                    Date = x.Date,
-                    City = x.City,
-                    StartsAt = x.StartsAt,
-                    OpensAt = x.OpensAt,
-                    ClosesAt = x.ClosesAt,
-                    Court = new CourtViewModel
-                    {
-                        Name = x.Court.Name,
-                        SportIconCss = x.Court.SportIcon.ToCssClass(),
-                        Surface = x.Court.Surface.ToString(),
-                        Capacity = x.Court.Capacity,
-                        HourlyPrice = x.Court.HourlyPrice.ToFormattedString(),
-                    },
-                    MatchId = x.MatchId,
-                    MatchTitle = x.MatchTitle,
-                    MatchSlug = SlugHelper.Create(x.MatchTitle),
+                    x.MatchSlug = SlugHelper.Create(x.MatchTitle);
+                    return x;
                 })
                 .ToList();
 
