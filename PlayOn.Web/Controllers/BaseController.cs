@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PlayOn.Data.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace PlayOn.Web.Controllers
 {
@@ -24,5 +25,17 @@ namespace PlayOn.Web.Controllers
             return User.Identity?.IsAuthenticated ?? false;
         }
 
+        protected void AddServiceErrors(IEnumerable<ValidationResult> errors)
+        {
+            foreach (var error in errors)
+            {
+                var message = error.ErrorMessage ?? "Input data is not correct.";
+
+                foreach (var member in error.MemberNames)
+                {
+                    ModelState.AddModelError(member, message);
+                }
+            }
+        }
     }
 }

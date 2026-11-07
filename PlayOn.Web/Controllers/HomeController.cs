@@ -5,11 +5,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
-using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
 using PlayOn.Web.Mappers;
 using PlayOn.Web.ViewModels.Home;
-using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.Controllers
@@ -45,35 +43,11 @@ namespace PlayOn.Web.Controllers
 
             if (!serviceResponse.IsSuccess)
             {
-                AddServiceErrorsToModelState(serviceResponse.Errors);
+                AddServiceErrors(serviceResponse.Errors);
                 return View(await BuildViewModelAsync(searchQuery));
             }
 
             return View(await BuildViewModelAsync(searchQuery, serviceResponse.ResponseData));
-        }
-
-        private void AddServiceErrorsToModelState(IEnumerable<ValidationResult> errors)
-        {
-            foreach (var error in errors)
-            {
-                foreach (var memberName in error.MemberNames)
-                {
-                    ModelState.AddModelError(
-                        MapToViewModelProperty(memberName),
-                        error.ErrorMessage ?? "Input data is not correct");
-                }
-            }
-        }
-
-        private static string MapToViewModelProperty(string memberName)
-        {
-            return memberName switch
-            {
-                nameof(HomeQueryRequestData.SportId) => nameof(HomeViewModel.SportId),
-                nameof(HomeQueryRequestData.City) => nameof(HomeViewModel.City),
-                nameof(HomeQueryRequestData.From) => nameof(HomeViewModel.From),
-                _ => string.Empty
-            };
         }
 
         private async Task<HomeViewModel> BuildViewModelAsync(

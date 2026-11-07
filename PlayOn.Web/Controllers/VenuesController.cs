@@ -40,6 +40,18 @@ namespace PlayOn.Web.Controllers
             var serviceResponse =
                 await venueService.GetVenuesAsync(venueQueryRequestData);
 
+            if (!serviceResponse.IsSuccess)
+            {
+                AddServiceErrors(serviceResponse.Errors);
+                return View(new VenueViewModel
+                {
+                    Venues = [],
+                    TotalPages = 0,
+                    Page = page,
+                    PageSize = DefaultPageSize
+                });
+            }
+
             var venues = serviceResponse
                 .ResponseData
                 .Items
