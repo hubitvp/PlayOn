@@ -1,0 +1,110 @@
+@model MatchListViewModel
+@{
+    ViewData["Title"] = "Matches";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Matches</h1>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-lg"></i> Organise a match</a>
+    }
+</div>
+
+<form asp-action="Index" method="get" class="card card-body mb-4">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="row g-2">
+        <div class="col-md-4">
+            <label asp-for="SearchTerm" class="form-label small">Search</label>
+            <input asp-for="SearchTerm" class="form-control" maxlength="60" placeholder="Title, venue or sport" />
+        </div>
+        <div class="col-md-2">
+            <label asp-for="SportId" class="form-label small">Sport</label>
+            <select asp-for="SportId" asp-items="Model.Sports" class="form-select">
+                <option value="">Any</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="City" class="form-label small">City</label>
+            <input asp-for="City" class="form-control" maxlength="100" />
+        </div>
+        <div class="col-md-3">
+            <label asp-for="From" class="form-label small">From</label>
+            <div class="input-group">
+                <input asp-for="From" type="date" class="form-control" data-date-picker data-date-picker-button="#fromToggle" />
+                <button type="button" id="fromToggle" class="btn btn-outline-secondary d-none" aria-label="Pick a date">
+                    <i class="bi bi-calendar-event"></i>
+                </button>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Skill" class="form-label small">Skill</label>
+            <select asp-for="Skill" asp-items="Html.GetEnumSelectList<SkillLevel>()" class="form-select">
+                <option value="">Any</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label asp-for="Sort" class="form-label small">Sort by</label>
+            <select asp-for="Sort" asp-items="Html.GetEnumSelectList<MatchSort>()" class="form-select"></select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <div class="form-check">
+                <input asp-for="OnlyWithFreeSpots" class="form-check-input" />
+                <label asp-for="OnlyWithFreeSpots" class="form-check-label">Only with free spots</label>
+            </div>
+        </div>
+        <div class="col-md-3 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary flex-fill">Search</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Clear</a>
+        </div>
+    </div>
+</form>
+
+@if (Model.Matches.Count == 0)
+{
+    <div class="alert alert-info">No matches found. Try a wider search.</div>
+}
+else
+{
+    var first = (Model.Page - 1) * Model.PageSize + 1;
+    var last = first + Model.Matches.Count - 1;
+
+    <p class="text-muted small">Showing @first&ndash;@last of @Model.TotalItems matches</p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+        @foreach (var match in Model.Matches)
+        {
+            <div class="col"><partial name="_MatchCardPartial" model="match" /></div>
+        }
+    </div>
+
+    var pagination = new PaginationViewModel
+    {
+        Page = Model.Page,
+        TotalPages = Model.TotalPages,
+        PageUrl = p => Url.Action("Index", "Matches", new
+        {
+            Model.SearchTerm,
+            Model.SportId,
+            Model.City,
+            Model.From,
+            Model.Skill,
+            Model.OnlyWithFreeSpots,
+            Model.Sort,
+            Page = p
+        })!
+    };
+
+    <div class="mt-4">
+        <partial name="_PaginationPartial" model="@pagination" />
+    </div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/lib/flatpickr/dist/flatpickr.min.css" />
+}
+
+@section Scripts {
+    <script src="~/lib/flatpickr/dist/flatpickr.min.js"></script>
+    <script src="~/js/date-picker.js" asp-append-version="true"></script>
+}

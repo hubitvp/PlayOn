@@ -32,6 +32,9 @@ namespace PlayOn.Web
 
             builder.Services.AddScoped<IVenueService, VenueService>();
 
+            builder.Services.AddScoped<IMatchService, MatchService>();
+            builder.Services.AddScoped<ISportService, SportService>();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

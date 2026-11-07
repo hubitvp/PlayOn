@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace PlayOn.Web.ViewModels.Home
 {
@@ -34,7 +35,11 @@ namespace PlayOn.Web.ViewModels.Home
 
             if (!string.IsNullOrWhiteSpace(From))
             {
-                if (!DateOnly.TryParse(From, out var parsedFrom))
+                if (!DateOnly.TryParse(
+                    From,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var parsedFrom))
                 {
                     yield return new ValidationResult(
                         "Invalid date format.",
