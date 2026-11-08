@@ -13,7 +13,7 @@ namespace PlayOn.Web.ViewModels.Match
         public bool OnlyWithFreeSpots { get; init; }
         public MatchSort Sort { get; init; }
 
-        public required int TotalItems { get; init; }
+        public int TotalItems { get; init; }
 
         public IReadOnlyList<SelectListItem> Sports { get; init; } = [];
         public IReadOnlyList<MatchCardViewModel> Matches { get; init; } = [];

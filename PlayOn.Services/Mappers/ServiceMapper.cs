@@ -1,6 +1,8 @@
 using PlayOn.Common.Enums;
 using PlayOn.Data.Models;
 using PlayOn.Services.Data.Home.ResponseModels;
+using PlayOn.Services.Data.Matches;
+using PlayOn.Services.Data.Matches.ResponseModels;
 using PlayOn.Services.Data.Venue.ResponseModels;
 using Riok.Mapperly.Abstractions;
 
@@ -28,6 +30,53 @@ public partial class ServiceMapper
     [MapperIgnoreSource(nameof(Match.RowVersion))]
     [MapperIgnoreSource(nameof(Match.Ratings))]
     public partial MatchCardResponseModel ToMatchCardResponse(Match source);
+
+    public MatchDetailsResponseModel ToMatchDetailsResponse(
+        DetailsRow source,
+        bool canManage)
+        => new()
+        {
+            Id = source.Id,
+            Title = source.Title,
+            Description = source.Description,
+            Status = source.Status,
+            CancelReason = source.CancelReason,
+            IsHidden = source.IsHidden,
+            DurationMinutes = source.DurationMinutes,
+            MinPlayers = source.MinPlayers,
+            MaxPlayers = source.MaxPlayers,
+            MinSkill = source.MinSkill,
+            MaxSkill = source.MaxSkill,
+            PricePerPlayer = source.PricePerPlayer,
+            OrganiserName = source.OrganiserName,
+            OrganiserReliability = source.OrganiserReliability,
+            SportName = source.SportName,
+            SportIcon = source.SportIcon,
+            CourtName = source.CourtName,
+            Surface = source.Surface,
+            CourtCapacity = source.CourtCapacity,
+            VenueName = source.VenueName,
+            Address = source.Address,
+            City = source.City,
+            Date = source.Date,
+            StartsAt = source.StartsAt,
+            ClosesAt = source.ClosesAt,
+            Joined = source.Participants.Count(x => x.Status == ParticipantStatus.Joined),
+            Waitlisted = source.Participants.Count(x => x.Status == ParticipantStatus.Waitlisted),
+            CanManage = canManage,
+            Participants = source.Participants
+                .Select(x => new MatchParticipantResponseModel
+                {
+                    UserId = x.UserId,
+                    DisplayName = x.DisplayName,
+                    City = x.City,
+                    Status = x.Status,
+                    IsOrganiser = x.UserId == source.OrganiserId,
+                    Reliability = x.Reliability
+                })
+                .ToList()
+        };
+
 
     [MapperIgnoreSource(nameof(Sport.Icon))]
     [MapperIgnoreSource(nameof(Sport.DefaultMinPlayers))]

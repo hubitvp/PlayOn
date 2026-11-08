@@ -3,7 +3,7 @@
 namespace PlayOn.Services.Data.Matches
 {
 
-    internal sealed class DetailsRow
+    public sealed class DetailsRow
     {
         public int Id { get; set; }
         public string Title { get; set; } = null!;
@@ -34,7 +34,7 @@ namespace PlayOn.Services.Data.Matches
         public List<ParticipantRow> Participants { get; set; } = [];
     }
 
-    internal sealed class ParticipantRow
+    public sealed class ParticipantRow
     {
         public string UserId { get; set; } = null!;
         public string DisplayName { get; set; } = null!;

@@ -13,7 +13,7 @@
         public CourtViewModel Court { get; set; } = null!;
         public required int MatchId { get; init; }
         public required string MatchTitle { get; init; }
-        public string MatchSlug { get; set; } = string.Empty;
+        public string MatchSlug { get; set; } = null!;
     }
     public class VenueViewModel : PagedViewModel
     {

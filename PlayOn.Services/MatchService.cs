@@ -8,6 +8,8 @@ using PlayOn.Services.Data.Home.ResponseModels;
 using PlayOn.Services.Data.Matches;
 using PlayOn.Services.Data.Matches.RequestData;
 using PlayOn.Services.Data.Matches.ResponseModels;
+using PlayOn.Services.Mappers;
+
 
 namespace PlayOn.Services
 {
@@ -17,6 +19,7 @@ namespace PlayOn.Services
         private readonly IRepository<Sport> sportRepository;
 
         private readonly TimeProvider timeProvider;
+        private readonly ServiceMapper mapper = new();
         public MatchService(
             IRepository<Match> matchRepository,
             IRepository<Sport> sportRepository,
@@ -52,6 +55,12 @@ namespace PlayOn.Services
 
             var query = matchRepository
                 .Query()
+                .AsSplitQuery()
+                .Include(x => x.Event!)
+                    .ThenInclude(x => x.Sport)
+                .Include(x => x.Event!)
+                    .ThenInclude(x => x.Venue)
+                .Include(x => x.Participants)
                 .Where(x => !x.IsDeleted && !x.IsHidden)
                 .Where(x => x.Status == MatchStatus.Open || x.Status == MatchStatus.Confirmed)
                 .Where(x => x.Event != null)
@@ -123,28 +132,12 @@ namespace PlayOn.Services
                     .ThenBy(x => x.Id)
             };
 
-            var items = await ordered
+            var matches = await ordered
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(x => new MatchCardResponseModel
-                {
-                    Id = x.Id,
-                    Title = x.Title,
-                    SportName = x.Event!.Sport.Name,
-                    SportIcon = x.Event!.Sport.Icon,
-                    VenueName = x.Event!.Venue.Name,
-                    City = x.Event!.Venue.City,
-                    Date = x.Event!.Venue.Date,
-                    StartsAt = x.Event!.Venue.StartsAt,
-                    DurationMinutes = x.DurationMinutes,
-                    Joined = x.Participants.Count(p => p.Status == ParticipantStatus.Joined),
-                    MaxPlayers = x.MaxPlayers,
-                    Waitlisted = x.Participants.Count(p => p.Status == ParticipantStatus.Waitlisted),
-                    MinSkill = x.MinSkill,
-                    PricePerPlayer = x.PricePerPlayer,
-                    Status = x.Status
-                })
                 .ToListAsync();
+
+            var items = matches.Select(mapper.ToMatchCardResponse).ToList();
 
             return ServiceResponse<PagedResult<MatchCardResponseModel>>
                 .Success(new PagedResult<MatchCardResponseModel>(items, pageNumber, pageSize, totalCount));
@@ -204,60 +197,25 @@ namespace PlayOn.Services
 
             if (row == null)
             {
-                return ServiceResponse<MatchDetailsResponseModel>.NotFound();
+                return ServiceResponse<MatchDetailsResponseModel>
+                    .NotFound();
             }
 
             var isOrganiser = userId != null && row.OrganiserId == userId;
 
             if (row.IsHidden && !isOrganiser && !isAdmin)
             {
-                return ServiceResponse<MatchDetailsResponseModel>.NotFound();
+                return ServiceResponse<MatchDetailsResponseModel>
+                    .NotFound();
             }
 
-            var response = new MatchDetailsResponseModel
-            {
-                Id = row.Id,
-                Title = row.Title,
-                Description = row.Description,
-                Status = row.Status,
-                CancelReason = row.CancelReason,
-                IsHidden = row.IsHidden,
-                DurationMinutes = row.DurationMinutes,
-                MinPlayers = row.MinPlayers,
-                MaxPlayers = row.MaxPlayers,
-                MinSkill = row.MinSkill,
-                MaxSkill = row.MaxSkill,
-                PricePerPlayer = row.PricePerPlayer,
-                OrganiserName = row.OrganiserName,
-                OrganiserReliability = row.OrganiserReliability,
-                SportName = row.SportName,
-                SportIcon = row.SportIcon,
-                CourtName = row.CourtName,
-                Surface = row.Surface,
-                CourtCapacity = row.CourtCapacity,
-                VenueName = row.VenueName,
-                Address = row.Address,
-                City = row.City,
-                Date = row.Date,
-                StartsAt = row.StartsAt,
-                ClosesAt = row.ClosesAt,
-                Joined = row.Participants.Count(x => x.Status == ParticipantStatus.Joined),
-                Waitlisted = row.Participants.Count(x => x.Status == ParticipantStatus.Waitlisted),
-                CanManage = (isOrganiser || isAdmin) && IsOpenForChanges(row.Status, row.Date, row.StartsAt),
-                Participants = row.Participants
-                    .Select(x => new MatchParticipantResponseModel
-                    {
-                        UserId = x.UserId,
-                        DisplayName = x.DisplayName,
-                        City = x.City,
-                        Status = x.Status,
-                        IsOrganiser = x.UserId == row.OrganiserId,
-                        Reliability = x.Reliability
-                    })
-                    .ToList()
-            };
+            var response = mapper.ToMatchDetailsResponse(
+                row,
+                (isOrganiser || isAdmin)
+                    && IsOpenForChanges(row.Status, row.Date, row.StartsAt));
 
-            return ServiceResponse<MatchDetailsResponseModel>.Success(response);
+            return ServiceResponse<MatchDetailsResponseModel>
+                .Success(response);
         }
 
 
