@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using PlayOn.Common.ApplicationConstants;
 using PlayOn.Data.Models;
 using System.ComponentModel.DataAnnotations;
 
@@ -23,6 +24,11 @@ namespace PlayOn.Web.Controllers
         protected bool IsUserAuthenticated()
         {
             return User.Identity?.IsAuthenticated ?? false;
+        }
+
+        protected bool IsAdmin()
+        {
+            return User.IsInRole(RoleNames.Administrator);
         }
 
         protected void AddServiceErrors(IEnumerable<ValidationResult> errors)

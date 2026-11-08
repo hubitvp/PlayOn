@@ -1,0 +1,44 @@
+@model IReadOnlyList<MatchParticipantViewModel>
+
+@{
+    var joined = Model.Where(x => x.Status == ParticipantStatus.Joined || x.Status == ParticipantStatus.Attended || x.Status == ParticipantStatus.NoShow).ToList();
+    var waiting = Model.Where(x => x.Status == ParticipantStatus.Waitlisted).ToList();
+}
+
+@if (joined.Count == 0)
+{
+    <p class="text-muted mb-0">Nobody has joined yet.</p>
+}
+else
+{
+    <ul class="list-group list-group-flush">
+        @foreach (var player in joined)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                <span>
+                    @player.DisplayName
+                    @if (player.IsOrganiser)
+                    {
+                        <span class="badge bg-light text-dark border ms-1">Organiser</span>
+                    }
+                    <small class="text-muted ms-1">@player.City</small>
+                </span>
+                @if (player.Reliability is int reliability)
+                {
+                    <span class="small text-muted" title="Reliability">@reliability%</span>
+                }
+            </li>
+        }
+    </ul>
+}
+
+@if (waiting.Count > 0)
+{
+    <h3 class="h6 mt-3">Waiting list</h3>
+    <ol class="small mb-0">
+        @foreach (var player in waiting)
+        {
+            <li>@player.DisplayName</li>
+        }
+    </ol>
+}
