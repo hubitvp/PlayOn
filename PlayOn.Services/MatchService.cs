@@ -17,16 +17,22 @@ namespace PlayOn.Services
     {
         private readonly IRepository<Match> matchRepository;
         private readonly IRepository<Sport> sportRepository;
+        private readonly IRepository<Court> courtRepository;
+        private readonly IRepository<Venue> venueRepository;
 
         private readonly TimeProvider timeProvider;
         public MatchService(
             IRepository<Match> matchRepository,
             IRepository<Sport> sportRepository,
+            IRepository<Court> courtRepository,
+            IRepository<Venue> venueRepository,
             TimeProvider timeProvider)
         {
             this.matchRepository = matchRepository;
             this.sportRepository = sportRepository;
             this.timeProvider = timeProvider;
+            this.courtRepository = courtRepository;
+            this.venueRepository = venueRepository;
         }
 
 
@@ -344,6 +350,172 @@ namespace PlayOn.Services
             return ServiceResponse<int>.Success(request.MatchId);
         }
 
+        public async Task<ServiceResponse<int>>
+            CreateAsync(
+                MatchCreateRequestData request)
+        {
+            var errors = ServiceRequestDataValidator.Validate(request);
+
+            if (errors.Any())
+            {
+                return ServiceResponse<int>.Failure(errors);
+            }
+
+            if (!await sportRepository.Query().AnyAsync(x => x.Id == request.SportId))
+            {
+                return ServiceResponse<int>.Failure("Select a valid sport.", nameof(request.SportId));
+            }
+
+            var court = await courtRepository
+                .Query()
+                .Where(x => x.Id == request.CourtId)
+                .Select(x => new CourtOptionResponseModel
+                {
+                    CourtId = x.Id,
+                    Name = x.Name,
+                    Surface = x.Surface,
+                    Capacity = x.Capacity,
+                    SportIds = x.Sports.Select(s => s.SportId).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (court == null)
+            {
+                return ServiceResponse<int>.Failure("Select a valid court.", nameof(request.CourtId));
+            }
+
+            if (!court.SportIds.Contains(request.SportId))
+            {
+                return ServiceResponse<int>.Failure(
+                    "This court cannot be used for the selected sport.", nameof(request.CourtId));
+            }
+
+            if (request.MaxPlayers > court.Capacity)
+            {
+                return ServiceResponse<int>.Failure(
+                    $"This court fits at most {court.Capacity} players.", nameof(request.MaxPlayers));
+            }
+
+            var slot = await venueRepository
+                .Query()
+                .Where(x => x.Id == request.VenueId)
+                .Select(x => new SlotRow
+                {
+                    Id = x.Id,
+                    Date = x.Date,
+                    StartsAt = x.StartsAt,
+                    OpensAt = x.OpensAt,
+                    ClosesAt = x.ClosesAt,
+                    IsTaken = x.Event != null,
+                    IsDeleted = x.IsDeleted
+                })
+                .FirstOrDefaultAsync();
+
+            if (slot == null || slot.IsDeleted)
+            {
+                return ServiceResponse<int>
+                    .Failure(
+                        "Select a valid date and time slot.",
+                        nameof(request.VenueId));
+            }
+
+            if (slot.IsTaken)
+            {
+                return ServiceResponse<int>
+                    .Failure(
+                        "This slot is already taken.",
+                        nameof(request.VenueId));
+            }
+
+            if (HasStarted(slot.Date, slot.StartsAt))
+            {
+                return ServiceResponse<int>.Failure("This slot is in the past.", nameof(request.VenueId));
+            }
+
+            var now = timeProvider.GetLocalNow().LocalDateTime;
+
+            var match = new Match
+            {
+                OrganiserId = request.OrganiserId,
+                Title = request.Title.Trim(),
+                Description = request.Description,
+                DurationMinutes = request.DurationMinutes,
+                MinPlayers = request.MinPlayers,
+                MaxPlayers = request.MaxPlayers,
+                MinSkill = request.MinSkill,
+                MaxSkill = request.MaxSkill,
+                PricePerPlayer = request.PricePerPlayer,
+                Status = MatchStatus.Open,
+                IsHidden = false,
+                IsDeleted = false,
+                Event = new Event
+                {
+                    SportId = request.SportId,
+                    CourtId = request.CourtId,
+                    VenueId = request.VenueId
+                }
+            };
+
+            match.Participants.Add(new MatchParticipant
+            {
+                UserId = request.OrganiserId,
+                Status = ParticipantStatus.Joined,
+                JoinedOn = now,
+                StatusChangedOn = now,
+                IsLateCancel = false
+            });
+
+            await matchRepository.AddAsync(match);
+            await matchRepository.SaveChangesAsync();
+
+            return ServiceResponse<int>
+                .Success(match.Id);
+        }
+
+
+        public async Task<MatchFormOptionsResponseModel> GetFormOptionsAsync()
+        {
+            DateOnly today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
+
+            var sports = await sportRepository
+                .Query()
+                .OrderBy(x => x.Name)
+                .Select(x => new SportsResponseModel { Id = x.Id, Name = x.Name })
+                .ToListAsync();
+
+            var courts = await courtRepository
+                .Query()
+                .OrderBy(x => x.Name)
+                .Select(x => new CourtOptionResponseModel
+                {
+                    CourtId = x.Id,
+                    Name = x.Name,
+                    Surface = x.Surface,
+                    Capacity = x.Capacity,
+                    SportIds = x.Sports.Select(s => s.SportId).ToList()
+                })
+                .ToListAsync();
+
+            var slots = await venueRepository
+                .Query()
+                .Where(x => !x.IsDeleted && x.Event == null && x.Date >= today)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartsAt)
+                .ThenBy(x => x.Id)
+                .Take(100)
+                .Select(x => new VenueSlotResponseModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    City = x.City,
+                    Date = x.Date,
+                    StartsAt = x.StartsAt,
+                    ClosesAt = x.ClosesAt
+                })
+                .ToListAsync();
+
+            return new MatchFormOptionsResponseModel { Sports = sports, Courts = courts, Slots = slots };
+        }
 
 
         private bool IsOpenForChanges(MatchStatus status, DateOnly date, TimeOnly startsAt)

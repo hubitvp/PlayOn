@@ -28,5 +28,12 @@ namespace PlayOn.Services.Contracts
 
         Task<ServiceResponse<int>>
             UpdateAsync(MatchUpdateRequestData request);
+
+
+        Task<ServiceResponse<int>>
+            CreateAsync(
+                MatchCreateRequestData request);
+
+        Task<MatchFormOptionsResponseModel> GetFormOptionsAsync();
     }
 }

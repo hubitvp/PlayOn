@@ -5,12 +5,12 @@ namespace PlayOn.Services.Data
     public enum ServiceStatus
     {
         Success,
-        
+
         Invalid,
         NotFound,
-        
+
         Forbidden,
-        
+
         Conflict
     }
 
@@ -43,7 +43,7 @@ namespace PlayOn.Services.Data
             };
         }
 
-        
+
         public static ServiceResponse<TData> Failure(string message, string memberName = "")
         {
             return Failure(new[] { new ValidationResult(message, new[] { memberName }) });

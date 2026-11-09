@@ -11,6 +11,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.Controllers
 {
+    [AllowAnonymous]
     public class VenuesController : BaseController
     {
         private readonly IVenueService venueService;
@@ -54,7 +55,7 @@ namespace PlayOn.Web.Controllers
             var venues = serviceResponse
                 .ResponseData
                 .Items
-                .Select(x=>VenuesMapper.ToVenueViewModel(x))
+                .Select(x => VenuesMapper.ToVenueViewModel(x))
                 .Select(x =>
                 {
                     x.MatchSlug = SlugHelper.Create(x.MatchTitle);

@@ -37,7 +37,7 @@ namespace PlayOn.Services.Data.Matches.ResponseModels
         public required int Joined { get; init; }
         public required int Waitlisted { get; init; }
 
-        
+
         public required bool CanManage { get; init; }
 
         public required IReadOnlyList<MatchParticipantResponseModel> Participants { get; init; }

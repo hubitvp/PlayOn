@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace PlayOn.Common.Enums
+﻿namespace PlayOn.Common.Enums
 {
     public enum MatchSort
     {

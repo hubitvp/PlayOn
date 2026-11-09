@@ -1,0 +1,74 @@
+@model MatchFormViewModel
+@{
+    ViewData["Title"] = "Organise a match";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="h3 mb-1">Organise a match</h1>
+        <p class="text-muted">Pick the sport, a court that supports it and a free time slot. You join the match automatically.</p>
+
+        <form asp-action="Create" method="post" data-match-form novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="SportId" class="form-label"></label>
+                    <select asp-for="SportId" asp-items="Model.Sports" class="form-select" data-role="sport">
+                        <option value="0">Select a sport</option>
+                    </select>
+                    <span asp-validation-for="SportId" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="CourtId" class="form-label"></label>
+                    <select asp-for="CourtId" class="form-select" data-role="court">
+                        <option value="0">Select a court</option>
+                        @foreach (var court in Model.Courts)
+                        {
+                            <option value="@court.CourtId"
+                                    selected="@(court.CourtId == Model.CourtId)"
+                                    data-sports="@string.Join(",", court.SportIds)"
+                                    data-capacity="@court.Capacity">
+                                @court.Name (@court.Surface, up to @court.Capacity players)
+                            </option>
+                        }
+                    </select>
+                    <span asp-validation-for="CourtId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="VenueId" class="form-label"></label>
+                <select asp-for="VenueId" class="form-select" data-role="slot">
+                    <option value="0">Select a free slot</option>
+                    @foreach (var slot in Model.Slots)
+                    {
+                        <option value="@slot.Id"
+                                selected="@(slot.Id == Model.VenueId)"
+                                data-start="@slot.StartMinutes"
+                                data-close="@slot.CloseMinutes">
+                            @slot.Label
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="VenueId" class="text-danger"></span>
+                @if (!Model.Slots.Any())
+                {
+                    <div class="form-text text-warning-emphasis">There are no free slots right now.</div>
+                }
+            </div>
+
+            <partial name="_MatchFieldsPartial" model="@Model" />
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success">Create match</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/match-form.js" asp-append-version="true"></script>
+}

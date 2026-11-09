@@ -24,7 +24,7 @@
             <input asp-for="Id" type="hidden" />
             <input asp-for="RowVersion" type="hidden" />
 
-            <partial name="_MatchFieldsPartial" model="@((MatchInputModelBase)Model)" />
+            <partial name="_MatchFieldsPartial" model="@Model" />
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-success">Save changes</button>

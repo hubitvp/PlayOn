@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
@@ -209,7 +210,142 @@ namespace PlayOn.Web.Controllers
 
             return View(model);
         }
+        [HttpGet]
+        public async Task<IActionResult> Create(int? venueId)
+        {
+            var model = new MatchFormViewModel();
 
+            if (venueId.HasValue)
+            {
+                model.VenueId = venueId.Value;
+            }
+
+
+            var options = await matchService.GetFormOptionsAsync();
+
+            model.Sports = options.Sports
+                .Select(x => new SelectListItem(x.Name, x.Id.ToString(), x.Id == model.SportId))
+                .ToList();
+
+            model.Courts = options.Courts
+                .Select(x => new CourtOptionViewModel
+                {
+                    CourtId = x.CourtId,
+                    Name = x.Name,
+                    Surface = x.Surface.ToString(),
+                    Capacity = x.Capacity,
+                    SportIds = x.SportIds.ToArray()
+                })
+                .ToList();
+
+            model.Slots = options.Slots
+                .Select(x => new VenueSlotOptionViewModel
+                {
+                    Id = x.Id,
+                    Label = string.Create(CultureInfo.InvariantCulture,
+                        $"{x.Date.ToString("ddd dd MMM yyyy", CultureInfo.InvariantCulture)}, {x.StartsAt.ToString("HH:mm", CultureInfo.InvariantCulture)} - {x.Name}, {x.City}"),
+                    Date = x.Date.ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture),
+                    StartMinutes = x.StartsAt.Hour * 60 + x.StartsAt.Minute,
+                    CloseMinutes = x.ClosesAt.Hour * 60 + x.ClosesAt.Minute
+                })
+                .ToList();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(MatchFormViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+
+                var options = await matchService.GetFormOptionsAsync();
+
+                model.Sports = options.Sports
+                    .Select(x => new SelectListItem(x.Name, x.Id.ToString(), x.Id == model.SportId))
+                    .ToList();
+
+                model.Courts = options.Courts
+                    .Select(x => new CourtOptionViewModel
+                    {
+                        CourtId = x.CourtId,
+                        Name = x.Name,
+                        Surface = x.Surface.ToString(),
+                        Capacity = x.Capacity,
+                        SportIds = x.SportIds.ToArray()
+                    })
+                    .ToList();
+
+                model.Slots = options.Slots
+                    .Select(x => new VenueSlotOptionViewModel
+                    {
+                        Id = x.Id,
+                        Label = string.Create(CultureInfo.InvariantCulture,
+                            $"{x.Date.ToString("ddd dd MMM yyyy", CultureInfo.InvariantCulture)}, {x.StartsAt.ToString("HH:mm", CultureInfo.InvariantCulture)} - {x.Name}, {x.City}"),
+                        Date = x.Date.ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture),
+                        StartMinutes = x.StartsAt.Hour * 60 + x.StartsAt.Minute,
+                        CloseMinutes = x.ClosesAt.Hour * 60 + x.ClosesAt.Minute
+                    })
+                    .ToList();
+                return View(model);
+            }
+
+            var response = await matchService
+                .CreateAsync(new MatchCreateRequestData
+                {
+                    OrganiserId = GetUserId(),
+                    SportId = model.SportId,
+                    CourtId = model.CourtId,
+                    VenueId = model.VenueId,
+                    Title = model.Title,
+                    Description = model.Description,
+                    DurationMinutes = model.DurationMinutes,
+                    MinPlayers = model.MinPlayers,
+                    MaxPlayers = model.MaxPlayers,
+                    MinSkill = model.MinSkill,
+                    MaxSkill = model.MaxSkill,
+                    PricePerPlayer = model.PricePerPlayer
+                });
+
+            if (!response.IsSuccess)
+            {
+                AddServiceErrors(response.Errors);
+                var options = await matchService.GetFormOptionsAsync();
+
+                model.Sports = options.Sports
+                    .Select(x => new SelectListItem(x.Name, x.Id.ToString(), x.Id == model.SportId))
+                    .ToList();
+
+                model.Courts = options.Courts
+                    .Select(x => new CourtOptionViewModel
+                    {
+                        CourtId = x.CourtId,
+                        Name = x.Name,
+                        Surface = x.Surface.ToString(),
+                        Capacity = x.Capacity,
+                        SportIds = x.SportIds.ToArray()
+                    })
+                    .ToList();
+
+                model.Slots = options.Slots
+                    .Select(x => new VenueSlotOptionViewModel
+                    {
+                        Id = x.Id,
+                        Label = string.Create(CultureInfo.InvariantCulture,
+                            $"{x.Date.ToString("ddd dd MMM yyyy", CultureInfo.InvariantCulture)}, {x.StartsAt.ToString("HH:mm", CultureInfo.InvariantCulture)} - {x.Name}, {x.City}"),
+                        Date = x.Date.ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture),
+                        StartMinutes = x.StartsAt.Hour * 60 + x.StartsAt.Minute,
+                        CloseMinutes = x.ClosesAt.Hour * 60 + x.ClosesAt.Minute
+                    })
+                    .ToList();
+                return View(model);
+            }
+
+            TempData["Success"] = "Your match is open. Other players can join now.";
+
+            return RedirectToAction(nameof(Details), new { id = response.ResponseData, slug = SlugHelper.Create(model.Title) });
+        }
         private async Task<MatchListViewModel>
             BuildListViewModelAsync(
                 MatchListInputModel input,

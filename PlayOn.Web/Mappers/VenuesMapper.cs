@@ -1,6 +1,6 @@
+using PlayOn.Common.Helpers;
 using PlayOn.Services.Data.Venue.ResponseModels;
 using PlayOn.Web.ViewModels.Venue;
-using PlayOn.Common.Helpers;
 
 namespace PlayOn.Web.Mappers;
 

@@ -5,7 +5,7 @@ using static PlayOn.Common.EntityConstants.MatchConstants;
 
 namespace PlayOn.Services.Data.Matches.RequestData
 {
-    
+
     public abstract class MatchRequestDataBase : IValidatableObject
     {
         [Required]
@@ -34,7 +34,7 @@ namespace PlayOn.Services.Data.Matches.RequestData
             ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true)]
         public decimal PricePerPlayer { get; set; }
 
-        
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Title.Trim().Length < TitleMinLength)
