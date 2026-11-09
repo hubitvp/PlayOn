@@ -23,20 +23,76 @@ namespace PlayOn.Data.Configurations
 
 
             builder.HasData(
-                new CourtSport { CourtId = 1, SportId = 1 },
-                new CourtSport { CourtId = 2, SportId = 2 },
-                new CourtSport { CourtId = 3, SportId = 3 },
-                new CourtSport { CourtId = 4, SportId = 4 },
-                new CourtSport { CourtId = 5, SportId = 5 },
-                new CourtSport { CourtId = 6, SportId = 6 },
-                new CourtSport { CourtId = 7, SportId = 7 },
-                new CourtSport { CourtId = 8, SportId = 8 },
-                new CourtSport { CourtId = 9, SportId = 9 },
-                new CourtSport { CourtId = 10, SportId = 10 },
-                new CourtSport { CourtId = 2, SportId = 4 },
-                new CourtSport { CourtId = 2, SportId = 7 },
-                new CourtSport { CourtId = 7, SportId = 2 },
-                new CourtSport { CourtId = 1, SportId = 9 });
+                new CourtSport
+                {
+                    CourtId = 1,
+                    SportId = 1
+                },
+                new CourtSport
+                {
+                    CourtId = 2,
+                    SportId = 2
+                },
+                new CourtSport
+                {
+                    CourtId = 3,
+                    SportId = 3
+                },
+                new CourtSport
+                {
+                    CourtId = 4,
+                    SportId = 4
+                },
+                new CourtSport
+                {
+                    CourtId = 5,
+                    SportId = 5
+                },
+                new CourtSport
+                {
+                    CourtId = 6,
+                    SportId = 6
+                },
+                new CourtSport
+                {
+                    CourtId = 7,
+                    SportId = 7
+                },
+                new CourtSport
+                {
+                    CourtId = 8,
+                    SportId = 8
+                },
+                new CourtSport
+                {
+                    CourtId = 9,
+                    SportId = 9
+                },
+                new CourtSport
+                {
+                    CourtId = 10,
+                    SportId = 10
+                },
+                new CourtSport
+                {
+                    CourtId = 2,
+                    SportId = 4
+                },
+                new CourtSport
+                {
+                    CourtId = 2,
+                    SportId = 7
+                },
+                new CourtSport
+                {
+                    CourtId = 7,
+                    SportId = 2
+                },
+                new CourtSport
+                {
+                    CourtId = 1,
+                    SportId = 9
+                });
         }
     }
 }
