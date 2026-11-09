@@ -16,18 +16,20 @@ namespace PlayOn.Data.Configurations
 
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
+            builder.HasIndex(x => x.NormalizedEmail).IsUnique();
+
 
             builder.HasData(
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User001,
-                    UserName = "alex.morgan",
+                    UserName = "ALEX.MORGAN@EXAMPLE.COM",
                     DisplayName = "Alex Morgan",
                     City = "Sofia",
                     IsActive = true,
                     ReliabilityScore = 100,
                     MatchesPlayed = 4,
-                    NormalizedUserName = "ALEX.MORGAN",
+                    NormalizedUserName = "ALEX.MORGAN@EXAMPLE.COM",
                     Email = "alex.morgan@example.com",
                     NormalizedEmail = "ALEX.MORGAN@EXAMPLE.COM",
                     EmailConfirmed = true,
@@ -39,13 +41,13 @@ namespace PlayOn.Data.Configurations
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User002,
-                    UserName = "jordan.lee",
+                    UserName = "JORDAN.LEE@EXAMPLE.COM",
                     DisplayName = "Jordan Lee",
                     City = "Plovdiv",
                     IsActive = true,
                     ReliabilityScore = 100,
                     MatchesPlayed = 3,
-                    NormalizedUserName = "JORDAN.LEE",
+                    NormalizedUserName = "JORDAN.LEE@EXAMPLE.COM",
                     Email = "jordan.lee@example.com",
                     NormalizedEmail = "JORDAN.LEE@EXAMPLE.COM",
                     EmailConfirmed = true,
@@ -57,13 +59,13 @@ namespace PlayOn.Data.Configurations
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User003,
-                    UserName = "sam.taylor",
+                    UserName = "SAM.TAYLOR@EXAMPLE.COM",
                     DisplayName = "Sam Taylor",
                     City = "Varna",
                     IsActive = true,
                     ReliabilityScore = 100,
                     MatchesPlayed = 4,
-                    NormalizedUserName = "SAM.TAYLOR",
+                    NormalizedUserName = "SAM.TAYLOR@EXAMPLE.COM",
                     Email = "sam.taylor@example.com",
                     NormalizedEmail = "SAM.TAYLOR@EXAMPLE.COM",
                     EmailConfirmed = true,
@@ -75,13 +77,13 @@ namespace PlayOn.Data.Configurations
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User004,
-                    UserName = "casey.wilson",
+                    UserName = "CASEY.WILSON@EXAMPLE.COM",
                     DisplayName = "Casey Wilson",
                     City = "Burgas",
                     IsActive = true,
                     ReliabilityScore = 100,
                     MatchesPlayed = 3,
-                    NormalizedUserName = "CASEY.WILSON",
+                    NormalizedUserName = "CASEY.WILSON@EXAMPLE.COM",
                     Email = "casey.wilson@example.com",
                     NormalizedEmail = "CASEY.WILSON@EXAMPLE.COM",
                     EmailConfirmed = true,
@@ -93,13 +95,13 @@ namespace PlayOn.Data.Configurations
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User005,
-                    UserName = "morgan.kim",
+                    UserName = "MORGAN.KIM@EXAMPLE.COM",
                     DisplayName = "Morgan Kim",
                     City = "Sofia",
                     IsActive = true,
                     ReliabilityScore = 67,
                     MatchesPlayed = 2,
-                    NormalizedUserName = "MORGAN.KIM",
+                    NormalizedUserName = "MORGAN.KIM@EXAMPLE.COM",
                     Email = "morgan.kim@example.com",
                     NormalizedEmail = "MORGAN.KIM@EXAMPLE.COM",
                     EmailConfirmed = true,
@@ -111,13 +113,13 @@ namespace PlayOn.Data.Configurations
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User006,
-                    UserName = "riley.adams",
+                    UserName = "RILEY.ADAMS@EXAMPLE.COM",
                     DisplayName = "Riley Adams",
                     City = "Ruse",
                     IsActive = true,
                     ReliabilityScore = null,
                     MatchesPlayed = 2,
-                    NormalizedUserName = "RILEY.ADAMS",
+                    NormalizedUserName = "RILEY.ADAMS@EXAMPLE.COM",
                     Email = "riley.adams@example.com",
                     NormalizedEmail = "RILEY.ADAMS@EXAMPLE.COM",
                     EmailConfirmed = true,
@@ -129,13 +131,13 @@ namespace PlayOn.Data.Configurations
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User007,
-                    UserName = "taylor.brown",
+                    UserName = "TAYLOR.BROWN@EXAMPLE.COM",
                     DisplayName = "Taylor Brown",
                     City = "Sofia",
                     IsActive = true,
                     ReliabilityScore = 100,
                     MatchesPlayed = 3,
-                    NormalizedUserName = "TAYLOR.BROWN",
+                    NormalizedUserName = "TAYLOR.BROWN@EXAMPLE.COM",
                     Email = "taylor.brown@example.com",
                     NormalizedEmail = "TAYLOR.BROWN@EXAMPLE.COM",
                     EmailConfirmed = true,
@@ -147,13 +149,13 @@ namespace PlayOn.Data.Configurations
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User008,
-                    UserName = "jamie.davis",
+                    UserName = "JAMIE.DAVIS@EXAMPLE.COM",
                     DisplayName = "Jamie Davis",
                     City = "Plovdiv",
                     IsActive = true,
                     ReliabilityScore = 0,
                     MatchesPlayed = 0,
-                    NormalizedUserName = "JAMIE.DAVIS",
+                    NormalizedUserName = "JAMIE.DAVIS@EXAMPLE.COM",
                     Email = "jamie.davis@example.com",
                     NormalizedEmail = "JAMIE.DAVIS@EXAMPLE.COM",
                     EmailConfirmed = true,
@@ -165,13 +167,13 @@ namespace PlayOn.Data.Configurations
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User009,
-                    UserName = "quinn.clark",
+                    UserName = "QUINN.CLARK@EXAMPLE.COM",
                     DisplayName = "Quinn Clark",
                     City = "Varna",
                     IsActive = true,
                     ReliabilityScore = 100,
                     MatchesPlayed = 4,
-                    NormalizedUserName = "QUINN.CLARK",
+                    NormalizedUserName = "QUINN.CLARK@EXAMPLE.COM",
                     Email = "quinn.clark@example.com",
                     NormalizedEmail = "QUINN.CLARK@EXAMPLE.COM",
                     EmailConfirmed = true,
@@ -183,13 +185,13 @@ namespace PlayOn.Data.Configurations
                 new ApplicationUser
                 {
                     Id = SeedUserIds.User010,
-                    UserName = "drew.hall",
+                    UserName = "DREW.HALL@EXAMPLE.COM",
                     DisplayName = "Drew Hall",
                     City = "Ruse",
                     IsActive = true,
                     ReliabilityScore = 100,
                     MatchesPlayed = 4,
-                    NormalizedUserName = "DREW.HALL",
+                    NormalizedUserName = "DREW.HALL@EXAMPLE.COM",
                     Email = "drew.hall@example.com",
                     NormalizedEmail = "DREW.HALL@EXAMPLE.COM",
                     EmailConfirmed = true,

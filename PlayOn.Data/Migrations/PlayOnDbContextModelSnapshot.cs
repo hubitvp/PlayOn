@@ -233,7 +233,9 @@ namespace PlayOn.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
+                        .IsUnique()
+                        .HasDatabaseName("EmailIndex")
+                        .HasFilter("[NormalizedEmail] IS NOT NULL");
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
@@ -256,13 +258,13 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 4,
                             NormalizedEmail = "ALEX.MORGAN@EXAMPLE.COM",
-                            NormalizedUserName = "ALEX.MORGAN",
+                            NormalizedUserName = "ALEX.MORGAN@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             ReliabilityScore = 100,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "alex.morgan"
+                            UserName = "ALEX.MORGAN@EXAMPLE.COM"
                         },
                         new
                         {
@@ -277,13 +279,13 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 3,
                             NormalizedEmail = "JORDAN.LEE@EXAMPLE.COM",
-                            NormalizedUserName = "JORDAN.LEE",
+                            NormalizedUserName = "JORDAN.LEE@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             ReliabilityScore = 100,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "jordan.lee"
+                            UserName = "JORDAN.LEE@EXAMPLE.COM"
                         },
                         new
                         {
@@ -298,13 +300,13 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 4,
                             NormalizedEmail = "SAM.TAYLOR@EXAMPLE.COM",
-                            NormalizedUserName = "SAM.TAYLOR",
+                            NormalizedUserName = "SAM.TAYLOR@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             ReliabilityScore = 100,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "sam.taylor"
+                            UserName = "SAM.TAYLOR@EXAMPLE.COM"
                         },
                         new
                         {
@@ -319,13 +321,13 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 3,
                             NormalizedEmail = "CASEY.WILSON@EXAMPLE.COM",
-                            NormalizedUserName = "CASEY.WILSON",
+                            NormalizedUserName = "CASEY.WILSON@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             ReliabilityScore = 100,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "casey.wilson"
+                            UserName = "CASEY.WILSON@EXAMPLE.COM"
                         },
                         new
                         {
@@ -340,13 +342,13 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 2,
                             NormalizedEmail = "MORGAN.KIM@EXAMPLE.COM",
-                            NormalizedUserName = "MORGAN.KIM",
+                            NormalizedUserName = "MORGAN.KIM@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             ReliabilityScore = 67,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "morgan.kim"
+                            UserName = "MORGAN.KIM@EXAMPLE.COM"
                         },
                         new
                         {
@@ -361,12 +363,12 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 2,
                             NormalizedEmail = "RILEY.ADAMS@EXAMPLE.COM",
-                            NormalizedUserName = "RILEY.ADAMS",
+                            NormalizedUserName = "RILEY.ADAMS@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "riley.adams"
+                            UserName = "RILEY.ADAMS@EXAMPLE.COM"
                         },
                         new
                         {
@@ -381,13 +383,13 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 3,
                             NormalizedEmail = "TAYLOR.BROWN@EXAMPLE.COM",
-                            NormalizedUserName = "TAYLOR.BROWN",
+                            NormalizedUserName = "TAYLOR.BROWN@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             ReliabilityScore = 100,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "taylor.brown"
+                            UserName = "TAYLOR.BROWN@EXAMPLE.COM"
                         },
                         new
                         {
@@ -402,13 +404,13 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 0,
                             NormalizedEmail = "JAMIE.DAVIS@EXAMPLE.COM",
-                            NormalizedUserName = "JAMIE.DAVIS",
+                            NormalizedUserName = "JAMIE.DAVIS@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             ReliabilityScore = 0,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "jamie.davis"
+                            UserName = "JAMIE.DAVIS@EXAMPLE.COM"
                         },
                         new
                         {
@@ -423,13 +425,13 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 4,
                             NormalizedEmail = "QUINN.CLARK@EXAMPLE.COM",
-                            NormalizedUserName = "QUINN.CLARK",
+                            NormalizedUserName = "QUINN.CLARK@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             ReliabilityScore = 100,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "quinn.clark"
+                            UserName = "QUINN.CLARK@EXAMPLE.COM"
                         },
                         new
                         {
@@ -444,13 +446,13 @@ namespace PlayOn.Data.Migrations
                             LockoutEnabled = false,
                             MatchesPlayed = 4,
                             NormalizedEmail = "DREW.HALL@EXAMPLE.COM",
-                            NormalizedUserName = "DREW.HALL",
+                            NormalizedUserName = "DREW.HALL@EXAMPLE.COM",
                             PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
                             PhoneNumberConfirmed = false,
                             ReliabilityScore = 100,
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
-                            UserName = "drew.hall"
+                            UserName = "DREW.HALL@EXAMPLE.COM"
                         });
                 });
 
@@ -2675,6 +2677,104 @@ namespace PlayOn.Data.Migrations
                             Name = "Riverside Courts",
                             OpensAt = new TimeOnly(6, 30, 0),
                             StartsAt = new TimeOnly(9, 30, 0)
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Address = "1 Main Street",
+                            City = "Sofia",
+                            ClosesAt = new TimeOnly(23, 0, 0),
+                            Date = new DateOnly(2026, 11, 20),
+                            IsDeleted = false,
+                            Latitude = 42.697700m,
+                            Longitude = 23.321900m,
+                            Name = "Central Sports Park",
+                            OpensAt = new TimeOnly(7, 0, 0),
+                            StartsAt = new TimeOnly(18, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Address = "12 East Boulevard",
+                            City = "Plovdiv",
+                            ClosesAt = new TimeOnly(22, 0, 0),
+                            Date = new DateOnly(2026, 11, 21),
+                            IsDeleted = false,
+                            Latitude = 42.135400m,
+                            Longitude = 24.745300m,
+                            Name = "Eastside Arena",
+                            OpensAt = new TimeOnly(8, 0, 0),
+                            StartsAt = new TimeOnly(10, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Address = "8 River Road",
+                            City = "Varna",
+                            ClosesAt = new TimeOnly(22, 30, 0),
+                            Date = new DateOnly(2026, 11, 24),
+                            IsDeleted = false,
+                            Latitude = 43.214100m,
+                            Longitude = 27.914700m,
+                            Name = "Riverside Courts",
+                            OpensAt = new TimeOnly(6, 30, 0),
+                            StartsAt = new TimeOnly(19, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Address = "24 South Park",
+                            City = "Burgas",
+                            ClosesAt = new TimeOnly(21, 30, 0),
+                            Date = new DateOnly(2026, 11, 27),
+                            IsDeleted = false,
+                            Latitude = 42.504800m,
+                            Longitude = 27.462600m,
+                            Name = "South Field Complex",
+                            OpensAt = new TimeOnly(7, 30, 0),
+                            StartsAt = new TimeOnly(17, 30, 0)
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Address = "5 Vitosha Avenue",
+                            City = "Sofia",
+                            ClosesAt = new TimeOnly(23, 0, 0),
+                            Date = new DateOnly(2026, 11, 28),
+                            IsDeleted = false,
+                            Latitude = 42.650700m,
+                            Longitude = 23.347000m,
+                            Name = "Mountain Sports Hall",
+                            OpensAt = new TimeOnly(8, 0, 0),
+                            StartsAt = new TimeOnly(11, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Address = "16 Harbor Avenue",
+                            City = "Ruse",
+                            ClosesAt = new TimeOnly(22, 30, 0),
+                            Date = new DateOnly(2026, 12, 3),
+                            IsDeleted = false,
+                            Latitude = 43.848000m,
+                            Longitude = 25.960000m,
+                            Name = "Danube Sports Hub",
+                            OpensAt = new TimeOnly(8, 30, 0),
+                            StartsAt = new TimeOnly(18, 0, 0)
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Address = "44 West Street",
+                            City = "Sofia",
+                            ClosesAt = new TimeOnly(22, 0, 0),
+                            Date = new DateOnly(2026, 12, 5),
+                            IsDeleted = false,
+                            Latitude = 42.705000m,
+                            Longitude = 23.270000m,
+                            Name = "West End Club",
+                            OpensAt = new TimeOnly(9, 0, 0),
+                            StartsAt = new TimeOnly(15, 0, 0)
                         });
                 });
 
