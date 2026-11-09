@@ -11,7 +11,6 @@ using PlayOn.Services.Data.Matches.RequestData;
 using PlayOn.Web.Mappers;
 using PlayOn.Web.ViewModels.Match;
 using System.Globalization;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PlayOn.Web.Controllers
 {
@@ -245,7 +244,7 @@ namespace PlayOn.Web.Controllers
                     Id = x.Id,
                     Label = string.Create(CultureInfo.InvariantCulture,
                         $"{x.Date.ToString("ddd dd MMM yyyy", CultureInfo.InvariantCulture)}, {x.StartsAt.ToString("HH:mm", CultureInfo.InvariantCulture)} - {x.Name}, {x.City}"),
-                    Date = x.Date.ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture),
+                    Date = x.Date.ToString("dddd, dd MMMM yyyy", CultureInfo.InvariantCulture),
                     StartMinutes = x.StartsAt.Hour * 60 + x.StartsAt.Minute,
                     CloseMinutes = x.ClosesAt.Hour * 60 + x.ClosesAt.Minute
                 })
@@ -283,7 +282,7 @@ namespace PlayOn.Web.Controllers
                         Id = x.Id,
                         Label = string.Create(CultureInfo.InvariantCulture,
                             $"{x.Date.ToString("ddd dd MMM yyyy", CultureInfo.InvariantCulture)}, {x.StartsAt.ToString("HH:mm", CultureInfo.InvariantCulture)} - {x.Name}, {x.City}"),
-                        Date = x.Date.ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture),
+                        Date = x.Date.ToString("dddd, dd MMMM yyyy", CultureInfo.InvariantCulture),
                         StartMinutes = x.StartsAt.Hour * 60 + x.StartsAt.Minute,
                         CloseMinutes = x.ClosesAt.Hour * 60 + x.ClosesAt.Minute
                     })
@@ -334,7 +333,7 @@ namespace PlayOn.Web.Controllers
                         Id = x.Id,
                         Label = string.Create(CultureInfo.InvariantCulture,
                             $"{x.Date.ToString("ddd dd MMM yyyy", CultureInfo.InvariantCulture)}, {x.StartsAt.ToString("HH:mm", CultureInfo.InvariantCulture)} - {x.Name}, {x.City}"),
-                        Date = x.Date.ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture),
+                        Date = x.Date.ToString("dddd, dd MMMM yyyy", CultureInfo.InvariantCulture),
                         StartMinutes = x.StartsAt.Hour * 60 + x.StartsAt.Minute,
                         CloseMinutes = x.ClosesAt.Hour * 60 + x.ClosesAt.Minute
                     })
