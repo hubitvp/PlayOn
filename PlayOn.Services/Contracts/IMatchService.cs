@@ -35,5 +35,15 @@ namespace PlayOn.Services.Contracts
                 MatchCreateRequestData request);
 
         Task<MatchFormOptionsResponseModel> GetFormOptionsAsync();
+
+
+        Task<ServiceResponse<MatchEditResponseModel>>
+            GetForCancelAsync(
+                int matchId,
+                string actorId,
+                bool actorIsAdmin);
+
+        Task<ServiceResponse<int>>
+            CancelAsync(MatchCancelRequestData request);
     }
 }

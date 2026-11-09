@@ -7,6 +7,8 @@
         public const int TitleMaxLength = 80;
 
         public const int DescriptionMaxLength = 1000;
+
+        public const int CancelReasonMinLength = 5;
         public const int CancelReasonMaxLength = 500;
 
 

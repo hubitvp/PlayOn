@@ -11,6 +11,7 @@ using PlayOn.Services.Data.Matches.RequestData;
 using PlayOn.Web.Mappers;
 using PlayOn.Web.ViewModels.Match;
 using System.Globalization;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PlayOn.Web.Controllers
 {
@@ -254,7 +255,6 @@ namespace PlayOn.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MatchFormViewModel model)
         {
             if (!ModelState.IsValid)
@@ -346,6 +346,78 @@ namespace PlayOn.Web.Controllers
 
             return RedirectToAction(nameof(Details), new { id = response.ResponseData, slug = SlugHelper.Create(model.Title) });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var response = await matchService
+                .GetForCancelAsync(
+                    id,
+                    GetUserId(),
+                    IsAdmin());
+
+            if (!response.IsSuccess)
+            {
+                return FromFailure(response);
+            }
+
+            var model = new MatchCancelViewModel { Id = id };
+
+            model.Title = response.ResponseData.Title;
+            model.VenueName = response.ResponseData.VenueName;
+            model.StartsAt = response.ResponseData.Date.ToDateTime(response.ResponseData.StartsAt)
+                .ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
+            model.JoinedCount = response.ResponseData.JoinedCount;
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Cancel(int id, MatchCancelViewModel model)
+        {
+            model.Id = id;
+
+            if (ModelState.IsValid)
+            {
+                var response = await matchService.CancelAsync(new MatchCancelRequestData
+                {
+                    MatchId = id,
+                    ActorId = GetUserId(),
+                    ActorIsAdmin = IsAdmin(),
+                    Reason = model.Reason
+                });
+
+                if (response.IsSuccess)
+                {
+                    TempData["Success"] = "The match was cancelled and the players were notified.";
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                if (response.Status != ServiceStatus.Invalid)
+                {
+                    return FromFailure(response);
+                }
+
+                AddServiceErrors(response.Errors);
+            }
+
+            var serviceResponse = await matchService.GetForCancelAsync(id, GetUserId(), IsAdmin());
+
+            if (!serviceResponse.IsSuccess)
+            {
+                return FromFailure(serviceResponse);
+            }
+
+            model.Title = serviceResponse.ResponseData.Title;
+            model.VenueName = serviceResponse.ResponseData.VenueName;
+            model.StartsAt = serviceResponse.ResponseData.Date.ToDateTime(serviceResponse.ResponseData.StartsAt)
+                .ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
+            model.JoinedCount = serviceResponse.ResponseData.JoinedCount;
+            return View(model);
+        }
+
+
         private async Task<MatchListViewModel>
             BuildListViewModelAsync(
                 MatchListInputModel input,

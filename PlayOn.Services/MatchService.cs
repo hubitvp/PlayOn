@@ -516,6 +516,90 @@ namespace PlayOn.Services
 
             return new MatchFormOptionsResponseModel { Sports = sports, Courts = courts, Slots = slots };
         }
+        public async Task<ServiceResponse<MatchEditResponseModel>>
+            GetForCancelAsync(
+                int matchId,
+                string actorId,
+                bool actorIsAdmin)
+        {
+            return await GetForEditAsync(matchId, actorId, actorIsAdmin);
+        }
+
+
+        public async Task<ServiceResponse<int>>
+            CancelAsync(MatchCancelRequestData request)
+        {
+            var errors = ServiceRequestDataValidator.Validate(request);
+
+            if (errors.Any())
+            {
+                return ServiceResponse<int>.Failure(errors);
+            }
+
+            var row = await matchRepository
+                .Query()
+                .Where(x => x.Id == request.MatchId && x.Event != null)
+                .Select(x => new EditRow
+                {
+                    Id = x.Id,
+                    OrganiserId = x.OrganiserId,
+                    IsDeleted = x.IsDeleted,
+                    Status = x.Status,
+                    Title = x.Title,
+                    Description = x.Description,
+                    DurationMinutes = x.DurationMinutes,
+                    MinPlayers = x.MinPlayers,
+                    MaxPlayers = x.MaxPlayers,
+                    MinSkill = x.MinSkill,
+                    MaxSkill = x.MaxSkill,
+                    PricePerPlayer = x.PricePerPlayer,
+                    RowVersion = x.RowVersion,
+                    SportName = x.Event!.Sport.Name,
+                    SportIcon = x.Event!.Sport.Icon,
+                    CourtId = x.Event!.CourtId,
+                    CourtName = x.Event!.Court.Name,
+                    CourtCapacity = x.Event!.Court.Capacity,
+                    VenueName = x.Event!.Venue.Name,
+                    City = x.Event!.Venue.City,
+                    Date = x.Event!.Venue.Date,
+                    StartsAt = x.Event!.Venue.StartsAt,
+                    ClosesAt = x.Event!.Venue.ClosesAt,
+                    JoinedCount = x.Participants.Count(p => p.Status == ParticipantStatus.Joined)
+                })
+                .FirstOrDefaultAsync();
+
+            if (row == null || row.IsDeleted)
+            {
+                return ServiceResponse<int>.NotFound();
+            }
+
+            if (row.OrganiserId != request.ActorId && !request.ActorIsAdmin)
+            {
+                return ServiceResponse<int>
+                    .Forbidden();
+            }
+
+            if (!IsOpenForChanges(row.Status, row.Date, row.StartsAt))
+            {
+                return ServiceResponse<int>
+                    .Conflict("This match is cancelled, finished or already started, so it can no longer be changed.");
+            }
+
+            var now = timeProvider.GetLocalNow().LocalDateTime;
+            var reason = request.Reason.Trim();
+
+            var match = await matchRepository
+                .Query(asNoTracking: false)
+                .FirstAsync(x => x.Id == row!.Id);
+
+            match.Status = MatchStatus.Cancelled;
+            match.CancelReason = reason;
+
+
+            await matchRepository.SaveChangesAsync();
+
+            return ServiceResponse<int>.Success(match.Id);
+        }
 
 
         private bool IsOpenForChanges(MatchStatus status, DateOnly date, TimeOnly startsAt)

@@ -1,0 +1,45 @@
+@model MatchCancelViewModel
+@{
+    ViewData["Title"] = "Cancel match";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <h1 class="h3 mb-3">Cancel this match?</h1>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="h5">@Model.Title</h2>
+                <p class="mb-0 text-muted small">
+                    <i class="bi bi-calendar-event"></i> @Model.StartsAt<br />
+                    <i class="bi bi-geo-alt"></i> @Model.VenueName
+                </p>
+            </div>
+        </div>
+
+        <div class="alert alert-warning">
+            @Model.JoinedCount @(Model.JoinedCount == 1 ? "player is" : "players are") signed up.
+            Everyone who joined or is on the waiting list gets a notification with your reason. This cannot be undone.
+        </div>
+
+        <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input asp-for="Id" type="hidden" />
+
+            <div class="mb-3">
+                <label asp-for="Reason" class="form-label"></label>
+                <textarea asp-for="Reason" class="form-control" rows="3" maxlength="500"></textarea>
+                <span asp-validation-for="Reason" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">Cancel the match</button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Keep it</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
