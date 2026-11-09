@@ -16,8 +16,6 @@ namespace PlayOn.Web.Controllers
     public class HomeController : BaseController
     {
         private readonly IHomeService service;
-        private readonly WebMapper mapper = new();
-
 
         public HomeController(
             IHomeService service,
@@ -30,29 +28,43 @@ namespace PlayOn.Web.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public async Task<IActionResult> Index([FromQuery] HomeSearchInputModel searchQuery, [FromQuery] int page = 1)
+        public async Task<IActionResult>
+            Index(
+                [FromQuery] HomeSearchInputModel searchQuery,
+                [FromQuery] int page = 1)
         {
             ModelState.Remove(nameof(page));
             page = Math.Max(1, page);
             if (!ModelState.IsValid)
             {
-                return View(await BuildViewModelAsync(searchQuery));
+                var errorViewModel = await BuildViewModelAsync(searchQuery);
+
+                return View(errorViewModel);
             }
 
-            var serviceResponse = await service.GetMatchCardsAsync(mapper.ToHomeQuery(searchQuery, page));
+            var serviceResponse = await service.GetMatchCardsAsync(HomeMapper.ToHomeQuery(searchQuery, page));
 
             if (!serviceResponse.IsSuccess)
             {
                 AddServiceErrors(serviceResponse.Errors);
-                return View(await BuildViewModelAsync(searchQuery));
+
+                var errorViewModel = await BuildViewModelAsync(searchQuery);
+
+                return View(errorViewModel);
             }
 
-            return View(await BuildViewModelAsync(searchQuery, serviceResponse.ResponseData));
+            var viewModel =
+                await BuildViewModelAsync(
+                    searchQuery,
+                    serviceResponse.ResponseData);
+
+            return View(viewModel);
         }
 
-        private async Task<HomeViewModel> BuildViewModelAsync(
-            HomeSearchInputModel searchQuery,
-            PagedResult<MatchCardResponseModel>? page = null)
+        private async Task<HomeViewModel>
+            BuildViewModelAsync(
+                HomeSearchInputModel searchQuery,
+                PagedResult<MatchCardResponseModel>? page = null)
         {
             var model = new HomeViewModel
             {
@@ -61,7 +73,7 @@ namespace PlayOn.Web.Controllers
                 From = searchQuery.From,
                 Sports = await GetSportsSelectListAsync(searchQuery.SportId),
                 MatchCards = page?.Items
-                    .Select(mapper.ToMatchCardViewModel)
+                    .Select(x => HomeMapper.ToMatchCardViewModel(x))
                     .Select(x =>
                     {
                         x.Slug = SlugHelper.Create(x.Title);
@@ -84,12 +96,8 @@ namespace PlayOn.Web.Controllers
             var sports = await service.GetSportsAsync();
 
             return sports.ResponseData
-                .Select(x => new SelectListItem
-                {
-                    Text = x.Name,
-                    Value = x.Id.ToString(),
-                    Selected = selectedSportId.HasValue && x.Id == selectedSportId.Value
-                })
+                .Select(x =>
+                    HomeMapper.ToSportSelectListItem(x, selectedSportId))
                 .ToList();
         }
 

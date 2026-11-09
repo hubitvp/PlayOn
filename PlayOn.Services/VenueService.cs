@@ -13,7 +13,6 @@ namespace PlayOn.Services
     public class VenueService : IVenueService
     {
         private readonly IRepository<Venue> venueRepository;
-        private readonly ServiceMapper mapper = new();
 
         private readonly TimeProvider timeProvider;
 
@@ -32,13 +31,7 @@ namespace PlayOn.Services
 
             IQueryable<Venue> venueQuerySource = venueRepository
                 .Query()
-                .AsSplitQuery()
-                .Include(x => x.Event!)
-                    .ThenInclude(x => x.Match)
-                .Include(x => x.Event!)
-                    .ThenInclude(x => x.Court)
-                .Include(x => x.Event!)
-                    .ThenInclude(x => x.Sport);
+                .AsSplitQuery();
 
 
             venueQuerySource = venueQuerySource
@@ -77,20 +70,17 @@ namespace PlayOn.Services
             var items = await venueQuerySource
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Select(VenueMapper.VenueProjection())
                 .ToListAsync();
 
-            var page = new PagedResult<Venue>(
+            var page = new PagedResult<VenueResponseModel>(
                 items,
                 pageNumber,
                 pageSize,
                 totalCount);
 
-
-            var response = page.Map(mapper.ToVenueResponse);
-
-
             return ServiceResponse<PagedResult<VenueResponseModel>>
-                .Success(response);
+                .Success(page);
         }
     }
 }

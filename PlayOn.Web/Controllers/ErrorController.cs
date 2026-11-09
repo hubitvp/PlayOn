@@ -8,7 +8,10 @@ namespace PlayOn.Web.Controllers
     public class ErrorController : Controller
     {
         [HttpGet]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [ResponseCache(
+            Duration = 0,
+            Location = ResponseCacheLocation.None,
+            NoStore = true)]
         public IActionResult Index(int statusCode)
         {
             Response.StatusCode = statusCode;
@@ -50,10 +53,14 @@ namespace PlayOn.Web.Controllers
         }
 
         [HttpGet]
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [ResponseCache(
+            Duration = 0,
+            Location = ResponseCacheLocation.None,
+            NoStore = true)]
         public IActionResult Default()
         {
             Response.StatusCode = StatusCodes.Status500InternalServerError;
+
 
             return View("Error", new ErrorPageViewModel
             {

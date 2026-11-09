@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Riok.Mapperly" Version="4.3.1" />
     <ProjectReference Include="..\PlayOn.Data\PlayOn.Data.csproj" />
   </ItemGroup>
 

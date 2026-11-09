@@ -15,7 +15,6 @@ namespace PlayOn.Services
     {
         private readonly IRepository<Match> matchRepository;
         private readonly IRepository<Sport> sportRepository;
-        private readonly ServiceMapper mapper = new();
 
         private readonly TimeProvider timeProvider;
 
@@ -61,12 +60,7 @@ namespace PlayOn.Services
 
             IQueryable<Match> matchQuerySource = matchRepository
                 .Query()
-                .AsSplitQuery()
-                .Include(x => x.Event!)
-                    .ThenInclude(x => x.Sport)
-                .Include(x => x.Event!)
-                    .ThenInclude(x => x.Venue)
-                .Include(x => x.Participants);
+                .AsSplitQuery();
 
             matchQuerySource = matchQuerySource
                 .Where(x => !x.IsDeleted && !x.IsHidden)
@@ -119,30 +113,26 @@ namespace PlayOn.Services
             var items = await matchQuerySource
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Select(HomeMapper.MatchCardProjection())
                 .ToListAsync();
 
-            var page = new PagedResult<Match>(
+            var page = new PagedResult<MatchCardResponseModel>(
                 items,
                 pageNumber,
                 pageSize,
                 totalCount);
 
-
-            PagedResult<MatchCardResponseModel> response = page
-                .Map(mapper.ToMatchCardResponse);
-
-
             return ServiceResponse<PagedResult<MatchCardResponseModel>>
-                .Success(response);
+                .Success(page);
         }
 
 
         public async Task<ServiceResponse<IEnumerable<SportsResponseModel>>> GetSportsAsync()
         {
-            IEnumerable<SportsResponseModel> sports = await sportRepository
+            var sports = await sportRepository
                 .Query()
                 .OrderBy(x => x.Name)
-                .Select(x => mapper.ToSportsResponse(x))
+                .Select(HomeMapper.SportsProjection())
                 .ToListAsync();
 
             return ServiceResponse<IEnumerable<SportsResponseModel>>.Success(sports);

@@ -10,7 +10,6 @@ namespace PlayOn.Services
     public class SportService : ISportService
     {
         private readonly IRepository<Sport> sportRepository;
-        private readonly ServiceMapper mapper = new();
 
         public SportService(IRepository<Sport> sportRepository)
         {
@@ -26,7 +25,7 @@ namespace PlayOn.Services
                 .ToListAsync();
 
             IEnumerable<SportsResponseModel> response = sports
-                .Select(mapper.ToSportsResponse)
+                .Select(HomeMapper.ToSportsResponse)
                 .ToList();
 
             return ServiceResponse<IEnumerable<SportsResponseModel>>

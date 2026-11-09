@@ -11,7 +11,7 @@ namespace PlayOn.Web.Controllers
     public abstract class BaseController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
-        public BaseController(UserManager<ApplicationUser> userManager)
+        protected BaseController(UserManager<ApplicationUser> userManager)
         {
             this.userManager = userManager;
         }

@@ -19,7 +19,6 @@ namespace PlayOn.Services
         private readonly IRepository<Sport> sportRepository;
 
         private readonly TimeProvider timeProvider;
-        private readonly ServiceMapper mapper = new();
         public MatchService(
             IRepository<Match> matchRepository,
             IRepository<Sport> sportRepository,
@@ -56,11 +55,6 @@ namespace PlayOn.Services
             var query = matchRepository
                 .Query()
                 .AsSplitQuery()
-                .Include(x => x.Event!)
-                    .ThenInclude(x => x.Sport)
-                .Include(x => x.Event!)
-                    .ThenInclude(x => x.Venue)
-                .Include(x => x.Participants)
                 .Where(x => !x.IsDeleted && !x.IsHidden)
                 .Where(x => x.Status == MatchStatus.Open || x.Status == MatchStatus.Confirmed)
                 .Where(x => x.Event != null)
@@ -132,15 +126,14 @@ namespace PlayOn.Services
                     .ThenBy(x => x.Id)
             };
 
-            var matches = await ordered
+            var projectedItems = await ordered
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Select(HomeMapper.MatchCardProjection())
                 .ToListAsync();
 
-            var items = matches.Select(mapper.ToMatchCardResponse).ToList();
-
             return ServiceResponse<PagedResult<MatchCardResponseModel>>
-                .Success(new PagedResult<MatchCardResponseModel>(items, pageNumber, pageSize, totalCount));
+                .Success(new PagedResult<MatchCardResponseModel>(projectedItems, pageNumber, pageSize, totalCount));
         }
 
 
@@ -151,48 +144,7 @@ namespace PlayOn.Services
                 .Query()
                 .AsSplitQuery()
                 .Where(x => x.Id == matchId && !x.IsDeleted && x.Event != null)
-                .Select(x => new DetailsRow
-                {
-                    Id = x.Id,
-                    Title = x.Title,
-                    Description = x.Description,
-                    Status = x.Status,
-                    CancelReason = x.CancelReason,
-                    IsHidden = x.IsHidden,
-                    DurationMinutes = x.DurationMinutes,
-                    MinPlayers = x.MinPlayers,
-                    MaxPlayers = x.MaxPlayers,
-                    MinSkill = x.MinSkill,
-                    MaxSkill = x.MaxSkill,
-                    PricePerPlayer = x.PricePerPlayer,
-                    OrganiserId = x.OrganiserId,
-                    OrganiserName = x.Organiser.DisplayName,
-                    OrganiserReliability = x.Organiser.ReliabilityScore,
-                    SportName = x.Event!.Sport.Name,
-                    SportIcon = x.Event!.Sport.Icon,
-                    CourtName = x.Event!.Court.Name,
-                    Surface = x.Event!.Court.Surface,
-                    CourtCapacity = x.Event!.Court.Capacity,
-                    VenueName = x.Event!.Venue.Name,
-                    Address = x.Event!.Venue.Address,
-                    City = x.Event!.Venue.City,
-                    Date = x.Event!.Venue.Date,
-                    StartsAt = x.Event!.Venue.StartsAt,
-                    ClosesAt = x.Event!.Venue.ClosesAt,
-                    Participants = x.Participants
-                        .Where(p => p.Status != ParticipantStatus.Cancelled)
-                        .OrderBy(p => p.JoinedOn)
-                        .ThenBy(p => p.Id)
-                        .Select(p => new ParticipantRow
-                        {
-                            UserId = p.UserId,
-                            DisplayName = p.User.DisplayName,
-                            City = p.User.City,
-                            Status = p.Status,
-                            Reliability = p.User.ReliabilityScore
-                        })
-                        .ToList()
-                })
+                .Select(MatchMapper.DetailsProjection())
                 .FirstOrDefaultAsync();
 
             if (row == null)
@@ -209,7 +161,7 @@ namespace PlayOn.Services
                     .NotFound();
             }
 
-            var response = mapper.ToMatchDetailsResponse(
+            var response = MatchMapper.ToMatchDetailsResponse(
                 row,
                 (isOrganiser || isAdmin)
                     && IsOpenForChanges(row.Status, row.Date, row.StartsAt));
@@ -217,6 +169,7 @@ namespace PlayOn.Services
             return ServiceResponse<MatchDetailsResponseModel>
                 .Success(response);
         }
+
 
 
         private bool IsOpenForChanges(MatchStatus status, DateOnly date, TimeOnly startsAt)

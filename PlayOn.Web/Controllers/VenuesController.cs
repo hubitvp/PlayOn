@@ -14,7 +14,6 @@ namespace PlayOn.Web.Controllers
     public class VenuesController : BaseController
     {
         private readonly IVenueService venueService;
-        private readonly WebMapper mapper = new();
 
         public VenuesController(
             IVenueService venueService,
@@ -55,7 +54,7 @@ namespace PlayOn.Web.Controllers
             var venues = serviceResponse
                 .ResponseData
                 .Items
-                .Select(mapper.ToVenueViewModel)
+                .Select(x=>VenuesMapper.ToVenueViewModel(x))
                 .Select(x =>
                 {
                     x.MatchSlug = SlugHelper.Create(x.MatchTitle);
