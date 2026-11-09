@@ -6,8 +6,10 @@ using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.Home.ResponseModels;
+using PlayOn.Services.Data.Matches.RequestData;
 using PlayOn.Web.Mappers;
 using PlayOn.Web.ViewModels.Match;
+using System.Globalization;
 
 namespace PlayOn.Web.Controllers
 {
@@ -100,6 +102,113 @@ namespace PlayOn.Web.Controllers
             return View(viewModel);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var response = await matchService
+                .GetForEditAsync(
+                    id,
+                    GetUserId(),
+                    IsAdmin());
+
+            if (!response.IsSuccess)
+            {
+                return FromFailure(response);
+            }
+
+            var data = response.ResponseData;
+
+            var model = MatchesMapper.ToMatchEditViewModel(data);
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult>
+            Edit(
+                int id,
+                MatchEditViewModel model)
+        {
+            model.Id = id;
+
+            if (!ModelState.IsValid)
+            {
+                var serviceResponse = await matchService
+                    .GetForEditAsync(
+                        model.Id,
+                        GetUserId(),
+                        IsAdmin());
+
+                if (!serviceResponse.IsSuccess)
+                {
+                    return FromFailure(serviceResponse);
+                }
+
+                var editModel = MatchesMapper
+                    .ToMatchEditViewModel(serviceResponse.ResponseData);
+
+                model.SportName = editModel.SportName;
+                model.SportIcon = editModel.SportIcon;
+                model.CourtName = editModel.CourtName;
+                model.CourtCapacity = editModel.CourtCapacity;
+                model.VenueName = editModel.VenueName;
+                model.City = editModel.City;
+                model.StartsAt = editModel.StartsAt;
+                model.JoinedCount = editModel.JoinedCount;
+
+                return View(model);
+            }
+
+            var response = await matchService.UpdateAsync(new MatchUpdateRequestData
+            {
+                MatchId = id,
+                ActorId = GetUserId(),
+                ActorIsAdmin = IsAdmin(),
+                RowVersion = model.RowVersion,
+                Title = model.Title,
+                Description = model.Description,
+                DurationMinutes = model.DurationMinutes,
+                MinPlayers = model.MinPlayers,
+                MaxPlayers = model.MaxPlayers,
+                MinSkill = model.MinSkill,
+                MaxSkill = model.MaxSkill,
+                PricePerPlayer = model.PricePerPlayer
+            });
+
+            if (response.IsSuccess)
+            {
+                TempData["Success"] = "Match updated.";
+                return RedirectToAction(nameof(Details), new { id, slug = SlugHelper.Create(model.Title) });
+            }
+
+            if (response.Status != ServiceStatus.Invalid)
+            {
+                return FromFailure(response);
+            }
+
+            AddServiceErrors(response.Errors);
+
+
+            var databaseMatch = await matchService.GetForEditAsync(model.Id, GetUserId(), IsAdmin());
+
+            if (!databaseMatch.IsSuccess)
+            {
+                return FromFailure(databaseMatch);
+            }
+
+            model.SportName = databaseMatch.ResponseData.SportName;
+            model.SportIcon = databaseMatch.ResponseData.SportIcon.ToCssClass();
+            model.CourtName = databaseMatch.ResponseData.CourtName;
+            model.CourtCapacity = databaseMatch.ResponseData.CourtCapacity;
+            model.VenueName = databaseMatch.ResponseData.VenueName;
+            model.City = databaseMatch.ResponseData.City;
+            model.StartsAt = databaseMatch.ResponseData.Date.ToDateTime(databaseMatch.ResponseData.StartsAt)
+                .ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture);
+            model.JoinedCount = databaseMatch.ResponseData.JoinedCount;
+
+
+            return View(model);
+        }
 
         private async Task<MatchListViewModel>
             BuildListViewModelAsync(

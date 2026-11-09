@@ -19,6 +19,7 @@ namespace PlayOn.Services.Contracts
 
         void Remove(TEntity entity);
 
+        
         Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default);
     }

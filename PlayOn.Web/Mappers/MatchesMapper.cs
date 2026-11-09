@@ -115,6 +115,37 @@ public static class MatchesMapper
         return result;
     }
 
+    public static MatchEditViewModel
+        ToMatchEditViewModel(
+            MatchEditResponseModel source)
+    {
+        var result = new MatchEditViewModel
+        {
+            Id = source.Id,
+            RowVersion = source.RowVersion,
+            Title = source.Title,
+            Description = source.Description,
+            DurationMinutes = source.DurationMinutes,
+            MinPlayers = source.MinPlayers,
+            MaxPlayers = source.MaxPlayers,
+            MinSkill = source.MinSkill,
+            MaxSkill = source.MaxSkill,
+            PricePerPlayer = source.PricePerPlayer,
+            SportName = source.SportName,
+            SportIcon = source.SportIcon.ToCssClass(),
+            CourtName = source.CourtName,
+            CourtCapacity = source.CourtCapacity,
+            VenueName = source.VenueName,
+            City = source.City,
+            StartsAt = source.Date
+                .ToDateTime(source.StartsAt)
+                .ToString("dddd, dd MMMM yyyy, HH:mm", CultureInfo.InvariantCulture),
+            JoinedCount = source.JoinedCount
+        };
+
+        return result;
+    }
+
     public static MatchParticipantViewModel
         ToMatchParticipantViewModel(
             MatchParticipantResponseModel source)

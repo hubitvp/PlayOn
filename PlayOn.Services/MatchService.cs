@@ -30,8 +30,8 @@ namespace PlayOn.Services
         }
 
 
-        public async Task<ServiceResponse<PagedResult<MatchCardResponseModel>>> GetMatchCardsAsync(
-            MatchListRequestData request)
+        public async Task<ServiceResponse<PagedResult<MatchCardResponseModel>>>
+            GetMatchCardsAsync(MatchListRequestData request)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
 
@@ -168,6 +168,180 @@ namespace PlayOn.Services
 
             return ServiceResponse<MatchDetailsResponseModel>
                 .Success(response);
+        }
+
+        public async Task<ServiceResponse<MatchEditResponseModel>>
+            GetForEditAsync(
+                int matchId,
+                string actorId,
+                bool actorIsAdmin)
+        {
+            var row = await matchRepository
+                .Query()
+                .Where(x => x.Id == matchId && x.Event != null)
+                .Select(x => new EditRow
+                {
+                    Id = x.Id,
+                    OrganiserId = x.OrganiserId,
+                    IsDeleted = x.IsDeleted,
+                    Status = x.Status,
+                    Title = x.Title,
+                    Description = x.Description,
+                    DurationMinutes = x.DurationMinutes,
+                    MinPlayers = x.MinPlayers,
+                    MaxPlayers = x.MaxPlayers,
+                    MinSkill = x.MinSkill,
+                    MaxSkill = x.MaxSkill,
+                    PricePerPlayer = x.PricePerPlayer,
+                    RowVersion = x.RowVersion,
+                    SportName = x.Event!.Sport.Name,
+                    SportIcon = x.Event!.Sport.Icon,
+                    CourtId = x.Event!.CourtId,
+                    CourtName = x.Event!.Court.Name,
+                    CourtCapacity = x.Event!.Court.Capacity,
+                    VenueName = x.Event!.Venue.Name,
+                    City = x.Event!.Venue.City,
+                    Date = x.Event!.Venue.Date,
+                    StartsAt = x.Event!.Venue.StartsAt,
+                    ClosesAt = x.Event!.Venue.ClosesAt,
+                    JoinedCount = x.Participants.Count(p => p.Status == ParticipantStatus.Joined)
+                })
+                .SingleOrDefaultAsync();
+
+            if (row == null || row.IsDeleted)
+            {
+                return ServiceResponse<MatchEditResponseModel>
+                    .NotFound();
+            }
+
+            if (row.OrganiserId != actorId && !actorIsAdmin)
+            {
+                return ServiceResponse<MatchEditResponseModel>
+                    .Forbidden();
+            }
+
+            if (!IsOpenForChanges(row.Status, row.Date, row.StartsAt))
+            {
+                return ServiceResponse<MatchEditResponseModel>
+                    .Conflict("This match is cancelled, finished or already started, so it can no longer be changed.");
+            }
+
+            var responseModel = new MatchEditResponseModel
+            {
+                Id = row.Id,
+                Title = row.Title,
+                Description = row.Description,
+                DurationMinutes = row.DurationMinutes,
+                MinPlayers = row.MinPlayers,
+                MaxPlayers = row.MaxPlayers,
+                MinSkill = row.MinSkill,
+                MaxSkill = row.MaxSkill,
+                PricePerPlayer = row.PricePerPlayer,
+                RowVersion = row.RowVersion,
+                SportName = row.SportName,
+                SportIcon = row.SportIcon,
+                CourtName = row.CourtName,
+                CourtCapacity = row.CourtCapacity,
+                VenueName = row.VenueName,
+                City = row.City,
+                Date = row.Date,
+                StartsAt = row.StartsAt,
+                ClosesAt = row.ClosesAt,
+                JoinedCount = row.JoinedCount
+            };
+
+            return ServiceResponse<MatchEditResponseModel>
+                .Success(responseModel);
+        }
+
+        public async Task<ServiceResponse<int>>
+            UpdateAsync(MatchUpdateRequestData request)
+        {
+            var errors = ServiceRequestDataValidator.Validate(request);
+
+            if (errors.Any())
+            {
+                return ServiceResponse<int>.Failure(errors);
+            }
+
+            var row = await matchRepository
+                .Query()
+                .Where(x => x.Id == request.MatchId && x.Event != null)
+                .Select(x => new EditRow
+                {
+                    Id = x.Id,
+                    OrganiserId = x.OrganiserId,
+                    IsDeleted = x.IsDeleted,
+                    Status = x.Status,
+                    Title = x.Title,
+                    Description = x.Description,
+                    DurationMinutes = x.DurationMinutes,
+                    MinPlayers = x.MinPlayers,
+                    MaxPlayers = x.MaxPlayers,
+                    MinSkill = x.MinSkill,
+                    MaxSkill = x.MaxSkill,
+                    PricePerPlayer = x.PricePerPlayer,
+                    RowVersion = x.RowVersion,
+                    SportName = x.Event!.Sport.Name,
+                    SportIcon = x.Event!.Sport.Icon,
+                    CourtId = x.Event!.CourtId,
+                    CourtName = x.Event!.Court.Name,
+                    CourtCapacity = x.Event!.Court.Capacity,
+                    VenueName = x.Event!.Venue.Name,
+                    City = x.Event!.Venue.City,
+                    Date = x.Event!.Venue.Date,
+                    StartsAt = x.Event!.Venue.StartsAt,
+                    ClosesAt = x.Event!.Venue.ClosesAt,
+                    JoinedCount = x.Participants.Count(p => p.Status == ParticipantStatus.Joined)
+                })
+                .FirstOrDefaultAsync();
+
+            if (row == null || row.IsDeleted)
+            {
+                return ServiceResponse<int>.NotFound();
+            }
+
+            if (row.OrganiserId != request.ActorId && !request.ActorIsAdmin)
+            {
+                return ServiceResponse<int>.Forbidden();
+            }
+
+            if (!IsOpenForChanges(row.Status, row.Date, row.StartsAt))
+            {
+                return ServiceResponse<int>.Conflict(
+                    "This match is cancelled, finished or already started, so it can no longer be changed.");
+            }
+
+
+            if (request.MaxPlayers < row!.JoinedCount)
+            {
+                return ServiceResponse<int>.Failure(
+                    $"{row.JoinedCount} players have already joined, so the maximum cannot be lower.",
+                    nameof(request.MaxPlayers));
+            }
+
+            if (request.MaxPlayers > row.CourtCapacity)
+            {
+                return ServiceResponse<int>.Failure(
+                    $"This court fits at most {row.CourtCapacity} players.", nameof(request.MaxPlayers));
+            }
+
+            var match = await matchRepository
+                .Query(asNoTracking: false)
+                .FirstAsync(x => x.Id == row.Id);
+
+            match.Title = request.Title.Trim();
+            match.Description = request.Description;
+            match.DurationMinutes = request.DurationMinutes;
+            match.MinPlayers = request.MinPlayers;
+            match.MaxPlayers = request.MaxPlayers;
+            match.MinSkill = request.MinSkill;
+            match.MaxSkill = request.MaxSkill;
+            match.PricePerPlayer = request.PricePerPlayer;
+
+            await matchRepository.SaveChangesAsync();
+
+            return ServiceResponse<int>.Success(request.MatchId);
         }
 
 

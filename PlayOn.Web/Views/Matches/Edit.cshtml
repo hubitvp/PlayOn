@@ -1,0 +1,40 @@
+@model MatchEditViewModel
+@{
+    ViewData["Title"] = "Edit match";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <h1 class="h3 mb-1">Edit match</h1>
+
+        <div class="card bg-light border-0 mb-3">
+            <div class="card-body small">
+                <i class="@Model.SportIcon" aria-hidden="true"></i> <strong>@Model.SportName</strong> on @Model.CourtName<br />
+                <i class="bi bi-calendar-event"></i> @Model.StartsAt<br />
+                <i class="bi bi-geo-alt"></i> @Model.VenueName, @Model.City<br />
+                <span class="text-muted">
+                    The sport, court and time cannot be changed. Cancel the match and organise a new one for that.
+                    @Model.JoinedCount @(Model.JoinedCount == 1 ? "player has" : "players have") joined, so the maximum cannot be lower.
+                </span>
+            </div>
+        </div>
+
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post" data-match-form novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="RowVersion" type="hidden" />
+
+            <partial name="_MatchFieldsPartial" model="@((MatchInputModelBase)Model)" />
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success">Save changes</button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Back</a>
+                <a asp-action="Cancel" asp-route-id="@Model.Id" class="btn btn-outline-danger ms-auto">Cancel match</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
