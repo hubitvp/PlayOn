@@ -13,12 +13,19 @@ namespace PlayOn.Web
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            var connectionString = builder.Configuration.GetConnectionString("PlayOnDbContext") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<PlayOnDbContext>(options =>
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+                {
+                    options.SignIn.RequireConfirmedAccount = false;
+
+                    builder.Configuration
+                        .GetSection("Identity:Password")
+                        .Bind(options.Password);
+                })
                 .AddEntityFrameworkStores<PlayOnDbContext>();
             builder.Services.AddControllersWithViews();
 

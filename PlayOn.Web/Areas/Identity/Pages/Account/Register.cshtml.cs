@@ -77,7 +77,7 @@ public class RegisterModel : PageModel
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "The {0} must be maximum {1} characters long.")]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; } = default!;
@@ -107,8 +107,8 @@ public class RegisterModel : PageModel
         {
             var user = CreateUser();
 
-            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+            await _userStore.SetUserNameAsync(user, Input.Email.Trim().ToUpperInvariant(), CancellationToken.None);
+            await _emailStore.SetEmailAsync(user, Input.Email.Trim(), CancellationToken.None);
             var result = await _userManager.CreateAsync(user, Input.Password);
 
             if (result.Succeeded)
