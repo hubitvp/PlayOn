@@ -4,11 +4,10 @@ using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Home.ResponseModels;
 using PlayOn.Services.Data.Matches;
 using PlayOn.Services.Data.Matches.RequestData;
 using PlayOn.Services.Data.Matches.ResponseModels;
-using PlayOn.Services.Mappers;
+using PlayOn.Services.DataBuilders;
 
 
 namespace PlayOn.Services
@@ -36,14 +35,14 @@ namespace PlayOn.Services
         }
 
 
-        public async Task<ServiceResponse<PagedResult<MatchCardResponseModel>>>
-            GetMatchCardsAsync(MatchListRequestData request)
+        public async Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
+            GetMatchCardsAsync(MatchSearchRequestData request)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
 
             if (errors.Any())
             {
-                return ServiceResponse<PagedResult<MatchCardResponseModel>>.Failure(errors);
+                return ServiceResponse<PageResult<MatchCardResponseModel>>.Failure(errors);
             }
 
             if (request.SportId.HasValue
@@ -51,7 +50,7 @@ namespace PlayOn.Services
                     .Query()
                     .AnyAsync(x => x.Id == request.SportId.Value))
             {
-                return ServiceResponse<PagedResult<MatchCardResponseModel>>
+                return ServiceResponse<PageResult<MatchCardResponseModel>>
                     .Failure("Select a valid sport.", nameof(request.SportId));
             }
 
@@ -135,11 +134,11 @@ namespace PlayOn.Services
             var projectedItems = await ordered
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(HomeMapper.MatchCardProjection())
+                .Select(MatchDataBuilder.MatchCardProjection())
                 .ToListAsync();
 
-            return ServiceResponse<PagedResult<MatchCardResponseModel>>
-                .Success(new PagedResult<MatchCardResponseModel>(projectedItems, pageNumber, pageSize, totalCount));
+            return ServiceResponse<PageResult<MatchCardResponseModel>>
+                .Success(new PageResult<MatchCardResponseModel>(projectedItems, pageNumber, pageSize, totalCount));
         }
 
 
@@ -150,7 +149,7 @@ namespace PlayOn.Services
                 .Query()
                 .AsSplitQuery()
                 .Where(x => x.Id == matchId && !x.IsDeleted && x.Event != null)
-                .Select(MatchMapper.DetailsProjection())
+                .Select(MatchDataBuilder.MatchDetailsRowProjection())
                 .FirstOrDefaultAsync();
 
             if (row == null)
@@ -167,7 +166,7 @@ namespace PlayOn.Services
                     .NotFound();
             }
 
-            var response = MatchMapper.ToMatchDetailsResponse(
+            var response = MatchDataBuilder.MatchDetailsRowToResponseModel(
                 row,
                 (isOrganiser || isAdmin)
                     && IsOpenForChanges(row.Status, row.Date, row.StartsAt));
@@ -185,33 +184,7 @@ namespace PlayOn.Services
             var row = await matchRepository
                 .Query()
                 .Where(x => x.Id == matchId && x.Event != null)
-                .Select(x => new EditRow
-                {
-                    Id = x.Id,
-                    OrganiserId = x.OrganiserId,
-                    IsDeleted = x.IsDeleted,
-                    Status = x.Status,
-                    Title = x.Title,
-                    Description = x.Description,
-                    DurationMinutes = x.DurationMinutes,
-                    MinPlayers = x.MinPlayers,
-                    MaxPlayers = x.MaxPlayers,
-                    MinSkill = x.MinSkill,
-                    MaxSkill = x.MaxSkill,
-                    PricePerPlayer = x.PricePerPlayer,
-                    RowVersion = x.RowVersion,
-                    SportName = x.Event!.Sport.Name,
-                    SportIcon = x.Event!.Sport.Icon,
-                    CourtId = x.Event!.CourtId,
-                    CourtName = x.Event!.Court.Name,
-                    CourtCapacity = x.Event!.Court.Capacity,
-                    VenueName = x.Event!.Venue.Name,
-                    City = x.Event!.Venue.City,
-                    Date = x.Event!.Venue.Date,
-                    StartsAt = x.Event!.Venue.StartsAt,
-                    ClosesAt = x.Event!.Venue.ClosesAt,
-                    JoinedCount = x.Participants.Count(p => p.Status == ParticipantStatus.Joined)
-                })
+                .Select(MatchDataBuilder.MatchEditRowProjection())
                 .SingleOrDefaultAsync();
 
             if (row == null || row.IsDeleted)
@@ -232,29 +205,7 @@ namespace PlayOn.Services
                     .Conflict("This match is cancelled, finished or already started, so it can no longer be changed.");
             }
 
-            var responseModel = new MatchEditResponseModel
-            {
-                Id = row.Id,
-                Title = row.Title,
-                Description = row.Description,
-                DurationMinutes = row.DurationMinutes,
-                MinPlayers = row.MinPlayers,
-                MaxPlayers = row.MaxPlayers,
-                MinSkill = row.MinSkill,
-                MaxSkill = row.MaxSkill,
-                PricePerPlayer = row.PricePerPlayer,
-                RowVersion = row.RowVersion,
-                SportName = row.SportName,
-                SportIcon = row.SportIcon,
-                CourtName = row.CourtName,
-                CourtCapacity = row.CourtCapacity,
-                VenueName = row.VenueName,
-                City = row.City,
-                Date = row.Date,
-                StartsAt = row.StartsAt,
-                ClosesAt = row.ClosesAt,
-                JoinedCount = row.JoinedCount
-            };
+            var responseModel = MatchDataBuilder.MatchEditRowToResponseModel(row);
 
             return ServiceResponse<MatchEditResponseModel>
                 .Success(responseModel);
@@ -273,33 +224,7 @@ namespace PlayOn.Services
             var row = await matchRepository
                 .Query()
                 .Where(x => x.Id == request.MatchId && x.Event != null)
-                .Select(x => new EditRow
-                {
-                    Id = x.Id,
-                    OrganiserId = x.OrganiserId,
-                    IsDeleted = x.IsDeleted,
-                    Status = x.Status,
-                    Title = x.Title,
-                    Description = x.Description,
-                    DurationMinutes = x.DurationMinutes,
-                    MinPlayers = x.MinPlayers,
-                    MaxPlayers = x.MaxPlayers,
-                    MinSkill = x.MinSkill,
-                    MaxSkill = x.MaxSkill,
-                    PricePerPlayer = x.PricePerPlayer,
-                    RowVersion = x.RowVersion,
-                    SportName = x.Event!.Sport.Name,
-                    SportIcon = x.Event!.Sport.Icon,
-                    CourtId = x.Event!.CourtId,
-                    CourtName = x.Event!.Court.Name,
-                    CourtCapacity = x.Event!.Court.Capacity,
-                    VenueName = x.Event!.Venue.Name,
-                    City = x.Event!.Venue.City,
-                    Date = x.Event!.Venue.Date,
-                    StartsAt = x.Event!.Venue.StartsAt,
-                    ClosesAt = x.Event!.Venue.ClosesAt,
-                    JoinedCount = x.Participants.Count(p => p.Status == ParticipantStatus.Joined)
-                })
+                .Select(MatchDataBuilder.MatchEditRowProjection())
                 .FirstOrDefaultAsync();
 
             if (row == null || row.IsDeleted)
@@ -336,14 +261,7 @@ namespace PlayOn.Services
                 .Query(asNoTracking: false)
                 .FirstAsync(x => x.Id == row.Id);
 
-            match.Title = request.Title.Trim();
-            match.Description = request.Description;
-            match.DurationMinutes = request.DurationMinutes;
-            match.MinPlayers = request.MinPlayers;
-            match.MaxPlayers = request.MaxPlayers;
-            match.MinSkill = request.MinSkill;
-            match.MaxSkill = request.MaxSkill;
-            match.PricePerPlayer = request.PricePerPlayer;
+            MatchDataBuilder.MatchUpdateApplyToEntity(match, request);
 
             await matchRepository.SaveChangesAsync();
 
@@ -369,14 +287,7 @@ namespace PlayOn.Services
             var court = await courtRepository
                 .Query()
                 .Where(x => x.Id == request.CourtId)
-                .Select(x => new CourtOptionResponseModel
-                {
-                    CourtId = x.Id,
-                    Name = x.Name,
-                    Surface = x.Surface,
-                    Capacity = x.Capacity,
-                    SportIds = x.Sports.Select(s => s.SportId).ToList()
-                })
+                .Select(MatchDataBuilder.MatchCourtOptionProjection())
                 .FirstOrDefaultAsync();
 
             if (court == null)
@@ -399,16 +310,7 @@ namespace PlayOn.Services
             var slot = await venueRepository
                 .Query()
                 .Where(x => x.Id == request.VenueId)
-                .Select(x => new SlotRow
-                {
-                    Id = x.Id,
-                    Date = x.Date,
-                    StartsAt = x.StartsAt,
-                    OpensAt = x.OpensAt,
-                    ClosesAt = x.ClosesAt,
-                    IsTaken = x.Event != null,
-                    IsDeleted = x.IsDeleted
-                })
+                .Select(MatchDataBuilder.SlotRowProjection())
                 .FirstOrDefaultAsync();
 
             if (slot == null || slot.IsDeleted)
@@ -432,38 +334,9 @@ namespace PlayOn.Services
                 return ServiceResponse<int>.Failure("This slot is in the past.", nameof(request.VenueId));
             }
 
-            var now = timeProvider.GetLocalNow().LocalDateTime;
-
-            var match = new Match
-            {
-                OrganiserId = request.OrganiserId,
-                Title = request.Title.Trim(),
-                Description = request.Description,
-                DurationMinutes = request.DurationMinutes,
-                MinPlayers = request.MinPlayers,
-                MaxPlayers = request.MaxPlayers,
-                MinSkill = request.MinSkill,
-                MaxSkill = request.MaxSkill,
-                PricePerPlayer = request.PricePerPlayer,
-                Status = MatchStatus.Open,
-                IsHidden = false,
-                IsDeleted = false,
-                Event = new Event
-                {
-                    SportId = request.SportId,
-                    CourtId = request.CourtId,
-                    VenueId = request.VenueId
-                }
-            };
-
-            match.Participants.Add(new MatchParticipant
-            {
-                UserId = request.OrganiserId,
-                Status = ParticipantStatus.Joined,
-                JoinedOn = now,
-                StatusChangedOn = now,
-                IsLateCancel = false
-            });
+            var match = MatchDataBuilder.MatchCreateToEntity(
+                request,
+                timeProvider.GetLocalNow().LocalDateTime);
 
             await matchRepository.AddAsync(match);
             await matchRepository.SaveChangesAsync();
@@ -480,20 +353,13 @@ namespace PlayOn.Services
             var sports = await sportRepository
                 .Query()
                 .OrderBy(x => x.Name)
-                .Select(x => new SportsResponseModel { Id = x.Id, Name = x.Name })
+                .Select(SportDataBuilder.SportProjection())
                 .ToListAsync();
 
             var courts = await courtRepository
                 .Query()
                 .OrderBy(x => x.Name)
-                .Select(x => new CourtOptionResponseModel
-                {
-                    CourtId = x.Id,
-                    Name = x.Name,
-                    Surface = x.Surface,
-                    Capacity = x.Capacity,
-                    SportIds = x.Sports.Select(s => s.SportId).ToList()
-                })
+                .Select(MatchDataBuilder.MatchCourtOptionProjection())
                 .ToListAsync();
 
             var slots = await venueRepository
@@ -503,18 +369,10 @@ namespace PlayOn.Services
                 .ThenBy(x => x.StartsAt)
                 .ThenBy(x => x.Id)
                 .Take(100)
-                .Select(x => new VenueSlotResponseModel
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    City = x.City,
-                    Date = x.Date,
-                    StartsAt = x.StartsAt,
-                    ClosesAt = x.ClosesAt
-                })
+                .Select(MatchDataBuilder.VenueSlotProjection())
                 .ToListAsync();
 
-            return new MatchFormOptionsResponseModel { Sports = sports, Courts = courts, Slots = slots };
+            return MatchDataBuilder.MatchFormOptionsToResponseModel(sports, courts, slots);
         }
         public async Task<ServiceResponse<MatchEditResponseModel>>
             GetForCancelAsync(
@@ -539,33 +397,7 @@ namespace PlayOn.Services
             var row = await matchRepository
                 .Query()
                 .Where(x => x.Id == request.MatchId && x.Event != null)
-                .Select(x => new EditRow
-                {
-                    Id = x.Id,
-                    OrganiserId = x.OrganiserId,
-                    IsDeleted = x.IsDeleted,
-                    Status = x.Status,
-                    Title = x.Title,
-                    Description = x.Description,
-                    DurationMinutes = x.DurationMinutes,
-                    MinPlayers = x.MinPlayers,
-                    MaxPlayers = x.MaxPlayers,
-                    MinSkill = x.MinSkill,
-                    MaxSkill = x.MaxSkill,
-                    PricePerPlayer = x.PricePerPlayer,
-                    RowVersion = x.RowVersion,
-                    SportName = x.Event!.Sport.Name,
-                    SportIcon = x.Event!.Sport.Icon,
-                    CourtId = x.Event!.CourtId,
-                    CourtName = x.Event!.Court.Name,
-                    CourtCapacity = x.Event!.Court.Capacity,
-                    VenueName = x.Event!.Venue.Name,
-                    City = x.Event!.Venue.City,
-                    Date = x.Event!.Venue.Date,
-                    StartsAt = x.Event!.Venue.StartsAt,
-                    ClosesAt = x.Event!.Venue.ClosesAt,
-                    JoinedCount = x.Participants.Count(p => p.Status == ParticipantStatus.Joined)
-                })
+                .Select(MatchDataBuilder.MatchEditRowProjection())
                 .FirstOrDefaultAsync();
 
             if (row == null || row.IsDeleted)
@@ -585,16 +417,11 @@ namespace PlayOn.Services
                     .Conflict("This match is cancelled, finished or already started, so it can no longer be changed.");
             }
 
-            var now = timeProvider.GetLocalNow().LocalDateTime;
-            var reason = request.Reason.Trim();
-
             var match = await matchRepository
                 .Query(asNoTracking: false)
                 .FirstAsync(x => x.Id == row!.Id);
 
-            match.Status = MatchStatus.Cancelled;
-            match.CancelReason = reason;
-
+            MatchDataBuilder.MatchCancelApplyToEntity(match, request);
 
             await matchRepository.SaveChangesAsync();
 

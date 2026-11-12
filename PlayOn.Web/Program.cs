@@ -3,6 +3,8 @@ using PlayOn.Data;
 using PlayOn.Data.Models;
 using PlayOn.Services;
 using PlayOn.Services.Contracts;
+using PlayOn.Web.DataBuilders;
+using PlayOn.Web.DataBuilders.Formatting;
 
 namespace PlayOn.Web
 {
@@ -31,7 +33,7 @@ namespace PlayOn.Web
 
 
             builder.Services.AddSingleton(TimeProvider.System);
-
+            builder.Services.AddSingleton<IDisplayFormatter, DisplayFormatter>();
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -41,6 +43,12 @@ namespace PlayOn.Web
 
             builder.Services.AddScoped<IMatchService, MatchService>();
             builder.Services.AddScoped<ISportService, SportService>();
+
+            builder.Services.AddScoped<MatchDataBuilder>();
+            builder.Services.AddScoped<SportDataBuilder>();
+            builder.Services.AddScoped<HomeDataBuilder>();
+            builder.Services.AddScoped<VenueDataBuilder>();
+            
 
             var app = builder.Build();
 

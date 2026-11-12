@@ -6,7 +6,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.ViewModels.Match
 {
-    public class MatchListInputModel : IValidatableObject
+    public class MatchSearchInputModel : IValidatableObject
     {
 
         [StringLength(MatchRules.SearchTermMaxLength)]

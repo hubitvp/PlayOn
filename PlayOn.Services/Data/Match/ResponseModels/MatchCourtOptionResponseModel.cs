@@ -2,7 +2,7 @@
 
 namespace PlayOn.Services.Data.Matches.ResponseModels
 {
-    public class CourtOptionResponseModel
+    public class MatchCourtOptionResponseModel
     {
         public required int CourtId { get; init; }
         public required string Name { get; init; } = null!;

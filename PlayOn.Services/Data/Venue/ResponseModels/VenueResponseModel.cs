@@ -10,7 +10,7 @@
         public required TimeOnly StartsAt { get; init; }
         public required TimeOnly OpensAt { get; init; }
         public required TimeOnly ClosesAt { get; init; }
-        public required CourtResponseModel Court { get; init; }
+        public required VenueCourtResponseModel Court { get; init; }
         public required int MatchId { get; init; }
         public required string MatchTitle { get; init; }
     }

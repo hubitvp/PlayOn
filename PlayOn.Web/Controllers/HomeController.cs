@@ -1,28 +1,31 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
-using PlayOn.Services.Data.Home.ResponseModels;
-using PlayOn.Web.Mappers;
+using PlayOn.Web.DataBuilders;
 using PlayOn.Web.ViewModels.Home;
-using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.Controllers
 {
 
     public class HomeController : BaseController
     {
-        private readonly IHomeService service;
+        private readonly ISportService sportService;
+        private readonly IHomeService homeService;
+        private readonly HomeDataBuilder homeDataBuilder;
 
         public HomeController(
-            IHomeService service,
+            ISportService sportService,
+            IHomeService homeService,
+            HomeDataBuilder homeDataBuilder,
             UserManager<ApplicationUser> userManager)
             : base(userManager)
         {
-            this.service = service;
+            this.sportService = sportService;
+            this.homeService = homeService;
+
+            this.homeDataBuilder = homeDataBuilder;
         }
 
 
@@ -33,74 +36,40 @@ namespace PlayOn.Web.Controllers
                 [FromQuery] HomeSearchInputModel searchQuery,
                 [FromQuery] int page = 1)
         {
-            ModelState.Remove(nameof(page));
             page = Math.Max(1, page);
+
+            var sports = (await sportService.GetSportsAsync()).ResponseData;
+
+            ModelState.Remove(nameof(page));
             if (!ModelState.IsValid)
             {
-                var errorViewModel = await BuildViewModelAsync(searchQuery);
-
-                return View(errorViewModel);
+                var errorHomeViewModel = homeDataBuilder
+                    .HomeToViewModel(searchQuery, null, sports);
+                return View(errorHomeViewModel);
             }
 
-            var serviceResponse = await service.GetMatchCardsAsync(HomeMapper.ToHomeQuery(searchQuery, page));
+            var searchRequestData = homeDataBuilder
+                .HomeSearchToRequestData(searchQuery, page);
 
-            if (!serviceResponse.IsSuccess)
+            var response = await homeService
+                .GetMatchCardsAsync(searchRequestData);
+
+            if (!response.IsSuccess)
             {
-                AddServiceErrors(serviceResponse.Errors);
-
-                var errorViewModel = await BuildViewModelAsync(searchQuery);
-
-                return View(errorViewModel);
+                AddServiceErrors(response.Errors);
+                var errorHomeViewModel = homeDataBuilder
+                    .HomeToViewModel(searchQuery, null, sports);
+                return View(errorHomeViewModel);
             }
 
-            var viewModel =
-                await BuildViewModelAsync(
-                    searchQuery,
-                    serviceResponse.ResponseData);
+            var viewModel = homeDataBuilder
+                .HomeToViewModel(searchQuery, response.ResponseData, sports);
 
             return View(viewModel);
         }
 
-        private async Task<HomeViewModel>
-            BuildViewModelAsync(
-                HomeSearchInputModel searchQuery,
-                PagedResult<MatchCardResponseModel>? page = null)
-        {
-            var model = new HomeViewModel
-            {
-                SportId = searchQuery.SportId,
-                City = searchQuery.City,
-                From = searchQuery.From,
-                Sports = await GetSportsSelectListAsync(searchQuery.SportId),
-                MatchCards = page?.Items
-                    .Select(x => HomeMapper.ToMatchCardViewModel(x))
-                    .Select(x =>
-                    {
-                        x.Slug = SlugHelper.Create(x.Title);
-                        return x;
-                    })
-                    .ToList() ?? [],
-                Page = page?.Page ?? FirstPage,
-                PageSize = page?.PageSize ?? DefaultPageSize,
-                TotalPages = page?.TotalPages ?? 0,
-                TotalItems = page?.TotalCount ?? 0,
-            };
-
-            return model;
-        }
-
-
-        private async Task<List<SelectListItem>>
-            GetSportsSelectListAsync(int? selectedSportId)
-        {
-            var sports = await service.GetSportsAsync();
-
-            return sports.ResponseData
-                .Select(x =>
-                    HomeMapper.ToSportSelectListItem(x, selectedSportId))
-                .ToList();
-        }
-
+        [AllowAnonymous]
+        [HttpGet]
         public IActionResult Privacy()
         {
             return View();

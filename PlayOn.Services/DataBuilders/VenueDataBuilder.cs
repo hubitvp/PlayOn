@@ -1,10 +1,10 @@
-using PlayOn.Data.Models;
+﻿using PlayOn.Data.Models;
 using PlayOn.Services.Data.Venue.ResponseModels;
 using System.Linq.Expressions;
 
-namespace PlayOn.Services.Mappers;
+namespace PlayOn.Services.DataBuilders;
 
-public static class VenueMapper
+public static class VenueDataBuilder
 {
     public static Expression<Func<Venue, VenueResponseModel>> VenueProjection()
     {
@@ -18,7 +18,7 @@ public static class VenueMapper
             StartsAt = source.StartsAt,
             OpensAt = source.OpensAt,
             ClosesAt = source.ClosesAt,
-            Court = new CourtResponseModel
+            Court = new VenueCourtResponseModel
             {
                 Name = source.Event!.Court.Name,
                 SportIcon = source.Event.Sport.Icon,
@@ -31,7 +31,7 @@ public static class VenueMapper
         };
     }
 
-    public static VenueResponseModel ToVenueResponse(Venue source)
+    public static VenueResponseModel VenueToResponseModel(Venue source)
     {
         return new VenueResponseModel
         {
@@ -43,15 +43,15 @@ public static class VenueMapper
             StartsAt = source.StartsAt,
             OpensAt = source.OpensAt,
             ClosesAt = source.ClosesAt,
-            Court = ToCourtResponse(source.Event!),
+            Court = CourtToResponseModel(source.Event!),
             MatchId = source.Event!.MatchId,
             MatchTitle = source.Event.Match.Title
         };
     }
 
-    public static CourtResponseModel ToCourtResponse(Event source)
+    public static VenueCourtResponseModel CourtToResponseModel(Event source)
     {
-        return new CourtResponseModel
+        return new VenueCourtResponseModel
         {
             Name = source.Court.Name,
             SportIcon = source.Sport.Icon,

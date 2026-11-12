@@ -6,7 +6,7 @@ using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.Venue.RequestData;
 using PlayOn.Services.Data.Venue.ResponseModels;
-using PlayOn.Services.Mappers;
+using PlayOn.Services.DataBuilders;
 
 namespace PlayOn.Services
 {
@@ -24,7 +24,7 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
-        public async Task<ServiceResponse<PagedResult<VenueResponseModel>>>
+        public async Task<ServiceResponse<PageResult<VenueResponseModel>>>
             GetVenuesAsync(VenueQueryRequestData venueQuery)
         {
 
@@ -70,16 +70,16 @@ namespace PlayOn.Services
             var items = await venueQuerySource
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(VenueMapper.VenueProjection())
+                .Select(VenueDataBuilder.VenueProjection())
                 .ToListAsync();
 
-            var page = new PagedResult<VenueResponseModel>(
+            var page = new PageResult<VenueResponseModel>(
                 items,
                 pageNumber,
                 pageSize,
                 totalCount);
 
-            return ServiceResponse<PagedResult<VenueResponseModel>>
+            return ServiceResponse<PageResult<VenueResponseModel>>
                 .Success(page);
         }
     }

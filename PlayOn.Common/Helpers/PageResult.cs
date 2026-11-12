@@ -1,8 +1,12 @@
 ﻿namespace PlayOn.Common.Helpers
 {
-    public class PagedResult<T>
+    public class PageResult<T>
     {
-        public PagedResult(IReadOnlyList<T> items, int page, int pageSize, int totalCount)
+        public PageResult(
+            IReadOnlyList<T> items,
+            int page,
+            int pageSize,
+            int totalCount)
         {
             Items = items;
             Page = page;
@@ -20,7 +24,7 @@
 
         public int TotalPages => PageSize <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
 
-        public PagedResult<TOut> Map<TOut>(Func<T, TOut> map)
+        public PageResult<TOut> Map<TOut>(Func<T, TOut> map)
             => new(Items.Select(map).ToList(), Page, PageSize, TotalCount);
     }
 }

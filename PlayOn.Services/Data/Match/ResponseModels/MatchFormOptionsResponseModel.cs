@@ -1,11 +1,11 @@
-﻿using PlayOn.Services.Data.Home.ResponseModels;
+﻿using PlayOn.Services.Data.Sport.ResponseModels;
 
 namespace PlayOn.Services.Data.Matches.ResponseModels
 {
     public class MatchFormOptionsResponseModel
     {
-        public required IReadOnlyList<SportsResponseModel> Sports { get; init; }
-        public required IReadOnlyList<CourtOptionResponseModel> Courts { get; init; }
+        public required IReadOnlyList<SportResponseModel> Sports { get; init; }
+        public required IReadOnlyList<MatchCourtOptionResponseModel> Courts { get; init; }
         public required IReadOnlyList<VenueSlotResponseModel> Slots { get; init; }
     }
 

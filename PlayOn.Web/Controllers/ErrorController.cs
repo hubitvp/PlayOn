@@ -64,6 +64,7 @@ namespace PlayOn.Web.Controllers
 
             return View("Error", new ErrorPageViewModel
             {
+                Code = StatusCodes.Status500InternalServerError,
                 Title = "Game over",
                 Message = "The play could not be completed. Please try again or return to the home page."
             });

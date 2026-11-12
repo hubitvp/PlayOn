@@ -1,27 +1,25 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
-using PlayOn.Services.Data.Venue.RequestData;
-using PlayOn.Web.Mappers;
-using PlayOn.Web.ViewModels.Venue;
-using static PlayOn.Common.ApplicationConstants.PaginationConstants;
-
+using PlayOn.Web.DataBuilders;
 namespace PlayOn.Web.Controllers
 {
     [AllowAnonymous]
     public class VenuesController : BaseController
     {
         private readonly IVenueService venueService;
+        private readonly VenueDataBuilder venueDataBuilder;
 
         public VenuesController(
             IVenueService venueService,
+            VenueDataBuilder venueDataBuilder,
             UserManager<ApplicationUser> userManager)
             : base(userManager)
         {
             this.venueService = venueService;
+            this.venueDataBuilder = venueDataBuilder;
         }
 
         [AllowAnonymous]
@@ -31,47 +29,24 @@ namespace PlayOn.Web.Controllers
         {
             page = Math.Max(1, page);
 
-            var venueQueryRequestData = new VenueQueryRequestData
-            {
-                Page = page,
-                PageSize = DefaultPageSize,
-            };
+            var requestData = venueDataBuilder
+                .VenueQueryToRequestData(page);
 
-            var serviceResponse =
-                await venueService.GetVenuesAsync(venueQueryRequestData);
+            var response = await venueService
+                .GetVenuesAsync(requestData);
 
-            if (!serviceResponse.IsSuccess)
+            if (!response.IsSuccess)
             {
-                AddServiceErrors(serviceResponse.Errors);
-                return View(new VenueViewModel
-                {
-                    Venues = [],
-                    TotalPages = 0,
-                    Page = page,
-                    PageSize = DefaultPageSize
-                });
+                AddServiceErrors(response.Errors);
+
+                var errorViewModel = venueDataBuilder
+                    .VenueListToViewModel(null, page);
+
+                return View(errorViewModel);
             }
 
-            var venues = serviceResponse
-                .ResponseData
-                .Items
-                .Select(x => VenuesMapper.ToVenueViewModel(x))
-                .Select(x =>
-                {
-                    x.MatchSlug = SlugHelper.Create(x.MatchTitle);
-                    return x;
-                })
-                .ToList();
-
-
-            var viewModel = new VenueViewModel
-            {
-                Venues = venues,
-                TotalPages = serviceResponse.ResponseData.TotalPages,
-                Page = serviceResponse.ResponseData.Page,
-                PageSize = serviceResponse.ResponseData.PageSize,
-            };
-
+            var viewModel = venueDataBuilder
+                .VenueListToViewModel(response.ResponseData, page);
 
             return View(viewModel);
         }

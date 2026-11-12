@@ -5,7 +5,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Services.Data.Matches.RequestData
 {
-    public class MatchListRequestData
+    public class MatchSearchRequestData
     {
         [StringLength(MatchRules.SearchTermMaxLength)]
         public string? SearchTerm { get; set; }

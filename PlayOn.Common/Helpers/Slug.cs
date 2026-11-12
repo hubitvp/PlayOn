@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace PlayOn.Common.Helpers
 {
-    public static class SlugHelper
+    public static class Slug
     {
         public static string Create(string text)
         {

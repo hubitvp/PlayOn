@@ -2,8 +2,10 @@
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Home.ResponseModels;
-using PlayOn.Services.Mappers;
+using PlayOn.Services.Data.Sport.ResponseModels;
+using PlayOn.Services.DataBuilders;
+
+
 
 namespace PlayOn.Services
 {
@@ -16,7 +18,7 @@ namespace PlayOn.Services
             this.sportRepository = sportRepository;
         }
 
-        public async Task<ServiceResponse<IEnumerable<SportsResponseModel>>>
+        public async Task<ServiceResponse<IEnumerable<SportResponseModel>>>
             GetSportsAsync()
         {
             var sports = await sportRepository
@@ -24,11 +26,11 @@ namespace PlayOn.Services
                 .OrderBy(x => x.Name)
                 .ToListAsync();
 
-            IEnumerable<SportsResponseModel> response = sports
-                .Select(HomeMapper.ToSportsResponse)
+            IEnumerable<SportResponseModel> response = sports
+                .Select(SportDataBuilder.SportToResponseModel)
                 .ToList();
 
-            return ServiceResponse<IEnumerable<SportsResponseModel>>
+            return ServiceResponse<IEnumerable<SportResponseModel>>
                 .Success(response);
         }
 

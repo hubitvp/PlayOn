@@ -7,7 +7,7 @@ namespace PlayOn.Services.Contracts
 {
     public interface IVenueService
     {
-        Task<ServiceResponse<PagedResult<VenueResponseModel>>>
+        Task<ServiceResponse<PageResult<VenueResponseModel>>>
             GetVenuesAsync(VenueQueryRequestData venueQuery);
     }
 }

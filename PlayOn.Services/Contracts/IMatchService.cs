@@ -1,6 +1,5 @@
 ﻿using PlayOn.Common.Helpers;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Home.ResponseModels;
 using PlayOn.Services.Data.Matches.RequestData;
 using PlayOn.Services.Data.Matches.ResponseModels;
 
@@ -8,9 +7,9 @@ namespace PlayOn.Services.Contracts
 {
     public interface IMatchService
     {
-        Task<ServiceResponse<PagedResult<MatchCardResponseModel>>>
+        Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
             GetMatchCardsAsync(
-                MatchListRequestData request);
+                MatchSearchRequestData request);
 
         Task<ServiceResponse<MatchDetailsResponseModel>>
             GetDetailsAsync(

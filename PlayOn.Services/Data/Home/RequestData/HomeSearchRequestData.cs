@@ -1,8 +1,11 @@
-﻿namespace PlayOn.Services.Data.Home.RequestData
-{
-    using static PlayOn.Common.ApplicationConstants.PaginationConstants;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
-    public class HomeQueryRequestData
+namespace PlayOn.Services.Data.Home.RequestData
+{
+    public class HomeSearchRequestData
     {
         public int? SportId { get; set; }
 

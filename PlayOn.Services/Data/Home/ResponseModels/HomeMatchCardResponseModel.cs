@@ -1,8 +1,11 @@
 ﻿using PlayOn.Common.Enums;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
 namespace PlayOn.Services.Data.Home.ResponseModels
 {
-    public class MatchCardResponseModel
+    public class HomeMatchCardResponseModel
     {
         public required int Id { get; init; }
         public required string Title { get; init; }

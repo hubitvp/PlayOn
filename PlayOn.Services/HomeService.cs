@@ -6,7 +6,7 @@ using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
-using PlayOn.Services.Mappers;
+using PlayOn.Services.DataBuilders;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlayOn.Services
@@ -28,15 +28,15 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
-        public async Task<ServiceResponse<PagedResult<MatchCardResponseModel>>>
-            GetMatchCardsAsync(HomeQueryRequestData query)
+        public async Task<ServiceResponse<PageResult<HomeMatchCardResponseModel>>>
+            GetMatchCardsAsync(HomeSearchRequestData query)
         {
             var validationErrors = ServiceRequestDataValidator.Validate(query);
 
 
             if (validationErrors.Any())
             {
-                return ServiceResponse<PagedResult<MatchCardResponseModel>>
+                return ServiceResponse<PageResult<HomeMatchCardResponseModel>>
                     .Failure(validationErrors);
             }
 
@@ -52,7 +52,7 @@ namespace PlayOn.Services
                         "Select a valid sport.",
                         new[] { nameof(query.SportId) });
 
-                    return ServiceResponse<PagedResult<MatchCardResponseModel>>
+                    return ServiceResponse<PageResult<HomeMatchCardResponseModel>>
                         .Failure(new[] { error });
                 }
             }
@@ -60,7 +60,12 @@ namespace PlayOn.Services
 
             IQueryable<Match> matchQuerySource = matchRepository
                 .Query()
-                .AsSplitQuery();
+                .AsSplitQuery()
+                .Include(x => x.Event!)
+                    .ThenInclude(x => x.Sport)
+                .Include(x => x.Event!)
+                    .ThenInclude(x => x.Venue)
+                .Include(x => x.Participants);
 
             matchQuerySource = matchQuerySource
                 .Where(x => !x.IsDeleted && !x.IsHidden)
@@ -94,7 +99,6 @@ namespace PlayOn.Services
                 .Where(x => x.Event!.Venue.Date >= from);
 
 
-
             var totalCount = await matchQuerySource.CountAsync();
 
             var pageSize = Math.Clamp(query.PageSize, 1, 50);
@@ -113,40 +117,20 @@ namespace PlayOn.Services
             var items = await matchQuerySource
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(HomeMapper.MatchCardProjection())
+                .Select(HomeDataBuilder.HomeMatchCardProjection())
                 .ToListAsync();
 
-            var page = new PagedResult<MatchCardResponseModel>(
+            var response = new PageResult<HomeMatchCardResponseModel>(
                 items,
                 pageNumber,
                 pageSize,
                 totalCount);
 
-            return ServiceResponse<PagedResult<MatchCardResponseModel>>
-                .Success(page);
+
+            return ServiceResponse<PageResult<HomeMatchCardResponseModel>>
+                .Success(response);
         }
 
-
-        public async Task<ServiceResponse<IEnumerable<SportsResponseModel>>> GetSportsAsync()
-        {
-            var sports = await sportRepository
-                .Query()
-                .OrderBy(x => x.Name)
-                .Select(HomeMapper.SportsProjection())
-                .ToListAsync();
-
-            return ServiceResponse<IEnumerable<SportsResponseModel>>.Success(sports);
-        }
-
-
-        public async Task<ServiceResponse<bool>> SportExistsAsync(int sportId)
-        {
-            bool exists = await sportRepository
-                .Query()
-                .AnyAsync(x => x.Id == sportId);
-
-            return ServiceResponse<bool>.Success(exists);
-        }
 
     }
 }

@@ -6,10 +6,10 @@
         public required string Name { get; init; }
         public required string Address { get; init; }
         public required string City { get; init; }
-        public required DateOnly Date { get; init; }
-        public required TimeOnly StartsAt { get; init; }
-        public required TimeOnly OpensAt { get; init; }
-        public required TimeOnly ClosesAt { get; init; }
+        public required string Date { get; init; }
+        public required string StartsAt { get; init; }
+        public required string OpensAt { get; init; }
+        public required string ClosesAt { get; init; }
         public CourtViewModel Court { get; set; } = null!;
         public required int MatchId { get; init; }
         public required string MatchTitle { get; init; }

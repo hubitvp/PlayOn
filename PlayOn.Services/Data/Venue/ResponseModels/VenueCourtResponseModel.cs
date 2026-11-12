@@ -2,7 +2,7 @@
 
 namespace PlayOn.Services.Data.Venue.ResponseModels
 {
-    public class CourtResponseModel
+    public class VenueCourtResponseModel
     {
         public required string Name { get; init; }
         public required SportIcon SportIcon { get; init; }
