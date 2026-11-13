@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlayOn.Data;
 using PlayOn.Data.Models;
@@ -29,8 +30,24 @@ namespace PlayOn.Web
                         .Bind(options.Password);
                 })
                 .AddEntityFrameworkStores<PlayOnDbContext>();
-            builder.Services.AddControllersWithViews();
 
+            builder.Services.AddControllersWithViews(
+                options =>
+                {
+                    options.Filters.Add(
+                        new AutoValidateAntiforgeryTokenAttribute()
+                    );
+                });
+
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy =
+                    CookieSecurePolicy.Always;
+
+                options.Cookie.SameSite = SameSiteMode.Strict;
+            });
 
             builder.Services.AddSingleton(TimeProvider.System);
             builder.Services.AddSingleton<IDisplayFormatter, DisplayFormatter>();
@@ -48,7 +65,7 @@ namespace PlayOn.Web
             builder.Services.AddScoped<SportDataBuilder>();
             builder.Services.AddScoped<HomeDataBuilder>();
             builder.Services.AddScoped<VenueDataBuilder>();
-            
+
 
             var app = builder.Build();
 
