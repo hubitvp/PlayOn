@@ -1,14 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.EntityConstants.MatchConstants;
 
-namespace PlayOn.Services.Data.Matches.RequestData
+namespace PlayOn.Services.Data.Match.RequestData
 {
     public class MatchCancelRequestData : IValidatableObject
     {
-        public int MatchId { get; set; }
+        public Guid MatchId { get; set; }
 
         [Required]
-        public string ActorId { get; set; } = null!;
+        public Guid ActorId { get; set; }
 
         public bool ActorIsAdmin { get; set; }
 

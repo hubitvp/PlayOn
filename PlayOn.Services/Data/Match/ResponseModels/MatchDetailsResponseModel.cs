@@ -1,14 +1,14 @@
 ﻿using PlayOn.Common.Enums;
 
-namespace PlayOn.Services.Data.Matches.ResponseModels
+namespace PlayOn.Services.Data.Match.ResponseModels
 {
     public class MatchDetailsResponseModel
     {
-        public required int Id { get; init; }
+        public required Guid Id { get; init; }
         public required string Title { get; init; }
-        public string? Description { get; init; }
+        public required string? Description { get; init; }
         public required MatchStatus Status { get; init; }
-        public string? CancelReason { get; init; }
+        public required string? CancelReason { get; init; }
         public required bool IsHidden { get; init; }
 
         public required int DurationMinutes { get; init; }
@@ -19,7 +19,7 @@ namespace PlayOn.Services.Data.Matches.ResponseModels
         public required decimal PricePerPlayer { get; init; }
 
         public required string OrganiserName { get; init; }
-        public int? OrganiserReliability { get; init; }
+        public required int? OrganiserReliability { get; init; }
 
         public required string SportName { get; init; }
         public required SportIcon SportIcon { get; init; }
@@ -40,16 +40,17 @@ namespace PlayOn.Services.Data.Matches.ResponseModels
 
         public required bool CanManage { get; init; }
 
-        public required IReadOnlyList<MatchParticipantResponseModel> Participants { get; init; }
+        //public required IReadOnlyList<MatchParticipantResponseModel> Participants { get; init; }
+        public required IEnumerable<MatchParticipantResponseModel> Participants { get; init; }
     }
 
     public class MatchParticipantResponseModel
     {
-        public required string UserId { get; init; }
+        public required Guid UserId { get; init; }
         public required string DisplayName { get; init; }
         public required string City { get; init; }
         public required ParticipantStatus Status { get; init; }
         public required bool IsOrganiser { get; init; }
-        public int? Reliability { get; init; }
+        public required int? Reliability { get; init; }
     }
 }

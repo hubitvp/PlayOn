@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using static PlayOn.Common.ApplicationConstants.PaginationConstants;
+﻿using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Services.Data.Home.RequestData
 {
     public class HomeSearchRequestData
     {
-        public int? SportId { get; set; }
+        public Guid? SportId { get; set; }
 
         public string? City { get; set; }
 

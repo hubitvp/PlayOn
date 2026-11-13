@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PlayOn.Services.Data.Matches.RequestData
+namespace PlayOn.Services.Data.Match.RequestData
 {
     public class MatchUpdateRequestData : MatchRequestDataBase
     {
-        public int MatchId { get; set; }
+        public Guid MatchId { get; set; }
 
         [Required]
-        public string ActorId { get; set; } = null!;
+        public Guid ActorId { get; set; }
 
         public bool ActorIsAdmin { get; set; }
 

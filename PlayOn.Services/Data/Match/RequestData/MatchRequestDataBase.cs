@@ -3,7 +3,7 @@ using PlayOn.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.EntityConstants.MatchConstants;
 
-namespace PlayOn.Services.Data.Matches.RequestData
+namespace PlayOn.Services.Data.Match.RequestData
 {
 
     public abstract class MatchRequestDataBase : IValidatableObject

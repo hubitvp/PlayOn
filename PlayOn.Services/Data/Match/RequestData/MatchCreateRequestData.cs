@@ -1,20 +1,20 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PlayOn.Services.Data.Matches.RequestData
+namespace PlayOn.Services.Data.Match.RequestData
 {
     public class MatchCreateRequestData : MatchRequestDataBase
     {
 
         [Required]
-        public string OrganiserId { get; set; } = null!;
+        public Guid OrganiserId { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Select a sport.")]
-        public int SportId { get; set; }
+        public Guid SportId { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Select a court.")]
-        public int CourtId { get; set; }
+        public Guid CourtId { get; set; }
 
         [Range(1, int.MaxValue, ErrorMessage = "Select a date and time slot.")]
-        public int VenueId { get; set; }
+        public Guid VenueId { get; set; }
     }
 }

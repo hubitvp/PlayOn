@@ -1,10 +1,10 @@
 ﻿using PlayOn.Common.Enums;
 
-namespace PlayOn.Services.Data.Matches.ResponseModels
+namespace PlayOn.Services.Data.Match.ResponseModels
 {
     public class MatchEditResponseModel
     {
-        public required int Id { get; init; }
+        public required Guid Id { get; init; }
         public required string Title { get; init; }
         public string? Description { get; init; }
         public required int DurationMinutes { get; init; }

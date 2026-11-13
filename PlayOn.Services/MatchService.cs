@@ -4,9 +4,8 @@ using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Matches;
-using PlayOn.Services.Data.Matches.RequestData;
-using PlayOn.Services.Data.Matches.ResponseModels;
+using PlayOn.Services.Data.Match.RequestData;
+using PlayOn.Services.Data.Match.ResponseModels;
 using PlayOn.Services.DataBuilders;
 
 
@@ -143,7 +142,7 @@ namespace PlayOn.Services
 
 
         public async Task<ServiceResponse<MatchDetailsResponseModel>>
-            GetDetailsAsync(int matchId, string? userId, bool isAdmin)
+            GetDetailsAsync(Guid matchId, Guid? userId, bool isAdmin)
         {
             var row = await matchRepository
                 .Query()
@@ -177,8 +176,8 @@ namespace PlayOn.Services
 
         public async Task<ServiceResponse<MatchEditResponseModel>>
             GetForEditAsync(
-                int matchId,
-                string actorId,
+                Guid matchId,
+                Guid actorId,
                 bool actorIsAdmin)
         {
             var row = await matchRepository
@@ -211,14 +210,14 @@ namespace PlayOn.Services
                 .Success(responseModel);
         }
 
-        public async Task<ServiceResponse<int>>
+        public async Task<ServiceResponse<Guid>>
             UpdateAsync(MatchUpdateRequestData request)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
 
             if (errors.Any())
             {
-                return ServiceResponse<int>.Failure(errors);
+                return ServiceResponse<Guid>.Failure(errors);
             }
 
             var row = await matchRepository
@@ -229,31 +228,31 @@ namespace PlayOn.Services
 
             if (row == null || row.IsDeleted)
             {
-                return ServiceResponse<int>.NotFound();
+                return ServiceResponse<Guid>.NotFound();
             }
 
             if (row.OrganiserId != request.ActorId && !request.ActorIsAdmin)
             {
-                return ServiceResponse<int>.Forbidden();
+                return ServiceResponse<Guid>.Forbidden();
             }
 
             if (!IsOpenForChanges(row.Status, row.Date, row.StartsAt))
             {
-                return ServiceResponse<int>.Conflict(
+                return ServiceResponse<Guid>.Conflict(
                     "This match is cancelled, finished or already started, so it can no longer be changed.");
             }
 
 
             if (request.MaxPlayers < row!.JoinedCount)
             {
-                return ServiceResponse<int>.Failure(
+                return ServiceResponse<Guid>.Failure(
                     $"{row.JoinedCount} players have already joined, so the maximum cannot be lower.",
                     nameof(request.MaxPlayers));
             }
 
             if (request.MaxPlayers > row.CourtCapacity)
             {
-                return ServiceResponse<int>.Failure(
+                return ServiceResponse<Guid>.Failure(
                     $"This court fits at most {row.CourtCapacity} players.", nameof(request.MaxPlayers));
             }
 
@@ -265,10 +264,10 @@ namespace PlayOn.Services
 
             await matchRepository.SaveChangesAsync();
 
-            return ServiceResponse<int>.Success(request.MatchId);
+            return ServiceResponse<Guid>.Success(request.MatchId);
         }
 
-        public async Task<ServiceResponse<int>>
+        public async Task<ServiceResponse<Guid>>
             CreateAsync(
                 MatchCreateRequestData request)
         {
@@ -276,12 +275,12 @@ namespace PlayOn.Services
 
             if (errors.Any())
             {
-                return ServiceResponse<int>.Failure(errors);
+                return ServiceResponse<Guid>.Failure(errors);
             }
 
             if (!await sportRepository.Query().AnyAsync(x => x.Id == request.SportId))
             {
-                return ServiceResponse<int>.Failure("Select a valid sport.", nameof(request.SportId));
+                return ServiceResponse<Guid>.Failure("Select a valid sport.", nameof(request.SportId));
             }
 
             var court = await courtRepository
@@ -292,19 +291,26 @@ namespace PlayOn.Services
 
             if (court == null)
             {
-                return ServiceResponse<int>.Failure("Select a valid court.", nameof(request.CourtId));
+                return ServiceResponse<Guid>
+                    .Failure(
+                        "Select a valid court.",
+                        nameof(request.CourtId));
             }
 
             if (!court.SportIds.Contains(request.SportId))
             {
-                return ServiceResponse<int>.Failure(
-                    "This court cannot be used for the selected sport.", nameof(request.CourtId));
+                return ServiceResponse<Guid>
+                    .Failure(
+                        "This court cannot be used for the selected sport.",
+                        nameof(request.CourtId));
             }
 
             if (request.MaxPlayers > court.Capacity)
             {
-                return ServiceResponse<int>.Failure(
-                    $"This court fits at most {court.Capacity} players.", nameof(request.MaxPlayers));
+                return ServiceResponse<Guid>
+                    .Failure(
+                        $"This court fits at most {court.Capacity} players.",
+                        nameof(request.MaxPlayers));
             }
 
             var slot = await venueRepository
@@ -315,7 +321,7 @@ namespace PlayOn.Services
 
             if (slot == null || slot.IsDeleted)
             {
-                return ServiceResponse<int>
+                return ServiceResponse<Guid>
                     .Failure(
                         "Select a valid date and time slot.",
                         nameof(request.VenueId));
@@ -323,7 +329,7 @@ namespace PlayOn.Services
 
             if (slot.IsTaken)
             {
-                return ServiceResponse<int>
+                return ServiceResponse<Guid>
                     .Failure(
                         "This slot is already taken.",
                         nameof(request.VenueId));
@@ -331,7 +337,10 @@ namespace PlayOn.Services
 
             if (HasStarted(slot.Date, slot.StartsAt))
             {
-                return ServiceResponse<int>.Failure("This slot is in the past.", nameof(request.VenueId));
+                return ServiceResponse<Guid>
+                    .Failure(
+                        "This slot is in the past.",
+                        nameof(request.VenueId));
             }
 
             var match = MatchDataBuilder.MatchCreateToEntity(
@@ -341,7 +350,7 @@ namespace PlayOn.Services
             await matchRepository.AddAsync(match);
             await matchRepository.SaveChangesAsync();
 
-            return ServiceResponse<int>
+            return ServiceResponse<Guid>
                 .Success(match.Id);
         }
 
@@ -376,22 +385,22 @@ namespace PlayOn.Services
         }
         public async Task<ServiceResponse<MatchEditResponseModel>>
             GetForCancelAsync(
-                int matchId,
-                string actorId,
+                Guid matchId,
+                Guid actorId,
                 bool actorIsAdmin)
         {
             return await GetForEditAsync(matchId, actorId, actorIsAdmin);
         }
 
 
-        public async Task<ServiceResponse<int>>
+        public async Task<ServiceResponse<Guid>>
             CancelAsync(MatchCancelRequestData request)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
 
             if (errors.Any())
             {
-                return ServiceResponse<int>.Failure(errors);
+                return ServiceResponse<Guid>.Failure(errors);
             }
 
             var row = await matchRepository
@@ -402,18 +411,18 @@ namespace PlayOn.Services
 
             if (row == null || row.IsDeleted)
             {
-                return ServiceResponse<int>.NotFound();
+                return ServiceResponse<Guid>.NotFound();
             }
 
             if (row.OrganiserId != request.ActorId && !request.ActorIsAdmin)
             {
-                return ServiceResponse<int>
+                return ServiceResponse<Guid>
                     .Forbidden();
             }
 
             if (!IsOpenForChanges(row.Status, row.Date, row.StartsAt))
             {
-                return ServiceResponse<int>
+                return ServiceResponse<Guid>
                     .Conflict("This match is cancelled, finished or already started, so it can no longer be changed.");
             }
 
@@ -425,7 +434,7 @@ namespace PlayOn.Services
 
             await matchRepository.SaveChangesAsync();
 
-            return ServiceResponse<int>.Success(match.Id);
+            return ServiceResponse<Guid>.Success(match.Id);
         }
 
 

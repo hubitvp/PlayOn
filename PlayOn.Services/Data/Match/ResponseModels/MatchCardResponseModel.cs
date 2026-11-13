@@ -1,10 +1,10 @@
 ﻿using PlayOn.Common.Enums;
 
-namespace PlayOn.Services.Data.Matches.ResponseModels
+namespace PlayOn.Services.Data.Match.ResponseModels
 {
     public class MatchCardResponseModel
     {
-        public required int Id { get; init; }
+        public required Guid Id { get; init; }
         public required string Title { get; init; }
         public required string SportName { get; init; }
         public required SportIcon SportIcon { get; init; }

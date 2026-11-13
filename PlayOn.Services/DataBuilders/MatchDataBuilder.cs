@@ -1,8 +1,8 @@
 ﻿using PlayOn.Common.Enums;
 using PlayOn.Data.Models;
-using PlayOn.Services.Data.Matches;
-using PlayOn.Services.Data.Matches.RequestData;
-using PlayOn.Services.Data.Matches.ResponseModels;
+using PlayOn.Services.Data.Match;
+using PlayOn.Services.Data.Match.RequestData;
+using PlayOn.Services.Data.Match.ResponseModels;
 using PlayOn.Services.Data.Sport.ResponseModels;
 using System.Linq.Expressions;
 

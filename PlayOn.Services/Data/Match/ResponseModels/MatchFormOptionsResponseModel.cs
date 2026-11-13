@@ -1,6 +1,6 @@
 ﻿using PlayOn.Services.Data.Sport.ResponseModels;
 
-namespace PlayOn.Services.Data.Matches.ResponseModels
+namespace PlayOn.Services.Data.Match.ResponseModels
 {
     public class MatchFormOptionsResponseModel
     {
@@ -13,7 +13,7 @@ namespace PlayOn.Services.Data.Matches.ResponseModels
 
     public class VenueSlotResponseModel
     {
-        public required int Id { get; init; }
+        public required Guid Id { get; init; }
         public required string Name { get; init; }
         public required string City { get; init; }
         public required DateOnly Date { get; init; }

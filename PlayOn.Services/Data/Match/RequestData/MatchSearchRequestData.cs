@@ -3,14 +3,14 @@ using PlayOn.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
-namespace PlayOn.Services.Data.Matches.RequestData
+namespace PlayOn.Services.Data.Match.RequestData
 {
     public class MatchSearchRequestData
     {
         [StringLength(MatchRules.SearchTermMaxLength)]
         public string? SearchTerm { get; set; }
 
-        public int? SportId { get; set; }
+        public Guid? SportId { get; set; }
 
         [StringLength(MatchRules.CityMaxLength)]
         public string? City { get; set; }

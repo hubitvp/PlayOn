@@ -2,7 +2,7 @@
 {
     public class VenueResponseModel
     {
-        public required int Id { get; init; }
+        public required Guid Id { get; init; }
         public required string Name { get; init; }
         public required string Address { get; init; }
         public required string City { get; init; }
@@ -11,7 +11,7 @@
         public required TimeOnly OpensAt { get; init; }
         public required TimeOnly ClosesAt { get; init; }
         public required VenueCourtResponseModel Court { get; init; }
-        public required int MatchId { get; init; }
+        public required Guid MatchId { get; init; }
         public required string MatchTitle { get; init; }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using PlayOn.Common.Helpers;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Matches.RequestData;
-using PlayOn.Services.Data.Matches.ResponseModels;
+using PlayOn.Services.Data.Match.RequestData;
+using PlayOn.Services.Data.Match.ResponseModels;
 
 namespace PlayOn.Services.Contracts
 {
@@ -13,23 +13,23 @@ namespace PlayOn.Services.Contracts
 
         Task<ServiceResponse<MatchDetailsResponseModel>>
             GetDetailsAsync(
-                int matchId,
-                string? userId,
+                Guid matchId,
+                Guid? userId,
                 bool isAdmin);
 
 
         Task<ServiceResponse<MatchEditResponseModel>>
             GetForEditAsync(
-                int matchId,
-                string actorId,
+                Guid matchId,
+                Guid actorId,
                 bool actorIsAdmin);
 
 
-        Task<ServiceResponse<int>>
+        Task<ServiceResponse<Guid>>
             UpdateAsync(MatchUpdateRequestData request);
 
 
-        Task<ServiceResponse<int>>
+        Task<ServiceResponse<Guid>>
             CreateAsync(
                 MatchCreateRequestData request);
 
@@ -38,11 +38,11 @@ namespace PlayOn.Services.Contracts
 
         Task<ServiceResponse<MatchEditResponseModel>>
             GetForCancelAsync(
-                int matchId,
-                string actorId,
+                Guid matchId,
+                Guid actorId,
                 bool actorIsAdmin);
 
-        Task<ServiceResponse<int>>
+        Task<ServiceResponse<Guid>>
             CancelAsync(MatchCancelRequestData request);
     }
 }

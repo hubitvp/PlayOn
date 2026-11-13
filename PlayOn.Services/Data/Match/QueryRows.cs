@@ -1,11 +1,11 @@
 ﻿using PlayOn.Common.Enums;
 
-namespace PlayOn.Services.Data.Matches
+namespace PlayOn.Services.Data.Match
 {
 
     public sealed class DetailsRow
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Title { get; set; } = null!;
         public string? Description { get; set; }
         public MatchStatus Status { get; set; }
@@ -17,7 +17,7 @@ namespace PlayOn.Services.Data.Matches
         public SkillLevel MinSkill { get; set; }
         public SkillLevel MaxSkill { get; set; }
         public decimal PricePerPlayer { get; set; }
-        public string OrganiserId { get; set; } = null!;
+        public Guid OrganiserId { get; set; }
         public string OrganiserName { get; set; } = null!;
         public int? OrganiserReliability { get; set; }
         public string SportName { get; set; } = null!;
@@ -36,7 +36,7 @@ namespace PlayOn.Services.Data.Matches
 
     public sealed class ParticipantRow
     {
-        public string UserId { get; set; } = null!;
+        public Guid UserId { get; set; }
         public string DisplayName { get; set; } = null!;
         public string City { get; set; } = null!;
         public ParticipantStatus Status { get; set; }
@@ -45,8 +45,8 @@ namespace PlayOn.Services.Data.Matches
 
     internal sealed class EditRow
     {
-        public int Id { get; set; }
-        public string OrganiserId { get; set; } = null!;
+        public Guid Id { get; set; }
+        public Guid OrganiserId { get; set; }
         public bool IsDeleted { get; set; }
         public MatchStatus Status { get; set; }
         public string Title { get; set; } = null!;
@@ -60,7 +60,7 @@ namespace PlayOn.Services.Data.Matches
         public byte[] RowVersion { get; set; } = null!;
         public string SportName { get; set; } = null!;
         public SportIcon SportIcon { get; set; }
-        public int CourtId { get; set; }
+        public Guid CourtId { get; set; }
         public string CourtName { get; set; } = null!;
         public int CourtCapacity { get; set; }
         public string VenueName { get; set; } = null!;
@@ -73,7 +73,7 @@ namespace PlayOn.Services.Data.Matches
 
     internal sealed class SlotRow
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public DateOnly Date { get; set; }
         public TimeOnly StartsAt { get; set; }
         public TimeOnly OpensAt { get; set; }
