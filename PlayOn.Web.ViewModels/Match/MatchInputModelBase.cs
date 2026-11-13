@@ -9,25 +9,37 @@ namespace PlayOn.Web.ViewModels.Match
     public abstract class MatchInputModelBase : IValidatableObject
     {
         [Required]
-        [StringLength(TitleMaxLength, MinimumLength = TitleMinLength)]
-        public string Title { get; set; } = string.Empty;
+        [StringLength(
+            TitleMaxLength,
+            MinimumLength = TitleMinLength)]
+        public string Title { get; set; } = null!;
 
         [StringLength(DescriptionMaxLength)]
         public string? Description { get; set; }
 
-        [Range(MatchRules.MinDurationInMinutes, MatchRules.MaxDurationInMinutes)]
-        public int DurationMinutes { get; set; } = 60;
+        [Range(
+            MatchRules.MinDurationInMinutes,
+            MatchRules.MaxDurationInMinutes)]
+        public int DurationMinutes { get; set; } = MatchRules.MinDurationInMinutes;
 
-        [Range(MatchRules.PlayersMinLimit, MatchRules.PlayersMaxLimit)]
-        public int MinPlayers { get; set; } = 6;
+        [Range(
+            MatchRules.PlayersMinLimit,
+            MatchRules.PlayersMaxLimit)]
+        public int MinPlayers { get; set; } = MatchRules.PlayersMinLimit;
 
-        [Range(MatchRules.PlayersMinLimit, MatchRules.PlayersMaxLimit)]
-        public int MaxPlayers { get; set; } = 10;
+        [Range(
+            MatchRules.PlayersMinLimit,
+            MatchRules.PlayersMaxLimit)]
+        public int MaxPlayers { get; set; } = MatchRules.PlayersMaxLimit;
 
-        [EnumDataType(typeof(SkillLevel), ErrorMessage = "Select a valid skill level.")]
+        [EnumDataType(
+            typeof(SkillLevel),
+            ErrorMessage = "Select a valid skill level.")]
         public SkillLevel MinSkill { get; set; } = SkillLevel.Beginner;
 
-        [EnumDataType(typeof(SkillLevel), ErrorMessage = "Select a valid skill level.")]
+        [EnumDataType(
+            typeof(SkillLevel),
+            ErrorMessage = "Select a valid skill level.")]
         public SkillLevel MaxSkill { get; set; } = SkillLevel.Advanced;
 
         [Range(

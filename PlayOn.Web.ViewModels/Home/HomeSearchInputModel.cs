@@ -5,7 +5,7 @@ namespace PlayOn.Web.ViewModels.Home
 {
     public class HomeSearchInputModel : IValidatableObject
     {
-        public int? SportId { get; set; }
+        public Guid? SportId { get; set; }
 
         public string? City { get; set; }
 
@@ -19,10 +19,10 @@ namespace PlayOn.Web.ViewModels.Home
                 ?? throw new InvalidOperationException(
                     "TimeProvider is not registered.");
 
-            if (SportId.HasValue && SportId.Value <= 0)
+            if (SportId.HasValue && SportId.Value == Guid.Empty)
             {
                 yield return new ValidationResult(
-                    "Sport ID must be a positive integer.",
+                    "Sport ID must be a not empty guid.",
                     new[] { nameof(SportId) });
             }
 

@@ -6,8 +6,7 @@ namespace PlayOn.Web.ViewModels.Match
     public class MatchCancelViewModel : IValidatableObject
     {
 
-        [Range(1, int.MaxValue, ErrorMessage = "The match is not valid.")]
-        public int Id { get; set; }
+        public Guid MatchId { get; set; }
 
         [Required]
         [StringLength(CancelReasonMaxLength, MinimumLength = CancelReasonMinLength)]

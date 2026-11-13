@@ -4,12 +4,12 @@ namespace PlayOn.Web.ViewModels.Match
 {
     public class MatchDetailsViewModel
     {
-        public required int Id { get; init; }
+        public required Guid Id { get; init; }
         public required string Slug { get; init; }
         public required string Title { get; init; }
-        public string? Description { get; init; }
+        public required string? Description { get; init; }
         public required MatchStatus Status { get; init; }
-        public string? CancelReason { get; init; }
+        public required string? CancelReason { get; init; }
         public required bool IsHidden { get; init; }
 
         public required string SportName { get; init; }
@@ -33,11 +33,11 @@ namespace PlayOn.Web.ViewModels.Match
         public required string PricePerPlayer { get; init; }
 
         public required string OrganiserName { get; init; }
-        public int? OrganiserReliability { get; init; }
+        public required int? OrganiserReliability { get; init; }
 
         public required bool CanManage { get; init; }
 
-        public required IReadOnlyList<MatchParticipantViewModel> Participants { get; init; }
+        public required IEnumerable<MatchParticipantViewModel> Participants { get; init; }
     }
 
     public class MatchParticipantViewModel
@@ -46,6 +46,6 @@ namespace PlayOn.Web.ViewModels.Match
         public required string City { get; init; }
         public required ParticipantStatus Status { get; init; }
         public required bool IsOrganiser { get; init; }
-        public int? Reliability { get; init; }
+        public required int? Reliability { get; init; }
     }
 }

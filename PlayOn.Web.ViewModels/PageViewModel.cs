@@ -1,7 +1,7 @@
 ﻿using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 namespace PlayOn.Web.ViewModels
 {
-    public class PagedViewModel
+    public class PageViewModel
     {
         public int Page { get; init; } = FirstPage;
         public int PageSize { get; init; } = DefaultPageSize;

@@ -12,20 +12,24 @@ namespace PlayOn.Web.ViewModels.Match
         [StringLength(MatchRules.SearchTermMaxLength)]
         public string? SearchTerm { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Select a valid sport.")]
-        public int? SportId { get; set; }
+
+        public Guid? SportId { get; set; }
 
         [StringLength(MatchRules.CityMaxLength)]
         public string? City { get; set; }
 
         public string? From { get; set; }
 
-        [EnumDataType(typeof(SkillLevel), ErrorMessage = "Select a valid skill level.")]
+        [EnumDataType(
+            typeof(SkillLevel),
+            ErrorMessage = "Select a valid skill level.")]
         public SkillLevel? Skill { get; set; }
 
         public bool OnlyWithFreeSpots { get; set; }
 
-        [EnumDataType(typeof(MatchSort), ErrorMessage = "Select a valid sort order.")]
+        [EnumDataType(
+            typeof(MatchSort),
+            ErrorMessage = "Select a valid sort order.")]
         public MatchSort Sort { get; set; } = MatchSort.Soonest;
 
         public int Page { get; set; } = FirstPage;
@@ -55,10 +59,11 @@ namespace PlayOn.Web.ViewModels.Match
 
         private static DateOnly GetLocalDate(ValidationContext validationContext)
         {
-            var timeProvider = validationContext.GetService(typeof(TimeProvider)) as TimeProvider
+            var timeProvider =
+                validationContext.GetService(typeof(TimeProvider)) as TimeProvider
                 ?? TimeProvider.System;
 
-            return DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+            return DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
         }
     }
 }

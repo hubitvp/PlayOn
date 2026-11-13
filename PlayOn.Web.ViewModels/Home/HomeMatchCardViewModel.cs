@@ -1,13 +1,10 @@
 ﻿using PlayOn.Common.Enums;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace PlayOn.Web.ViewModels.Home
 {
     public class HomeMatchCardViewModel
     {
-        public required int Id { get; init; }
+        public required Guid Id { get; init; }
         public string Slug { get; set; } = null!;
         public required string Title { get; init; }
         public required string SportName { get; init; }
