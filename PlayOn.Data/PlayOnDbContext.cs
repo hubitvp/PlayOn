@@ -5,7 +5,8 @@ using PlayOn.Data.Models;
 
 namespace PlayOn.Data
 {
-    public class PlayOnDbContext(DbContextOptions<PlayOnDbContext> options) : IdentityDbContext<ApplicationUser>(options)
+    public class PlayOnDbContext(DbContextOptions<PlayOnDbContext> options)
+        : IdentityDbContext<ApplicationUser, ApplicationRole, Guid>(options)
     {
 
         public virtual DbSet<Sport> Sports { get; set; } = null!;

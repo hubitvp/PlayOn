@@ -9,10 +9,10 @@ namespace PlayOn.Data.Models
     public class Notification
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
-        public string UserId { get; set; } = null!;
+        public Guid UserId { get; set; }
 
         [ForeignKey(nameof(UserId))]
         public virtual ApplicationUser User { get; set; } = null!;

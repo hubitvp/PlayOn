@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PlayOn.Data.Configurations.SeedData;
 using PlayOn.Data.Models;
 using static PlayOn.Common.EntityConstants.VenueConstants;
 
@@ -9,18 +10,16 @@ namespace PlayOn.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Venue> builder)
         {
-
             builder.Property(x => x.Latitude)
                 .HasPrecision(DecimalPrecision, DecimalScale);
 
             builder.Property(x => x.Longitude)
                 .HasPrecision(DecimalPrecision, DecimalScale);
 
-
             builder.HasData(
                 new Venue
                 {
-                    Id = 1,
+                    Id = Guid.Parse(SeedVenueIds.Venue001),
                     Date = new DateOnly(2026, 10, 13),
                     StartsAt = new TimeOnly(18, 0),
                     Name = "Central Sports Park",
@@ -28,14 +27,14 @@ namespace PlayOn.Data.Configurations
                     City = "Sofia",
                     Latitude = 42.697700m,
                     Longitude = 23.321900m,
+                    PhotoUrl = null,
                     OpensAt = new TimeOnly(7, 0),
                     ClosesAt = new TimeOnly(23, 0),
-                    PhotoUrl = null,
                     IsDeleted = false
                 },
                 new Venue
                 {
-                    Id = 2,
+                    Id = Guid.Parse(SeedVenueIds.Venue002),
                     Date = new DateOnly(2026, 10, 14),
                     StartsAt = new TimeOnly(19, 0),
                     Name = "Eastside Arena",
@@ -50,7 +49,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 3,
+                    Id = Guid.Parse(SeedVenueIds.Venue003),
                     Date = new DateOnly(2026, 10, 17),
                     StartsAt = new TimeOnly(10, 0),
                     Name = "Riverside Courts",
@@ -65,7 +64,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 4,
+                    Id = Guid.Parse(SeedVenueIds.Venue004),
                     Date = new DateOnly(2026, 10, 18),
                     StartsAt = new TimeOnly(9, 0),
                     Name = "South Field Complex",
@@ -80,7 +79,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 5,
+                    Id = Guid.Parse(SeedVenueIds.Venue005),
                     Date = new DateOnly(2026, 11, 9),
                     StartsAt = new TimeOnly(18, 30),
                     Name = "Mountain Sports Hall",
@@ -95,7 +94,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 6,
+                    Id = Guid.Parse(SeedVenueIds.Venue006),
                     Date = new DateOnly(2026, 11, 10),
                     StartsAt = new TimeOnly(17, 0),
                     Name = "West End Club",
@@ -110,7 +109,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 7,
+                    Id = Guid.Parse(SeedVenueIds.Venue007),
                     Date = new DateOnly(2026, 11, 11),
                     StartsAt = new TimeOnly(19, 30),
                     Name = "Black Sea Sports",
@@ -125,7 +124,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 8,
+                    Id = Guid.Parse(SeedVenueIds.Venue008),
                     Date = new DateOnly(2026, 11, 14),
                     StartsAt = new TimeOnly(11, 0),
                     Name = "Maritsa Activity Center",
@@ -140,7 +139,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 9,
+                    Id = Guid.Parse(SeedVenueIds.Venue009),
                     Date = new DateOnly(2026, 10, 25),
                     StartsAt = new TimeOnly(14, 0),
                     Name = "Green Court Club",
@@ -155,7 +154,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 10,
+                    Id = Guid.Parse(SeedVenueIds.Venue010),
                     Date = new DateOnly(2026, 11, 15),
                     StartsAt = new TimeOnly(15, 0),
                     Name = "Danube Sports Hub",
@@ -170,7 +169,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 11,
+                    Id = Guid.Parse(SeedVenueIds.Venue011),
                     Date = new DateOnly(2026, 11, 7),
                     StartsAt = new TimeOnly(10, 0),
                     Name = "Central Sports Park",
@@ -185,7 +184,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 12,
+                    Id = Guid.Parse(SeedVenueIds.Venue012),
                     Date = new DateOnly(2026, 11, 13),
                     StartsAt = new TimeOnly(20, 0),
                     Name = "Eastside Arena",
@@ -200,7 +199,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 13,
+                    Id = Guid.Parse(SeedVenueIds.Venue013),
                     Date = new DateOnly(2026, 11, 16),
                     StartsAt = new TimeOnly(18, 30),
                     Name = "Eastside Arena",
@@ -215,7 +214,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 14,
+                    Id = Guid.Parse(SeedVenueIds.Venue014),
                     Date = new DateOnly(2026, 11, 18),
                     StartsAt = new TimeOnly(19, 0),
                     Name = "Mountain Sports Hall",
@@ -230,7 +229,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 15,
+                    Id = Guid.Parse(SeedVenueIds.Venue015),
                     Date = new DateOnly(2026, 11, 22),
                     StartsAt = new TimeOnly(9, 30),
                     Name = "Riverside Courts",
@@ -245,7 +244,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 16,
+                    Id = Guid.Parse(SeedVenueIds.Venue016),
                     Date = new DateOnly(2026, 11, 20),
                     StartsAt = new TimeOnly(18, 0),
                     Name = "Central Sports Park",
@@ -260,7 +259,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 17,
+                    Id = Guid.Parse(SeedVenueIds.Venue017),
                     Date = new DateOnly(2026, 11, 21),
                     StartsAt = new TimeOnly(10, 0),
                     Name = "Eastside Arena",
@@ -275,7 +274,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 18,
+                    Id = Guid.Parse(SeedVenueIds.Venue018),
                     Date = new DateOnly(2026, 11, 24),
                     StartsAt = new TimeOnly(19, 0),
                     Name = "Riverside Courts",
@@ -290,7 +289,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 19,
+                    Id = Guid.Parse(SeedVenueIds.Venue019),
                     Date = new DateOnly(2026, 11, 27),
                     StartsAt = new TimeOnly(17, 30),
                     Name = "South Field Complex",
@@ -305,7 +304,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 20,
+                    Id = Guid.Parse(SeedVenueIds.Venue020),
                     Date = new DateOnly(2026, 11, 28),
                     StartsAt = new TimeOnly(11, 0),
                     Name = "Mountain Sports Hall",
@@ -320,7 +319,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 21,
+                    Id = Guid.Parse(SeedVenueIds.Venue021),
                     Date = new DateOnly(2026, 12, 3),
                     StartsAt = new TimeOnly(18, 0),
                     Name = "Danube Sports Hub",
@@ -335,7 +334,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Venue
                 {
-                    Id = 22,
+                    Id = Guid.Parse(SeedVenueIds.Venue022),
                     Date = new DateOnly(2026, 12, 5),
                     StartsAt = new TimeOnly(15, 0),
                     Name = "West End Club",
@@ -347,7 +346,8 @@ namespace PlayOn.Data.Configurations
                     OpensAt = new TimeOnly(9, 0),
                     ClosesAt = new TimeOnly(22, 0),
                     IsDeleted = false
-                });
+                }
+            );
         }
     }
 }

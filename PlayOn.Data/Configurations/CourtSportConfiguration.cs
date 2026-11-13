@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PlayOn.Data.Configurations.SeedData;
 using PlayOn.Data.Models;
 
 namespace PlayOn.Data.Configurations
@@ -20,78 +21,76 @@ namespace PlayOn.Data.Configurations
                 .HasForeignKey(x => x.SportId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-
             builder.HasData(
                 new CourtSport
                 {
-                    CourtId = 1,
-                    SportId = 1
+                    CourtId = Guid.Parse(SeedCourtIds.MainFootballPitch),
+                    SportId = Guid.Parse(SeedSportIds.Football)
                 },
                 new CourtSport
                 {
-                    CourtId = 2,
-                    SportId = 2
+                    CourtId = Guid.Parse(SeedCourtIds.ArenaBasketball1),
+                    SportId = Guid.Parse(SeedSportIds.Basketball)
                 },
                 new CourtSport
                 {
-                    CourtId = 3,
-                    SportId = 3
+                    CourtId = Guid.Parse(SeedCourtIds.RiversideTennis1),
+                    SportId = Guid.Parse(SeedSportIds.Tennis)
                 },
                 new CourtSport
                 {
-                    CourtId = 4,
-                    SportId = 4
+                    CourtId = Guid.Parse(SeedCourtIds.SouthVolleyballCourt),
+                    SportId = Guid.Parse(SeedSportIds.Volleyball)
                 },
                 new CourtSport
                 {
-                    CourtId = 5,
-                    SportId = 5
+                    CourtId = Guid.Parse(SeedCourtIds.MountainPadel1),
+                    SportId = Guid.Parse(SeedSportIds.Padel)
                 },
                 new CourtSport
                 {
-                    CourtId = 6,
-                    SportId = 6
+                    CourtId = Guid.Parse(SeedCourtIds.WestBadminton1),
+                    SportId = Guid.Parse(SeedSportIds.Badminton)
                 },
                 new CourtSport
                 {
-                    CourtId = 7,
-                    SportId = 7
+                    CourtId = Guid.Parse(SeedCourtIds.SeaHandballCourt),
+                    SportId = Guid.Parse(SeedSportIds.Handball)
                 },
                 new CourtSport
                 {
-                    CourtId = 8,
-                    SportId = 8
+                    CourtId = Guid.Parse(SeedCourtIds.MaritsaRugbyField),
+                    SportId = Guid.Parse(SeedSportIds.Rugby)
                 },
                 new CourtSport
                 {
-                    CourtId = 9,
-                    SportId = 9
+                    CourtId = Guid.Parse(SeedCourtIds.GreenHockeyField),
+                    SportId = Guid.Parse(SeedSportIds.Hockey)
                 },
                 new CourtSport
                 {
-                    CourtId = 10,
-                    SportId = 10
+                    CourtId = Guid.Parse(SeedCourtIds.DanubeBaseballField),
+                    SportId = Guid.Parse(SeedSportIds.Baseball)
                 },
                 new CourtSport
                 {
-                    CourtId = 2,
-                    SportId = 4
+                    CourtId = Guid.Parse(SeedCourtIds.ArenaBasketball1),
+                    SportId = Guid.Parse(SeedSportIds.Volleyball)
                 },
                 new CourtSport
                 {
-                    CourtId = 2,
-                    SportId = 7
+                    CourtId = Guid.Parse(SeedCourtIds.ArenaBasketball1),
+                    SportId = Guid.Parse(SeedSportIds.Handball)
                 },
                 new CourtSport
                 {
-                    CourtId = 7,
-                    SportId = 2
+                    CourtId = Guid.Parse(SeedCourtIds.SeaHandballCourt),
+                    SportId = Guid.Parse(SeedSportIds.Basketball)
                 },
                 new CourtSport
                 {
-                    CourtId = 1,
-                    SportId = 9
+                    CourtId = Guid.Parse(SeedCourtIds.MainFootballPitch),
+                    SportId = Guid.Parse(SeedSportIds.Hockey)
                 });
         }
     }

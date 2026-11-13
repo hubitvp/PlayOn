@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using PlayOn.Data.Configurations.SeedData;
 using PlayOn.Data.Models;
 
 namespace PlayOn.Data.Configurations
@@ -29,129 +30,129 @@ namespace PlayOn.Data.Configurations
                 .HasForeignKey(x => x.SportId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
             builder
                 .HasOne(x => x.Court)
                 .WithMany(x => x.Events)
                 .HasForeignKey(x => x.CourtId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
             builder
                 .HasOne(x => x.Venue)
                 .WithOne(x => x.Event)
                 .HasForeignKey<Event>(x => x.VenueId)
                 .OnDelete(DeleteBehavior.Restrict);
+
             builder
                 .HasOne(x => x.CourtSport)
                 .WithMany(x => x.Events)
                 .HasForeignKey(x => new { x.CourtId, x.SportId })
                 .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasData(
                 new Event
                 {
-                    MatchId = 1,
-                    SportId = 1,
-                    CourtId = 1,
-                    VenueId = 1
+                    MatchId = Guid.Parse(SeedMatchIds.Match001),
+                    SportId = Guid.Parse(SeedSportIds.Football),
+                    CourtId = Guid.Parse(SeedCourtIds.MainFootballPitch),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue001)
                 },
                 new Event
                 {
-                    MatchId = 2,
-                    SportId = 2,
-                    CourtId = 2,
-                    VenueId = 2
+                    MatchId = Guid.Parse(SeedMatchIds.Match002),
+                    SportId = Guid.Parse(SeedSportIds.Basketball),
+                    CourtId = Guid.Parse(SeedCourtIds.ArenaBasketball1),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue002)
                 },
                 new Event
                 {
-                    MatchId = 3,
-                    SportId = 3,
-                    CourtId = 3,
-                    VenueId = 3
+                    MatchId = Guid.Parse(SeedMatchIds.Match003),
+                    SportId = Guid.Parse(SeedSportIds.Tennis),
+                    CourtId = Guid.Parse(SeedCourtIds.RiversideTennis1),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue003)
                 },
                 new Event
                 {
-                    MatchId = 4,
-                    SportId = 4,
-                    CourtId = 4,
-                    VenueId = 4
+                    MatchId = Guid.Parse(SeedMatchIds.Match004),
+                    SportId = Guid.Parse(SeedSportIds.Volleyball),
+                    CourtId = Guid.Parse(SeedCourtIds.SouthVolleyballCourt),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue004)
                 },
                 new Event
                 {
-                    MatchId = 5,
-                    SportId = 5,
-                    CourtId = 5,
-                    VenueId = 5
+                    MatchId = Guid.Parse(SeedMatchIds.Match005),
+                    SportId = Guid.Parse(SeedSportIds.Padel),
+                    CourtId = Guid.Parse(SeedCourtIds.MountainPadel1),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue005)
                 },
                 new Event
                 {
-                    MatchId = 6,
-                    SportId = 6,
-                    CourtId = 6,
-                    VenueId = 6
+                    MatchId = Guid.Parse(SeedMatchIds.Match006),
+                    SportId = Guid.Parse(SeedSportIds.Badminton),
+                    CourtId = Guid.Parse(SeedCourtIds.WestBadminton1),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue006)
                 },
                 new Event
                 {
-                    MatchId = 7,
-                    SportId = 7,
-                    CourtId = 7,
-                    VenueId = 7
+                    MatchId = Guid.Parse(SeedMatchIds.Match007),
+                    SportId = Guid.Parse(SeedSportIds.Handball),
+                    CourtId = Guid.Parse(SeedCourtIds.SeaHandballCourt),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue007)
                 },
                 new Event
                 {
-                    MatchId = 8,
-                    SportId = 8,
-                    CourtId = 8,
-                    VenueId = 8
+                    MatchId = Guid.Parse(SeedMatchIds.Match008),
+                    SportId = Guid.Parse(SeedSportIds.Rugby),
+                    CourtId = Guid.Parse(SeedCourtIds.MaritsaRugbyField),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue008)
                 },
                 new Event
                 {
-                    MatchId = 9,
-                    SportId = 9,
-                    CourtId = 9,
-                    VenueId = 9
+                    MatchId = Guid.Parse(SeedMatchIds.Match009),
+                    SportId = Guid.Parse(SeedSportIds.Hockey),
+                    CourtId = Guid.Parse(SeedCourtIds.GreenHockeyField),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue009)
                 },
                 new Event
                 {
-                    MatchId = 10,
-                    SportId = 10,
-                    CourtId = 10,
-                    VenueId = 10
+                    MatchId = Guid.Parse(SeedMatchIds.Match010),
+                    SportId = Guid.Parse(SeedSportIds.Baseball),
+                    CourtId = Guid.Parse(SeedCourtIds.DanubeBaseballField),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue010)
                 },
                 new Event
                 {
-                    MatchId = 11,
-                    SportId = 1,
-                    CourtId = 1,
-                    VenueId = 11
+                    MatchId = Guid.Parse(SeedMatchIds.Match011),
+                    SportId = Guid.Parse(SeedSportIds.Football),
+                    CourtId = Guid.Parse(SeedCourtIds.MainFootballPitch),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue011)
                 },
                 new Event
                 {
-                    MatchId = 12,
-                    SportId = 2,
-                    CourtId = 2,
-                    VenueId = 12
+                    MatchId = Guid.Parse(SeedMatchIds.Match012),
+                    SportId = Guid.Parse(SeedSportIds.Basketball),
+                    CourtId = Guid.Parse(SeedCourtIds.ArenaBasketball1),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue012)
                 },
                 new Event
                 {
-                    MatchId = 13,
-                    SportId = 4,
-                    CourtId = 2,
-                    VenueId = 13
+                    MatchId = Guid.Parse(SeedMatchIds.Match013),
+                    SportId = Guid.Parse(SeedSportIds.Volleyball),
+                    CourtId = Guid.Parse(SeedCourtIds.ArenaBasketball1),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue013)
                 },
                 new Event
                 {
-                    MatchId = 14,
-                    SportId = 5,
-                    CourtId = 5,
-                    VenueId = 14
+                    MatchId = Guid.Parse(SeedMatchIds.Match014),
+                    SportId = Guid.Parse(SeedSportIds.Padel),
+                    CourtId = Guid.Parse(SeedCourtIds.MountainPadel1),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue014)
                 },
                 new Event
                 {
-                    MatchId = 15,
-                    SportId = 3,
-                    CourtId = 3,
-                    VenueId = 15
+                    MatchId = Guid.Parse(SeedMatchIds.Match015),
+                    SportId = Guid.Parse(SeedSportIds.Tennis),
+                    CourtId = Guid.Parse(SeedCourtIds.RiversideTennis1),
+                    VenueId = Guid.Parse(SeedVenueIds.Venue015)
                 });
         }
     }

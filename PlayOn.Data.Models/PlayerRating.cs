@@ -8,24 +8,24 @@ namespace PlayOn.Data.Models
     public class PlayerRating
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
 
         [Required]
-        public int MatchId { get; set; }
+        public Guid MatchId { get; set; }
 
         [ForeignKey(nameof(MatchId))]
         public virtual Match Match { get; set; } = null!;
 
 
         [Required]
-        public string RaterId { get; set; } = null!;
+        public Guid RaterId { get; set; }
 
         [ForeignKey(nameof(RaterId))]
         public virtual ApplicationUser Rater { get; set; } = null!;
 
         [Required]
-        public string RatedUserId { get; set; } = null!;
+        public Guid RatedUserId { get; set; }
 
         [ForeignKey(nameof(RatedUserId))]
         public virtual ApplicationUser RatedUser { get; set; } = null!;

@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PlayOn.Common.EntityConstants;
 using PlayOn.Common.Enums;
+using PlayOn.Data.Configurations.SeedData;
 using PlayOn.Data.Models;
 
 namespace PlayOn.Data.Configurations
@@ -10,17 +11,15 @@ namespace PlayOn.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Court> builder)
         {
-
             builder.Property(x => x.HourlyPrice)
                 .HasPrecision(
                     CourtConstants.DecimalPrecision,
                     CourtConstants.DecimalScale);
 
-
             builder.HasData(
                 new Court
                 {
-                    Id = 1,
+                    Id = Guid.Parse(SeedCourtIds.MainFootballPitch),
                     Name = "Main Football Pitch",
                     Surface = Surface.Artificial,
                     Capacity = 22,
@@ -28,7 +27,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Court
                 {
-                    Id = 2,
+                    Id = Guid.Parse(SeedCourtIds.ArenaBasketball1),
                     Name = "Arena Basketball 1",
                     Surface = Surface.Hardwood,
                     Capacity = 10,
@@ -36,7 +35,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Court
                 {
-                    Id = 3,
+                    Id = Guid.Parse(SeedCourtIds.RiversideTennis1),
                     Name = "Riverside Tennis 1",
                     Surface = Surface.Clay,
                     Capacity = 4,
@@ -44,7 +43,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Court
                 {
-                    Id = 4,
+                    Id = Guid.Parse(SeedCourtIds.SouthVolleyballCourt),
                     Name = "South Volleyball Court",
                     Surface = Surface.Sand,
                     Capacity = 12,
@@ -52,7 +51,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Court
                 {
-                    Id = 5,
+                    Id = Guid.Parse(SeedCourtIds.MountainPadel1),
                     Name = "Mountain Padel 1",
                     Surface = Surface.Artificial,
                     Capacity = 4,
@@ -60,7 +59,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Court
                 {
-                    Id = 6,
+                    Id = Guid.Parse(SeedCourtIds.WestBadminton1),
                     Name = "West Badminton 1",
                     Surface = Surface.Hardwood,
                     Capacity = 4,
@@ -68,7 +67,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Court
                 {
-                    Id = 7,
+                    Id = Guid.Parse(SeedCourtIds.SeaHandballCourt),
                     Name = "Sea Handball Court",
                     Surface = Surface.Concrete,
                     Capacity = 14,
@@ -76,7 +75,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Court
                 {
-                    Id = 8,
+                    Id = Guid.Parse(SeedCourtIds.MaritsaRugbyField),
                     Name = "Maritsa Rugby Field",
                     Surface = Surface.Grass,
                     Capacity = 30,
@@ -84,7 +83,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Court
                 {
-                    Id = 9,
+                    Id = Guid.Parse(SeedCourtIds.GreenHockeyField),
                     Name = "Green Hockey Field",
                     Surface = Surface.Artificial,
                     Capacity = 22,
@@ -92,7 +91,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Court
                 {
-                    Id = 10,
+                    Id = Guid.Parse(SeedCourtIds.DanubeBaseballField),
                     Name = "Danube Baseball Field",
                     Surface = Surface.Grass,
                     Capacity = 18,

@@ -18,11 +18,10 @@ namespace PlayOn.Data.Configurations
         {
             builder.HasIndex(x => x.NormalizedEmail).IsUnique();
 
-
             builder.HasData(
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User001,
+                    Id = Guid.Parse(SeedUserIds.User001),
                     UserName = "ALEX.MORGAN@EXAMPLE.COM",
                     DisplayName = "Alex Morgan",
                     City = "Sofia",
@@ -40,7 +39,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User002,
+                    Id = Guid.Parse(SeedUserIds.User002),
                     UserName = "JORDAN.LEE@EXAMPLE.COM",
                     DisplayName = "Jordan Lee",
                     City = "Plovdiv",
@@ -58,7 +57,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User003,
+                    Id = Guid.Parse(SeedUserIds.User003),
                     UserName = "SAM.TAYLOR@EXAMPLE.COM",
                     DisplayName = "Sam Taylor",
                     City = "Varna",
@@ -76,7 +75,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User004,
+                    Id = Guid.Parse(SeedUserIds.User004),
                     UserName = "CASEY.WILSON@EXAMPLE.COM",
                     DisplayName = "Casey Wilson",
                     City = "Burgas",
@@ -94,7 +93,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User005,
+                    Id = Guid.Parse(SeedUserIds.User005),
                     UserName = "MORGAN.KIM@EXAMPLE.COM",
                     DisplayName = "Morgan Kim",
                     City = "Sofia",
@@ -112,7 +111,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User006,
+                    Id = Guid.Parse(SeedUserIds.User006),
                     UserName = "RILEY.ADAMS@EXAMPLE.COM",
                     DisplayName = "Riley Adams",
                     City = "Ruse",
@@ -130,7 +129,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User007,
+                    Id = Guid.Parse(SeedUserIds.User007),
                     UserName = "TAYLOR.BROWN@EXAMPLE.COM",
                     DisplayName = "Taylor Brown",
                     City = "Sofia",
@@ -148,7 +147,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User008,
+                    Id = Guid.Parse(SeedUserIds.User008),
                     UserName = "JAMIE.DAVIS@EXAMPLE.COM",
                     DisplayName = "Jamie Davis",
                     City = "Plovdiv",
@@ -166,7 +165,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User009,
+                    Id = Guid.Parse(SeedUserIds.User009),
                     UserName = "QUINN.CLARK@EXAMPLE.COM",
                     DisplayName = "Quinn Clark",
                     City = "Varna",
@@ -184,7 +183,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new ApplicationUser
                 {
-                    Id = SeedUserIds.User010,
+                    Id = Guid.Parse(SeedUserIds.User010),
                     UserName = "DREW.HALL@EXAMPLE.COM",
                     DisplayName = "Drew Hall",
                     City = "Ruse",
@@ -201,6 +200,5 @@ namespace PlayOn.Data.Configurations
                     LockoutEnabled = false
                 });
         }
-
     }
 }

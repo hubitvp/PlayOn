@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PlayOn.Common.Enums;
+using PlayOn.Data.Configurations.SeedData;
 using PlayOn.Data.Models;
 
 namespace PlayOn.Data.Configurations
@@ -15,7 +16,7 @@ namespace PlayOn.Data.Configurations
             builder.HasData(
                 new Sport
                 {
-                    Id = 1,
+                    Id = Guid.Parse(SeedSportIds.Football),
                     Name = "Football",
                     Icon = SportIcon.Football,
                     DefaultMinPlayers = 6,
@@ -23,7 +24,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Sport
                 {
-                    Id = 2,
+                    Id = Guid.Parse(SeedSportIds.Basketball),
                     Name = "Basketball",
                     Icon = SportIcon.Basketball,
                     DefaultMinPlayers = 4,
@@ -31,7 +32,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Sport
                 {
-                    Id = 3,
+                    Id = Guid.Parse(SeedSportIds.Tennis),
                     Name = "Tennis",
                     Icon = SportIcon.TableTennisPaddle,
                     DefaultMinPlayers = 2,
@@ -39,7 +40,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Sport
                 {
-                    Id = 4,
+                    Id = Guid.Parse(SeedSportIds.Volleyball),
                     Name = "Volleyball",
                     Icon = SportIcon.Volleyball,
                     DefaultMinPlayers = 4,
@@ -47,7 +48,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Sport
                 {
-                    Id = 5,
+                    Id = Guid.Parse(SeedSportIds.Padel),
                     Name = "Padel",
                     Icon = SportIcon.TableTennisPaddle,
                     DefaultMinPlayers = 2,
@@ -55,7 +56,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Sport
                 {
-                    Id = 6,
+                    Id = Guid.Parse(SeedSportIds.Badminton),
                     Name = "Badminton",
                     Icon = SportIcon.Badminton,
                     DefaultMinPlayers = 2,
@@ -63,7 +64,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Sport
                 {
-                    Id = 7,
+                    Id = Guid.Parse(SeedSportIds.Handball),
                     Name = "Handball",
                     Icon = SportIcon.Handball,
                     DefaultMinPlayers = 6,
@@ -71,7 +72,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Sport
                 {
-                    Id = 8,
+                    Id = Guid.Parse(SeedSportIds.Rugby),
                     Name = "Rugby",
                     Icon = SportIcon.Rugby,
                     DefaultMinPlayers = 10,
@@ -79,7 +80,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Sport
                 {
-                    Id = 9,
+                    Id = Guid.Parse(SeedSportIds.Hockey),
                     Name = "Hockey",
                     Icon = SportIcon.HockeyPuck,
                     DefaultMinPlayers = 6,
@@ -87,7 +88,7 @@ namespace PlayOn.Data.Configurations
                 },
                 new Sport
                 {
-                    Id = 10,
+                    Id = Guid.Parse(SeedSportIds.Baseball),
                     Name = "Baseball",
                     Icon = SportIcon.Baseball,
                     DefaultMinPlayers = 6,

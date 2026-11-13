@@ -8,17 +8,17 @@ namespace PlayOn.Data.Models
     public class MatchParticipant
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
-        public int MatchId { get; set; }
+        public Guid MatchId { get; set; }
 
         [ForeignKey(nameof(MatchId))]
         public virtual Match Match { get; set; } = null!;
 
 
         [Required]
-        public string UserId { get; set; } = null!;
+        public Guid UserId { get; set; }
 
         [ForeignKey(nameof(UserId))]
         public virtual ApplicationUser User { get; set; } = null!;

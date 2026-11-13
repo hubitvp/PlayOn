@@ -8,13 +8,13 @@ namespace PlayOn.Data.Models
     public class SportPreference
     {
         [Required]
-        public string UserId { get; set; } = null!;
+        public Guid UserId { get; set; }
 
         [ForeignKey(nameof(UserId))]
         public ApplicationUser User { get; set; } = null!;
 
         [Required]
-        public int SportId { get; set; }
+        public Guid SportId { get; set; }
 
         [ForeignKey(nameof(SportId))]
         public Sport Sport { get; set; } = null!;

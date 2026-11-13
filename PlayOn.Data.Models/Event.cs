@@ -6,21 +6,21 @@ namespace PlayOn.Data.Models
     public class Event
     {
         [Required]
-        public int MatchId { get; set; }
+        public Guid MatchId { get; set; }
 
         [ForeignKey(nameof(MatchId))]
         public Match Match { get; set; } = null!;
 
 
         [Required]
-        public int SportId { get; set; }
+        public Guid SportId { get; set; }
 
         [ForeignKey(nameof(SportId))]
         public Sport Sport { get; set; } = null!;
 
 
         [Required]
-        public int CourtId { get; set; }
+        public Guid CourtId { get; set; }
 
         [ForeignKey(nameof(CourtId))]
         public Court Court { get; set; } = null!;
@@ -28,7 +28,7 @@ namespace PlayOn.Data.Models
 
 
         [Required]
-        public int VenueId { get; set; }
+        public Guid VenueId { get; set; }
 
         [ForeignKey(nameof(VenueId))]
         public Venue Venue { get; set; } = null!;

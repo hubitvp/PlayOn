@@ -10,10 +10,10 @@ namespace PlayOn.Data.Models
     {
 
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
-        public string OrganiserId { get; set; } = null!;
+        public Guid OrganiserId { get; set; }
 
 
         [ForeignKey(nameof(OrganiserId))]

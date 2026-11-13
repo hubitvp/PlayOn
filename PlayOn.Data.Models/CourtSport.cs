@@ -7,13 +7,13 @@ namespace PlayOn.Data.Models
     public class CourtSport
     {
         [Required]
-        public int CourtId { get; set; }
+        public Guid CourtId { get; set; }
 
         [ForeignKey(nameof(CourtId))]
         public virtual Court Court { get; set; } = null!;
 
         [Required]
-        public int SportId { get; set; }
+        public Guid SportId { get; set; }
 
         [ForeignKey(nameof(SportId))]
         public virtual Sport Sport { get; set; } = null!;

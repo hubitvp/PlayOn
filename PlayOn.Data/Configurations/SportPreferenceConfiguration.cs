@@ -12,132 +12,129 @@ namespace PlayOn.Data.Configurations
         {
             builder.HasKey(x => new { x.UserId, x.SportId });
 
-
             builder.HasOne(x => x.User)
                 .WithMany()
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
-
 
             builder.HasOne(x => x.Sport)
                 .WithMany(x => x.Preferences)
                 .HasForeignKey(x => x.SportId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
             builder.HasData(
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User001,
-                    SportId = 1,
+                    UserId = Guid.Parse(SeedUserIds.User001),
+                    SportId = Guid.Parse(SeedSportIds.Football),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User002,
-                    SportId = 2,
+                    UserId = Guid.Parse(SeedUserIds.User002),
+                    SportId = Guid.Parse(SeedSportIds.Basketball),
                     SkillLevel = SkillLevel.Advanced
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User003,
-                    SportId = 3,
+                    UserId = Guid.Parse(SeedUserIds.User003),
+                    SportId = Guid.Parse(SeedSportIds.Tennis),
                     SkillLevel = SkillLevel.Beginner
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User004,
-                    SportId = 4,
+                    UserId = Guid.Parse(SeedUserIds.User004),
+                    SportId = Guid.Parse(SeedSportIds.Volleyball),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User005,
-                    SportId = 5,
+                    UserId = Guid.Parse(SeedUserIds.User005),
+                    SportId = Guid.Parse(SeedSportIds.Padel),
                     SkillLevel = SkillLevel.Advanced
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User006,
-                    SportId = 6,
+                    UserId = Guid.Parse(SeedUserIds.User006),
+                    SportId = Guid.Parse(SeedSportIds.Badminton),
                     SkillLevel = SkillLevel.Beginner
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User007,
-                    SportId = 7,
+                    UserId = Guid.Parse(SeedUserIds.User007),
+                    SportId = Guid.Parse(SeedSportIds.Handball),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User008,
-                    SportId = 8,
+                    UserId = Guid.Parse(SeedUserIds.User008),
+                    SportId = Guid.Parse(SeedSportIds.Rugby),
                     SkillLevel = SkillLevel.Beginner
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User009,
-                    SportId = 9,
+                    UserId = Guid.Parse(SeedUserIds.User009),
+                    SportId = Guid.Parse(SeedSportIds.Hockey),
                     SkillLevel = SkillLevel.Advanced
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User010,
-                    SportId = 10,
+                    UserId = Guid.Parse(SeedUserIds.User010),
+                    SportId = Guid.Parse(SeedSportIds.Baseball),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User001,
-                    SportId = 2,
+                    UserId = Guid.Parse(SeedUserIds.User001),
+                    SportId = Guid.Parse(SeedSportIds.Basketball),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User004,
-                    SportId = 2,
+                    UserId = Guid.Parse(SeedUserIds.User004),
+                    SportId = Guid.Parse(SeedSportIds.Basketball),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User005,
-                    SportId = 2,
+                    UserId = Guid.Parse(SeedUserIds.User005),
+                    SportId = Guid.Parse(SeedSportIds.Basketball),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User001,
-                    SportId = 5,
+                    UserId = Guid.Parse(SeedUserIds.User001),
+                    SportId = Guid.Parse(SeedSportIds.Padel),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User002,
-                    SportId = 5,
+                    UserId = Guid.Parse(SeedUserIds.User002),
+                    SportId = Guid.Parse(SeedSportIds.Padel),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User004,
-                    SportId = 5,
+                    UserId = Guid.Parse(SeedUserIds.User004),
+                    SportId = Guid.Parse(SeedSportIds.Padel),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User009,
-                    SportId = 5,
+                    UserId = Guid.Parse(SeedUserIds.User009),
+                    SportId = Guid.Parse(SeedSportIds.Padel),
                     SkillLevel = SkillLevel.Advanced
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User009,
-                    SportId = 7,
+                    UserId = Guid.Parse(SeedUserIds.User009),
+                    SportId = Guid.Parse(SeedSportIds.Handball),
                     SkillLevel = SkillLevel.Intermediate
                 },
                 new SportPreference
                 {
-                    UserId = SeedUserIds.User010,
-                    SportId = 7,
+                    UserId = Guid.Parse(SeedUserIds.User010),
+                    SportId = Guid.Parse(SeedSportIds.Handball),
                     SkillLevel = SkillLevel.Intermediate
                 });
         }

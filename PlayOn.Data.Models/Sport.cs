@@ -8,7 +8,7 @@ namespace PlayOn.Data.Models
     public class Sport
     {
         [Key]
-        public int Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
         [Required]
         [MaxLength(NameMaxLength)]

@@ -4,7 +4,7 @@ using static PlayOn.Common.EntityConstants.ApplicationUserConstants;
 
 namespace PlayOn.Data.Models
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser<Guid>
     {
         [Required]
         [MaxLength(DisplayNameMaxLength)]
