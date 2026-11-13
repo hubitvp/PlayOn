@@ -5,7 +5,7 @@ using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Matches.ResponseModels;
+using PlayOn.Services.Data.Match.ResponseModels;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.ViewModels.Match;
 
@@ -70,7 +70,7 @@ namespace PlayOn.Web.Controllers
         [HttpGet]
         public async Task<IActionResult>
             Details(
-                int id,
+                Guid id,
                 string? slug)
         {
             var response = await matchService
@@ -101,7 +101,7 @@ namespace PlayOn.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(Guid id)
         {
             var response = await matchService
                 .GetForEditAsync(id, GetUserId(), IsAdmin());
@@ -120,7 +120,7 @@ namespace PlayOn.Web.Controllers
         [HttpPost]
         public async Task<IActionResult>
             Edit(
-                int id,
+                Guid id,
                 MatchEditViewModel model)
         {
             model.Id = id;
@@ -156,7 +156,7 @@ namespace PlayOn.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Create(int? venueId)
+        public async Task<IActionResult> Create(Guid? venueId)
         {
             var options = await matchService.GetFormOptionsAsync();
 
@@ -196,7 +196,7 @@ namespace PlayOn.Web.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Cancel(int id)
+        public async Task<IActionResult> Cancel(Guid id)
         {
             var response = await matchService
                 .GetForCancelAsync(id, GetUserId(), IsAdmin());
@@ -213,13 +213,13 @@ namespace PlayOn.Web.Controllers
         }
 
         [HttpPost]
-        
+
         public async Task<IActionResult>
             Cancel(
-                int id,
+                Guid id,
                 MatchCancelViewModel model)
         {
-            model.Id = id;
+            model.MatchId = id;
 
             if (ModelState.IsValid)
             {

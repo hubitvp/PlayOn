@@ -1,6 +1,6 @@
 using PlayOn.Common.Helpers;
-using PlayOn.Services.Data.Matches.RequestData;
-using PlayOn.Services.Data.Matches.ResponseModels;
+using PlayOn.Services.Data.Match.RequestData;
+using PlayOn.Services.Data.Match.ResponseModels;
 using PlayOn.Services.Data.Sport.ResponseModels;
 using PlayOn.Web.DataBuilders.Formatting;
 using PlayOn.Web.ViewModels.Match;
@@ -166,7 +166,7 @@ public class MatchDataBuilder
     }
 
 
-    
+
 
     public MatchEditViewModel
         MatchEditToViewModel(
@@ -216,8 +216,8 @@ public class MatchDataBuilder
 
     public MatchUpdateRequestData
         MatchEditToRequestData(
-            int matchId,
-            string actorId,
+            Guid matchId,
+            Guid actorId,
             bool actorIsAdmin,
             MatchEditViewModel source)
     {
@@ -243,7 +243,7 @@ public class MatchDataBuilder
 
     public MatchFormViewModel
         MatchFormToViewModel(
-            int? venueId,
+            Guid? venueId,
             MatchFormOptionsResponseModel options)
     {
         var result = new MatchFormViewModel();
@@ -271,17 +271,17 @@ public class MatchDataBuilder
             .ToList();
 
         target.Slots = options.Slots
-            .Select(VenueSlotToViewModel)
+            .Select(MatchSlotToViewModel)
             .ToList();
 
         return target;
     }
 
-    public CourtOptionViewModel
+    public MatchCourtOptionViewModel
         CourtOptionToViewModel(
             MatchCourtOptionResponseModel source)
     {
-        var result = new CourtOptionViewModel
+        var result = new MatchCourtOptionViewModel
         {
             CourtId = source.CourtId,
             Name = source.Name,
@@ -293,11 +293,11 @@ public class MatchDataBuilder
         return result;
     }
 
-    public VenueSlotOptionViewModel
-        VenueSlotToViewModel(
+    public MatchSlotOptionViewModel
+        MatchSlotToViewModel(
             VenueSlotResponseModel source)
     {
-        var result = new VenueSlotOptionViewModel
+        var result = new MatchSlotOptionViewModel
         {
             Id = source.Id,
             Label = $"{displayFormatter.ShortDate(source.Date)}, {displayFormatter.Time(source.StartsAt)} - {source.Name}, {source.City}",
@@ -311,7 +311,7 @@ public class MatchDataBuilder
 
     public MatchCreateRequestData
         MatchFormToRequestData(
-            string organiserId,
+            Guid organiserId,
             MatchFormViewModel source)
     {
         var result = new MatchCreateRequestData
@@ -335,10 +335,10 @@ public class MatchDataBuilder
 
     public MatchCancelViewModel
         MatchCancelToViewModel(
-            int matchId,
+            Guid matchId,
             MatchEditResponseModel source)
     {
-        var result = new MatchCancelViewModel { Id = matchId };
+        var result = new MatchCancelViewModel { MatchId = matchId };
 
         return MatchCancelApplyDisplayData(result, source);
     }
@@ -358,8 +358,8 @@ public class MatchDataBuilder
 
     public MatchCancelRequestData
         MatchCancelToRequestData(
-            int matchId,
-            string actorId,
+            Guid matchId,
+            Guid actorId,
             bool actorIsAdmin,
             MatchCancelViewModel source)
     {

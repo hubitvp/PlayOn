@@ -1,11 +1,9 @@
 ﻿using PlayOn.Common.Helpers;
 using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
-using PlayOn.Services.Data.Matches.ResponseModels;
 using PlayOn.Services.Data.Sport.ResponseModels;
 using PlayOn.Web.DataBuilders.Formatting;
 using PlayOn.Web.ViewModels.Home;
-using PlayOn.Web.ViewModels.Match;
 using System.Globalization;
 using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 

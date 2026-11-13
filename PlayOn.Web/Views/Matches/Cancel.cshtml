@@ -22,9 +22,9 @@
             Everyone who joined or is on the waiting list gets a notification with your reason. This cannot be undone.
         </div>
 
-        <form asp-action="Cancel" asp-route-id="@Model.Id" method="post" novalidate>
+        <form asp-action="Cancel" asp-route-id="@Model.MatchId" method="post" novalidate>
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-            <input asp-for="Id" type="hidden" />
+            <input asp-for="MatchId" type="hidden" />
 
             <div class="mb-3">
                 <label asp-for="Reason" class="form-label"></label>
@@ -34,7 +34,7 @@
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-danger">Cancel the match</button>
-                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Keep it</a>
+                <a asp-action="Details" asp-route-id="@Model.MatchId" class="btn btn-outline-secondary">Keep it</a>
             </div>
         </form>
     </div>

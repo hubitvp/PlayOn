@@ -16,9 +16,16 @@ namespace PlayOn.Web.Controllers
             this.userManager = userManager;
         }
 
-        protected string GetUserId()
+        protected Guid GetUserId()
         {
-            return userManager.GetUserId(User) ?? string.Empty;
+            string? userId = userManager.GetUserId(User);
+
+            if (Guid.TryParse(userId, out var parsedUserId))
+            {
+                return parsedUserId;
+            }
+
+            return Guid.Empty;
         }
 
         protected bool IsUserAuthenticated()

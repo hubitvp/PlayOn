@@ -9,7 +9,7 @@ namespace PlayOn.Web.DataBuilders
         public SelectListItem
             SportToSelectListItem(
                 SportResponseModel source,
-                int? selectedSportId)
+                Guid? selectedSportId)
         {
             var result = new SelectListItem
             {

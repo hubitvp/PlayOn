@@ -68,10 +68,10 @@ public class VenueDataBuilder
         return result;
     }
 
-    public CourtViewModel
+    public VenueCourtViewModel
         CourtToViewModel(VenueCourtResponseModel source)
     {
-        var result = new CourtViewModel
+        var result = new VenueCourtViewModel
         {
             Name = source.Name,
             SportIconCss = source.SportIcon.ToCssClass(),
