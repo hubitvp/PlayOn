@@ -1891,9 +1891,8 @@ namespace PlayOn.Data.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Link")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<Guid?>("MatchId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -1908,6 +1907,8 @@ namespace PlayOn.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MatchId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
@@ -1918,7 +1919,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("a87d8d14-f08a-4b5c-b27b-aa83863ef9d9"),
                             CreatedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/1cf5ea94-367c-4999-b001-a0fb68bc4d0e",
+                            MatchId = new Guid("1cf5ea94-367c-4999-b001-a0fb68bc4d0e"),
                             Message = "Baseball Practice Game was cancelled: Venue maintenance.",
                             Type = 2,
                             UserId = new Guid("35954915-3dee-4abb-9284-4fea99eb740b")
@@ -1928,7 +1929,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("5f244450-0dac-44a0-acd2-861088a9359f"),
                             CreatedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/1cf5ea94-367c-4999-b001-a0fb68bc4d0e",
+                            MatchId = new Guid("1cf5ea94-367c-4999-b001-a0fb68bc4d0e"),
                             Message = "Baseball Practice Game was cancelled: Venue maintenance.",
                             Type = 2,
                             UserId = new Guid("4efb518d-d5b9-401b-893b-95fd7d67582d")
@@ -1938,7 +1939,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("2b525941-0519-49dd-b776-88a9310c0dc2"),
                             CreatedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/1cf5ea94-367c-4999-b001-a0fb68bc4d0e",
+                            MatchId = new Guid("1cf5ea94-367c-4999-b001-a0fb68bc4d0e"),
                             Message = "Baseball Practice Game was cancelled: Venue maintenance.",
                             Type = 2,
                             UserId = new Guid("3ecf3b04-7a41-406b-adaf-d1d34a4067c4")
@@ -1948,7 +1949,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("fa37ca9b-2bc8-43cb-a47d-60f3cf2386fd"),
                             CreatedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = true,
-                            Link = "/Matches/Details/cad33e31-98f1-4fd8-9503-2c7f873f0725",
+                            MatchId = new Guid("cad33e31-98f1-4fd8-9503-2c7f873f0725"),
                             Message = "Padel After Work has enough players and will go ahead.",
                             Type = 1,
                             UserId = new Guid("4d530b4b-71d2-4039-8383-85d3a954c699")
@@ -1958,7 +1959,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("8b4cb258-9e97-45eb-b568-af8d77f21d16"),
                             CreatedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/cad33e31-98f1-4fd8-9503-2c7f873f0725",
+                            MatchId = new Guid("cad33e31-98f1-4fd8-9503-2c7f873f0725"),
                             Message = "Padel After Work has enough players and will go ahead.",
                             Type = 1,
                             UserId = new Guid("ab4028fd-29b6-4b7b-8600-cdf4c9197729")
@@ -1968,7 +1969,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("409f623e-0c1f-4119-a0c6-8c3dbd785cbb"),
                             CreatedOn = new DateTime(2026, 10, 30, 18, 30, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/cad33e31-98f1-4fd8-9503-2c7f873f0725",
+                            MatchId = new Guid("cad33e31-98f1-4fd8-9503-2c7f873f0725"),
                             Message = "A spot opened in Padel After Work. You moved off the waitlist.",
                             Type = 0,
                             UserId = new Guid("d3f14be3-367f-48a6-8c34-9cc38d5875a5")
@@ -1978,7 +1979,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("61c7bc9d-299b-402c-be8f-f03af433092c"),
                             CreatedOn = new DateTime(2026, 10, 25, 12, 50, 0, 0, DateTimeKind.Unspecified),
                             IsRead = true,
-                            Link = "/Matches/Details/af0b763b-6efe-420a-be74-84426caed591",
+                            MatchId = new Guid("af0b763b-6efe-420a-be74-84426caed591"),
                             Message = "You left Hockey Training Game less than 2 hours before the start. A strike was added.",
                             Type = 4,
                             UserId = new Guid("9f33f886-e2ce-4fcc-9aa9-ca83ceb984ba")
@@ -1988,7 +1989,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("04a104d8-7e99-4a6d-88b7-95a0b8de2139"),
                             CreatedOn = new DateTime(2026, 10, 14, 20, 40, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/04c0e2e2-35fc-4b8e-8706-6e133c403a8e",
+                            MatchId = new Guid("04c0e2e2-35fc-4b8e-8706-6e133c403a8e"),
                             Message = "You were marked as a no-show for Downtown Basketball. A strike was added.",
                             Type = 4,
                             UserId = new Guid("4d530b4b-71d2-4039-8383-85d3a954c699")
@@ -1998,7 +1999,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("3fc5b7ee-04ac-4673-bdd9-c63ea5332aa9"),
                             CreatedOn = new DateTime(2026, 10, 14, 1, 30, 0, 0, DateTimeKind.Unspecified),
                             IsRead = true,
-                            Link = "/Matches/Details/5be5d6b6-e292-4b3f-b05d-db9ee49dc3c9",
+                            MatchId = new Guid("5be5d6b6-e292-4b3f-b05d-db9ee49dc3c9"),
                             Message = "Alex Morgan rated you 5/5 after Tuesday Evening Football.",
                             Type = 3,
                             UserId = new Guid("5fcf6180-cd78-4b96-a2cf-4b75c63a9673")
@@ -2008,7 +2009,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("406cddbb-56f7-4a87-a5ec-2bc1a6051df3"),
                             CreatedOn = new DateTime(2026, 10, 15, 2, 30, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/04c0e2e2-35fc-4b8e-8706-6e133c403a8e",
+                            MatchId = new Guid("04c0e2e2-35fc-4b8e-8706-6e133c403a8e"),
                             Message = "Jordan Lee rated you 3/5 after Downtown Basketball.",
                             Type = 3,
                             UserId = new Guid("ab4028fd-29b6-4b7b-8600-cdf4c9197729")
@@ -2903,11 +2904,18 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("PlayOn.Data.Models.Notification", b =>
                 {
+                    b.HasOne("PlayOn.Data.Models.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("PlayOn.Data.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Match");
 
                     b.Navigation("User");
                 });
