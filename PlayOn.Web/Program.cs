@@ -7,6 +7,7 @@ using PlayOn.Services;
 using PlayOn.Services.Contracts;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.DataBuilders.Formatting;
+using PlayOn.Web.Extensions;
 
 namespace PlayOn.Web
 {
@@ -51,32 +52,8 @@ namespace PlayOn.Web
                 options.Cookie.SameSite = SameSiteMode.Strict;
             });
 
-            builder.Services.AddSingleton(TimeProvider.System);
-            builder.Services.AddSingleton<IDisplayFormatter, DisplayFormatter>();
 
-            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
-            builder.Services.AddScoped<IHomeService, HomeService>();
-
-            builder.Services.AddScoped<IVenueService, VenueService>();
-
-            builder.Services.AddScoped<IMatchService, MatchService>();
-            builder.Services.AddScoped<ISportService, SportService>();
-
-            builder.Services.AddScoped<IParticipationService, ParticipationService>();
-            builder.Services.AddScoped<IAttendanceService, AttendanceService>();
-            builder.Services.AddScoped<IRatingService, RatingService>();
-            builder.Services.AddScoped<IPlayerService, PlayerService>();
-            builder.Services.AddScoped<INotificationService, NotificationService>();
-
-            builder.Services.AddScoped<MatchDataBuilder>();
-            builder.Services.AddScoped<SportDataBuilder>();
-            builder.Services.AddScoped<HomeDataBuilder>();
-            builder.Services.AddScoped<VenueDataBuilder>();
-            builder.Services.AddScoped<ParticipationDataBuilder>();
-            builder.Services.AddScoped<RatingDataBuilder>();
-            builder.Services.AddScoped<PlayerDataBuilder>();
-            builder.Services.AddScoped<NotificationDataBuilder>();
+            builder.Services.AddLocalResources();
 
 
             var app = builder.Build();
@@ -102,10 +79,18 @@ namespace PlayOn.Web
             app.UseAuthorization();
 
             app.MapStaticAssets();
+
+
+            app.MapControllerRoute(
+                name: "with-slug",
+                pattern: "{controller}/{action}/{id}/{slug}")
+                .WithStaticAssets();
+
             app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
+
             app.MapRazorPages()
                .WithStaticAssets();
 
