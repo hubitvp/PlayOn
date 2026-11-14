@@ -61,7 +61,7 @@ public class VenueDataBuilder
             ClosesAt = displayFormatter.Time(source.ClosesAt),
             MatchId = source.MatchId,
             MatchTitle = source.MatchTitle,
-            MatchSlug = Slug.Create(source.MatchTitle),
+            Slug = Slug.Create(source.MatchTitle),
             Court = CourtToViewModel(source.Court)
         };
 
@@ -77,7 +77,7 @@ public class VenueDataBuilder
             SportIconCss = source.SportIcon.ToCssClass(),
             Surface = source.Surface.ToString(),
             Capacity = source.Capacity,
-            HourlyPrice = source.HourlyPrice.ToFormattedString()
+            HourlyPrice = displayFormatter.Price(source.HourlyPrice)
         };
 
         return result;

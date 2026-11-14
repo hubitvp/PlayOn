@@ -1,0 +1,59 @@
+﻿@model ProfileEditViewModel
+@{
+    ViewData["Title"] = "My profile";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <h1 class="h3 mb-3">My profile</h1>
+
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="DisplayName" class="form-label"></label>
+                <input asp-for="DisplayName" class="form-control" />
+                <span asp-validation-for="DisplayName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="City" class="form-label"></label>
+                <input asp-for="City" class="form-control" />
+                <span asp-validation-for="City" class="text-danger"></span>
+            </div>
+
+            <h2 class="h5 mt-4">My skill level per sport</h2>
+            <p class="text-muted small">Matches have a skill range. Without a level you count as a beginner.</p>
+
+            @for (var i = 0; i < Model.Skills.Count; i++)
+            {
+                <div class="row align-items-center mb-2">
+                    <div class="col-5">
+                        <input asp-for="Skills[i].SportId" type="hidden" />
+                        @Model.Skills[i].SportName
+                    </div>
+                    <div class="col-7">
+                        <select asp-for="Skills[i].SkillLevel" class="form-select">
+                            <option value="">Not set</option>
+                            @foreach (var level in Enum.GetValues<SkillLevel>())
+                            {
+                                <option value="@level" selected="@(Model.Skills[i].SkillLevel == level)">@level</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Skills[i].SkillLevel" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success">Save</button>
+                <a asp-action="Details" asp-route-id="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value"
+                   class="btn btn-outline-secondary">View public profile</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

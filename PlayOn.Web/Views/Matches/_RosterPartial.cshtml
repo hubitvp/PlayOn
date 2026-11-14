@@ -1,4 +1,4 @@
-@model IReadOnlyList<MatchParticipantViewModel>
+﻿@model IReadOnlyList<MatchParticipantViewModel>
 
 @{
     var joined = Model.Where(x => x.Status == ParticipantStatus.Joined || x.Status == ParticipantStatus.Attended || x.Status == ParticipantStatus.NoShow).ToList();
@@ -16,7 +16,7 @@ else
         {
             <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                 <span>
-                    @player.DisplayName
+                    <a asp-controller="Players" asp-action="Details" asp-route-id="@player.UserId" class="text-decoration-none">@player.DisplayName</a>
                     @if (player.IsOrganiser)
                     {
                         <span class="badge bg-light text-dark border ms-1">Organiser</span>

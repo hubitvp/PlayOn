@@ -1,20 +1,10 @@
-@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<ApplicationUser> SignInManager
 
 <ul class="navbar-nav align-items-lg-center">
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item dropdown me-lg-2">
-            <a class="nav-link position-relative" href="#" id="bell" role="button"
-               data-bs-toggle="dropdown" aria-expanded="false" data-url="/api/notifications">
-                <i class="bi bi-bell-fill"></i>
-                <span id="bell-count" class="badge rounded-pill bg-danger position-absolute top-0 start-100
-                      translate-middle d-none">0</span>
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="bell" id="bell-list">
-                <li class="dropdown-item text-muted">Loading...</li>
-            </ul>
-        </li>
+        @await Component.InvokeAsync("NotificationBell")
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                 @User.Identity!.Name

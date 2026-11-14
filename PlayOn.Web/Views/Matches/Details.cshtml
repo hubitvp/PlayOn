@@ -1,4 +1,4 @@
-@model MatchDetailsViewModel
+﻿@model MatchDetailsViewModel
 @{
     ViewData["Title"] = Model.Title;
     var percent = Model.MaxPlayers == 0 ? 0 : Model.Joined * 100 / Model.MaxPlayers;
@@ -61,6 +61,54 @@
                 }
             </dd>
         </dl>
+
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
+                @if (Model.CanJoin)
+                {
+                    <form asp-controller="Participation" asp-action="Join" asp-route-id="@Model.Id" asp-route-slug="@Model.Slug" method="post">
+                        <button type="submit" class="btn btn-success">
+                            @(Model.Joined >= Model.MaxPlayers ? "Join the waiting list" : "Join this match")
+                        </button>
+                    </form>
+                }
+
+                @if (Model.CurrentUserStatus == ParticipantStatus.Joined)
+                {
+                    <span class="badge bg-success">You are playing</span>
+                }
+                else if (Model.CurrentUserStatus == ParticipantStatus.Waitlisted)
+                {
+                    <span class="badge bg-warning text-dark">You are on the waiting list</span>
+                }
+
+                @if (Model.CanLeave)
+                {
+                    <form asp-controller="Participation" asp-action="Leave" asp-route-id="@Model.Id" asp-route-slug="@Model.Slug" method="post"
+                          onsubmit="return confirm('Leave this match?');">
+                        <button type="submit" class="btn btn-outline-danger">Leave</button>
+                    </form>
+                }
+
+                @if (Model.CanTakeAttendance)
+                {
+                    <a asp-action="Attendance" asp-route-id="@Model.Id" class="btn btn-primary">Mark attendance</a>
+                }
+
+                @if (Model.CanRate)
+                {
+                    <a asp-controller="Ratings" asp-action="Create" asp-route-matchId="@Model.Id" class="btn btn-outline-primary">Rate players</a>
+                }
+            </div>
+        }
+        else if (Model.Status == MatchStatus.Open || Model.Status == MatchStatus.Confirmed)
+        {
+            <p class="mt-3">
+                <a asp-area="Identity" asp-page="/Account/Login" asp-route-returnUrl="@Context.Request.Path">Log in</a>
+                to join this match.
+            </p>
+        }
 
         @if (Model.CanManage)
         {

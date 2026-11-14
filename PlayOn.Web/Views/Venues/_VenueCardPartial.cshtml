@@ -28,7 +28,7 @@
     <div class="card-footer bg-transparent">
         @if (venue.MatchId is { } matchId)
         {
-            <a asp-controller="Matches" asp-action="Details" asp-route-id="@matchId" asp-route-slug="@venue.MatchSlug">
+            <a asp-controller="Matches" asp-action="Details" asp-route-id="@matchId" asp-route-slug="@venue.Slug">
                 <i class="bi bi-trophy"></i> @venue.MatchTitle
             </a>
         }

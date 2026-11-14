@@ -1,3 +1,4 @@
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlayOn.Data;
@@ -29,6 +30,7 @@ namespace PlayOn.Web
                         .GetSection("Identity:Password")
                         .Bind(options.Password);
                 })
+                .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<PlayOnDbContext>();
 
             builder.Services.AddControllersWithViews(
@@ -61,10 +63,20 @@ namespace PlayOn.Web
             builder.Services.AddScoped<IMatchService, MatchService>();
             builder.Services.AddScoped<ISportService, SportService>();
 
+            builder.Services.AddScoped<IParticipationService, ParticipationService>();
+            builder.Services.AddScoped<IAttendanceService, AttendanceService>();
+            builder.Services.AddScoped<IRatingService, RatingService>();
+            builder.Services.AddScoped<IPlayerService, PlayerService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+
             builder.Services.AddScoped<MatchDataBuilder>();
             builder.Services.AddScoped<SportDataBuilder>();
             builder.Services.AddScoped<HomeDataBuilder>();
             builder.Services.AddScoped<VenueDataBuilder>();
+            builder.Services.AddScoped<ParticipationDataBuilder>();
+            builder.Services.AddScoped<RatingDataBuilder>();
+            builder.Services.AddScoped<PlayerDataBuilder>();
+            builder.Services.AddScoped<NotificationDataBuilder>();
 
 
             var app = builder.Build();

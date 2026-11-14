@@ -149,7 +149,7 @@ namespace PlayOn.Services
                 .AsSplitQuery()
                 .Where(x => x.Id == matchId && !x.IsDeleted && x.Event != null)
                 .Select(MatchDataBuilder.MatchDetailsRowProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (row == null)
             {
@@ -165,10 +165,16 @@ namespace PlayOn.Services
                     .NotFound();
             }
 
+            var hasEnded = row.Date
+                .ToDateTime(row.StartsAt)
+                .AddMinutes(row.DurationMinutes) <= timeProvider.GetLocalNow().LocalDateTime;
+
             var response = MatchDataBuilder.MatchDetailsRowToResponseModel(
                 row,
-                (isOrganiser || isAdmin)
-                    && IsOpenForChanges(row.Status, row.Date, row.StartsAt));
+                userId,
+                isOrganiser || isAdmin,
+                IsOpenForChanges(row.Status, row.Date, row.StartsAt),
+                hasEnded);
 
             return ServiceResponse<MatchDetailsResponseModel>
                 .Success(response);
@@ -224,7 +230,7 @@ namespace PlayOn.Services
                 .Query()
                 .Where(x => x.Id == request.MatchId && x.Event != null)
                 .Select(MatchDataBuilder.MatchEditRowProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (row == null || row.IsDeleted)
             {
@@ -258,7 +264,7 @@ namespace PlayOn.Services
 
             var match = await matchRepository
                 .Query(asNoTracking: false)
-                .FirstAsync(x => x.Id == row.Id);
+                .SingleAsync(x => x.Id == row.Id);
 
             MatchDataBuilder.MatchUpdateApplyToEntity(match, request);
 
@@ -287,7 +293,7 @@ namespace PlayOn.Services
                 .Query()
                 .Where(x => x.Id == request.CourtId)
                 .Select(MatchDataBuilder.MatchCourtOptionProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (court == null)
             {
@@ -317,7 +323,7 @@ namespace PlayOn.Services
                 .Query()
                 .Where(x => x.Id == request.VenueId)
                 .Select(MatchDataBuilder.SlotRowProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (slot == null || slot.IsDeleted)
             {
@@ -407,7 +413,7 @@ namespace PlayOn.Services
                 .Query()
                 .Where(x => x.Id == request.MatchId && x.Event != null)
                 .Select(MatchDataBuilder.MatchEditRowProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (row == null || row.IsDeleted)
             {
@@ -428,7 +434,7 @@ namespace PlayOn.Services
 
             var match = await matchRepository
                 .Query(asNoTracking: false)
-                .FirstAsync(x => x.Id == row!.Id);
+                .SingleAsync(x => x.Id == row!.Id);
 
             MatchDataBuilder.MatchCancelApplyToEntity(match, request);
 
@@ -446,7 +452,8 @@ namespace PlayOn.Services
 
         private bool HasStarted(DateOnly date, TimeOnly startsAt)
         {
-            return date.ToDateTime(startsAt) <= timeProvider.GetLocalNow().DateTime;
+
+            return date.ToDateTime(startsAt) <= timeProvider.GetLocalNow().LocalDateTime;
         }
     }
 }

@@ -13,7 +13,7 @@
         public required VenueCourtViewModel Court { get; init; }
         public required Guid MatchId { get; init; }
         public required string MatchTitle { get; init; }
-        public string MatchSlug { get; set; } = null!;
+        public required string Slug { get; init; }
     }
     public class VenueViewModel : PageViewModel
     {

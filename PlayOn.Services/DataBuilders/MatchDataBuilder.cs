@@ -80,8 +80,23 @@ public static class MatchDataBuilder
 
     public static MatchDetailsResponseModel MatchDetailsRowToResponseModel(
         DetailsRow source,
-        bool canManage)
+        Guid? userId,
+        bool isManager,
+        bool isOpenForChanges,
+        bool hasEnded)
     {
+        var currentStatus = userId == null
+            ? (ParticipantStatus?)null
+            : source.Participants
+                .Where(x => x.UserId == userId)
+                .Select(x => (ParticipantStatus?)x.Status)
+                .FirstOrDefault();
+
+        var isOrganiser = userId != null && userId == source.OrganiserId;
+
+        var isActive = currentStatus == ParticipantStatus.Joined
+            || currentStatus == ParticipantStatus.Waitlisted;
+
         return new MatchDetailsResponseModel
         {
             Id = source.Id,
@@ -109,9 +124,20 @@ public static class MatchDataBuilder
             Date = source.Date,
             StartsAt = source.StartsAt,
             ClosesAt = source.ClosesAt,
-            Joined = source.Participants.Count(x => x.Status == ParticipantStatus.Joined),
+            Joined = source.Participants.Count(x =>
+                x.Status == ParticipantStatus.Joined
+                || x.Status == ParticipantStatus.Attended
+                || x.Status == ParticipantStatus.NoShow),
             Waitlisted = source.Participants.Count(x => x.Status == ParticipantStatus.Waitlisted),
-            CanManage = canManage,
+            CanManage = isManager && isOpenForChanges,
+            CurrentUserStatus = currentStatus,
+            CanJoin = userId != null && isOpenForChanges && currentStatus == null,
+            CanLeave = isOpenForChanges && isActive && !isOrganiser,
+            CanTakeAttendance = isManager
+                && hasEnded
+                && (source.Status == MatchStatus.Open || source.Status == MatchStatus.Confirmed),
+            CanRate = source.Status == MatchStatus.Completed
+                && currentStatus == ParticipantStatus.Attended,
             Participants = source.Participants
                 .Select(x => new MatchParticipantResponseModel
                 {

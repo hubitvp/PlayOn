@@ -24,7 +24,5 @@
 
         public int TotalPages => PageSize <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
 
-        public PageResult<TOut> Map<TOut>(Func<T, TOut> map)
-            => new(Items.Select(map).ToList(), Page, PageSize, TotalCount);
     }
 }

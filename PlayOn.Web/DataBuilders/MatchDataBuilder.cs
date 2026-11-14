@@ -1,4 +1,6 @@
 using PlayOn.Common.Helpers;
+using PlayOn.Services.Data.Attendance.RequestData;
+using PlayOn.Services.Data.Attendance.ResponseModels;
 using PlayOn.Services.Data.Match.RequestData;
 using PlayOn.Services.Data.Match.ResponseModels;
 using PlayOn.Services.Data.Sport.ResponseModels;
@@ -137,10 +139,15 @@ public class MatchDataBuilder
             Waitlisted = source.Waitlisted,
             MinSkill = source.MinSkill,
             MaxSkill = source.MaxSkill,
-            PricePerPlayer = source.PricePerPlayer.ToFormattedString(),
+            PricePerPlayer = displayFormatter.Price(source.PricePerPlayer),
             OrganiserName = source.OrganiserName,
             OrganiserReliability = source.OrganiserReliability,
             CanManage = source.CanManage,
+            CurrentUserStatus = source.CurrentUserStatus,
+            CanJoin = source.CanJoin,
+            CanLeave = source.CanLeave,
+            CanTakeAttendance = source.CanTakeAttendance,
+            CanRate = source.CanRate,
             Participants = source.Participants
                 .Select(MatchParticipantToViewModel)
                 .ToList()
@@ -155,6 +162,7 @@ public class MatchDataBuilder
     {
         var result = new MatchParticipantViewModel
         {
+            UserId = source.UserId,
             DisplayName = source.DisplayName,
             City = source.City,
             Status = source.Status,
@@ -369,6 +377,82 @@ public class MatchDataBuilder
             ActorId = actorId,
             ActorIsAdmin = actorIsAdmin,
             Reason = source.Reason
+        };
+
+        return result;
+    }
+
+    public AttendanceViewModel
+        AttendanceToViewModel(AttendanceResponseModel source)
+    {
+        var result = new AttendanceViewModel
+        {
+            MatchId = source.MatchId,
+            Players = source.Players
+                .Select(AttendancePlayerToViewModel)
+                .ToList()
+        };
+
+        return AttendanceApplyDisplayData(result, source);
+    }
+
+    public AttendancePlayerInputModel
+        AttendancePlayerToViewModel(AttendancePlayerResponseModel source)
+    {
+        var result = new AttendancePlayerInputModel
+        {
+            UserId = source.UserId,
+            DisplayName = source.DisplayName,
+            City = source.City,
+            Attended = true
+        };
+
+        return result;
+    }
+
+
+    public AttendanceViewModel
+        AttendanceApplyDisplayData(
+            AttendanceViewModel target,
+            AttendanceResponseModel source)
+    {
+        target.Title = source.Title;
+        target.VenueName = source.VenueName;
+        target.StartsAt = displayFormatter.DateTime(source.Date.ToDateTime(source.StartsAt));
+
+        foreach (var player in target.Players)
+        {
+            var match = source.Players.FirstOrDefault(x => x.UserId == player.UserId);
+
+            if (match != null)
+            {
+                player.DisplayName = match.DisplayName;
+                player.City = match.City;
+            }
+        }
+
+        return target;
+    }
+
+    public AttendanceRequestData
+        AttendanceToRequestData(
+            Guid matchId,
+            Guid actorId,
+            bool actorIsAdmin,
+            AttendanceViewModel source)
+    {
+        var result = new AttendanceRequestData
+        {
+            MatchId = matchId,
+            ActorId = actorId,
+            ActorIsAdmin = actorIsAdmin,
+            Entries = source.Players
+                .Select(x => new AttendanceEntryRequestData
+                {
+                    UserId = x.UserId,
+                    Attended = x.Attended
+                })
+                .ToList()
         };
 
         return result;

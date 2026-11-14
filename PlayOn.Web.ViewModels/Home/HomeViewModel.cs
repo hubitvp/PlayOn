@@ -1,15 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-
+using PlayOn.Web.ViewModels.Match;
 
 namespace PlayOn.Web.ViewModels.Home
 {
     public class HomeViewModel : PageViewModel
     {
-        public Guid? SportId { get; init; }
-        public string? City { get; init; }
-        public string? From { get; init; }
+        public required Guid? SportId { get; init; }
+        public required string? City { get; init; }
+        public required string? From { get; init; }
 
-        public int TotalItems { get; init; }
+        public required int TotalItems { get; init; }
 
         public required IReadOnlyCollection<HomeMatchCardViewModel> MatchCards { get; init; }
 

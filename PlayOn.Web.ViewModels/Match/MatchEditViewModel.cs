@@ -4,7 +4,6 @@ namespace PlayOn.Web.ViewModels.Match
 {
     public class MatchEditViewModel : MatchInputModelBase
     {
-        [Range(1, int.MaxValue, ErrorMessage = "The match is not valid.")]
         public Guid Id { get; set; }
 
         [MinLength(1, ErrorMessage = "This page is out of date. Open the match again.")]

@@ -15,17 +15,20 @@ namespace PlayOn.Web.Controllers
     {
         private readonly IMatchService matchService;
         private readonly ISportService sportService;
+        private readonly IAttendanceService attendanceService;
         private readonly MatchDataBuilder matchDataBuilder;
 
         public MatchesController(
             IMatchService matchService,
             ISportService sportService,
+            IAttendanceService attendanceService,
             MatchDataBuilder matchDataBuilder,
             UserManager<ApplicationUser> userManager)
             : base(userManager)
         {
             this.matchService = matchService;
             this.sportService = sportService;
+            this.attendanceService = attendanceService;
             this.matchDataBuilder = matchDataBuilder;
         }
 
@@ -118,6 +121,7 @@ namespace PlayOn.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult>
             Edit(
                 Guid id,
@@ -213,7 +217,7 @@ namespace PlayOn.Web.Controllers
         }
 
         [HttpPost]
-
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult>
             Cancel(
                 Guid id,
@@ -257,6 +261,68 @@ namespace PlayOn.Web.Controllers
         }
 
 
+        [HttpGet]
+        public async Task<IActionResult> Attendance(Guid id)
+        {
+            var response = await attendanceService
+                .GetAsync(id, GetUserId(), IsAdmin());
+
+            if (!response.IsSuccess)
+            {
+                return AttendanceFailure(response, id);
+            }
+
+            var viewModel = matchDataBuilder
+                .AttendanceToViewModel(response.ResponseData);
+
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult>
+            Attendance(
+                Guid id,
+                AttendanceViewModel model)
+        {
+            model.MatchId = id;
+
+            if (ModelState.IsValid)
+            {
+                var requestData = matchDataBuilder
+                    .AttendanceToRequestData(id, GetUserId(), IsAdmin(), model);
+
+                var response = await attendanceService.SubmitAsync(requestData);
+
+                if (response.IsSuccess)
+                {
+                    TempData["Success"] = "Attendance saved. Players can now rate each other.";
+
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                if (response.Status != ServiceStatus.Invalid)
+                {
+                    return AttendanceFailure(response, id);
+                }
+
+                AddServiceErrors(response.Errors);
+            }
+
+            var attendanceData = await attendanceService
+                .GetAsync(id, GetUserId(), IsAdmin());
+
+            if (!attendanceData.IsSuccess)
+            {
+                return AttendanceFailure(attendanceData, id);
+            }
+
+            matchDataBuilder.AttendanceApplyDisplayData(model, attendanceData.ResponseData);
+
+            return View(model);
+        }
+
+
         private async Task<MatchListViewModel>
             BuildListViewModelAsync(
                 MatchSearchInputModel input,
@@ -291,6 +357,18 @@ namespace PlayOn.Web.Controllers
             matchDataBuilder.MatchEditApplyDisplayData(model, response.ResponseData);
 
             return View(model);
+        }
+
+        private IActionResult AttendanceFailure<T>(ServiceResponse<T> response, Guid matchId)
+        {
+            if (response.Status == ServiceStatus.Conflict)
+            {
+                TempData["Warning"] = "Warning: The action could not be completed due to a conflict.";
+
+                return RedirectToAction(nameof(Details), new { id = matchId });
+            }
+
+            return FromFailure(response);
         }
 
         private IActionResult FromFailure<T>(ServiceResponse<T> response)

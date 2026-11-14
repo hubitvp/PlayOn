@@ -25,8 +25,10 @@ namespace PlayOn.Data.Models
         [MaxLength(MessageMaxLength)]
         public string Message { get; set; } = null!;
 
-        [MaxLength(LinkMaxLength)]
-        public string? Link { get; set; }
+        public Guid? MatchId { get; set; }
+
+        [ForeignKey(nameof(MatchId))]
+        public virtual Match? Match { get; set; }
 
         [Required]
         public bool IsRead { get; set; }
