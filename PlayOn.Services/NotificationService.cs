@@ -18,14 +18,14 @@ namespace PlayOn.Services
             this.notificationRepository = notificationRepository;
         }
 
-        public async Task<ServiceResponse<PageResult<NotificationResponseModel>>>
-            GetNotificationsAsync(NotificationListRequestData request)
+        public async Task<ServiceResponse<NotificationResponseModel>>
+            GetNotificationsAsync(NotificationRequestData request)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
 
             if (errors.Any())
             {
-                return ServiceResponse<PageResult<NotificationResponseModel>>
+                return ServiceResponse<NotificationResponseModel>
                     .Failure(errors);
             }
 
@@ -53,8 +53,14 @@ namespace PlayOn.Services
                 pageSize,
                 totalCount);
 
-            return ServiceResponse<PageResult<NotificationResponseModel>>
-                .Success(page);
+            var response = new NotificationListResponseModel
+            {
+                Notifications = page,
+                UnreadCount = await GetUnreadCountAsync(request.UserId)
+            };
+
+            return ServiceResponse<NotificationListResponseModel>
+                .Success(response);
         }
 
         public async Task<int> GetUnreadCountAsync(Guid userId)
@@ -108,5 +114,7 @@ namespace PlayOn.Services
 
             return ServiceResponse<int>.Success(unread.Count);
         }
+
+
     }
 }

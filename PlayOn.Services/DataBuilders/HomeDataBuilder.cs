@@ -1,12 +1,27 @@
 ﻿using PlayOn.Common.Enums;
 using PlayOn.Data.Models;
 using PlayOn.Services.Data.Home.ResponseModels;
+using PlayOn.Services.Data.Sport.ResponseModels;
 using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
 public static class HomeDataBuilder
 {
+
+    public static Expression<Func<Sport, HomeSportOptionsResponseModel>>
+        HomeSportOptionsProjection()
+    {
+        Expression<Func<Sport, HomeSportOptionsResponseModel>> result =
+            source => new HomeSportOptionsResponseModel
+            {
+                Id = source.Id,
+                Name = source.Name
+            };
+
+        return result;
+    }
+
     public static Expression<Func<Match, HomeMatchCardResponseModel>>
         HomeMatchCardProjection()
     {

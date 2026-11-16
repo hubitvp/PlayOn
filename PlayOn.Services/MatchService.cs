@@ -6,6 +6,7 @@ using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.Match.RequestData;
 using PlayOn.Services.Data.Match.ResponseModels;
+using PlayOn.Services.Data.Sport.ResponseModels;
 using PlayOn.Services.DataBuilders;
 
 
@@ -34,14 +35,14 @@ namespace PlayOn.Services
         }
 
 
-        public async Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
-            GetMatchCardsAsync(MatchSearchRequestData request)
+        public async Task<ServiceResponse<MatchListResponseModel>>
+            GetMatchListAsync(MatchSearchRequestData request)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
 
             if (errors.Any())
             {
-                return ServiceResponse<PageResult<MatchCardResponseModel>>.Failure(errors);
+                return ServiceResponse<MatchListResponseModel>.Failure(errors);
             }
 
             if (request.SportId.HasValue
@@ -49,7 +50,7 @@ namespace PlayOn.Services
                     .Query()
                     .AnyAsync(x => x.Id == request.SportId.Value))
             {
-                return ServiceResponse<PageResult<MatchCardResponseModel>>
+                return ServiceResponse<MatchListResponseModel>
                     .Failure("Select a valid sport.", nameof(request.SportId));
             }
 
@@ -136,8 +137,24 @@ namespace PlayOn.Services
                 .Select(MatchDataBuilder.MatchCardProjection())
                 .ToListAsync();
 
-            return ServiceResponse<PageResult<MatchCardResponseModel>>
-                .Success(new PageResult<MatchCardResponseModel>(projectedItems, pageNumber, pageSize, totalCount));
+            var response = new MatchListResponseModel
+            {
+                Matches = new PageResult<MatchCardResponseModel>(projectedItems, pageNumber, pageSize, totalCount),
+                Sports = await GetSearchOptionsAsync()
+            };
+
+            return ServiceResponse<MatchListResponseModel>.Success(response);
+        }
+
+
+        public async Task<IReadOnlyList<SportResponseModel>>
+            GetSearchOptionsAsync()
+        {
+            return await sportRepository
+                .Query()
+                .OrderBy(x => x.Name)
+                .Select(SportDataBuilder.SportProjection())
+                .ToListAsync();
         }
 
 

@@ -45,13 +45,10 @@ public class NotificationDataBuilder
     {
         var result = new NotificationListViewModel
         {
-            Notifications = page?.Items
+            Notifications = page?.PageItems
                 .Select(NotificationToViewModel)
                 .ToList() ?? [],
             UnreadCount = unreadCount,
-            Page = page?.Page ?? requestedPage,
-            PageSize = page?.PageSize ?? DefaultPageSize,
-            TotalPages = page?.TotalPages ?? 0
         };
 
         return result;
@@ -60,7 +57,6 @@ public class NotificationDataBuilder
     public NotificationViewModel
         NotificationToViewModel(NotificationResponseModel source)
     {
-        // Notifications are stored in UTC; show them in the server's local time.
         var utc = DateTime.SpecifyKind(source.CreatedOn, DateTimeKind.Utc);
         var local = TimeZoneInfo.ConvertTimeFromUtc(utc, timeProvider.LocalTimeZone);
 

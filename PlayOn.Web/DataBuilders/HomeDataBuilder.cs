@@ -1,8 +1,11 @@
-﻿using PlayOn.Common.Helpers;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using PlayOn.Common.Helpers;
+using PlayOn.Services.Data;
 using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Services.Data.Home.ResponseModels;
 using PlayOn.Services.Data.Sport.ResponseModels;
 using PlayOn.Web.DataBuilders.Formatting;
+using PlayOn.Web.ViewModels;
 using PlayOn.Web.ViewModels.Home;
 using System.Globalization;
 using static PlayOn.Common.ApplicationConstants.PaginationConstants;
@@ -22,11 +25,36 @@ namespace PlayOn.Web.DataBuilders
             this.displayFormatter = displayFormatter;
         }
 
+        public SelectListItem
+            HomeSportOptionsToSelectListItem(
+                HomeSportOptionsResponseModel source,
+                Guid? selectedSportId)
+        {
+            var result = new SelectListItem
+            {
+                Text = source.Name,
+                Value = source.Id.ToString(),
+                Selected = source.Id == selectedSportId
+            };
+
+            return result;
+        }
+
+        public PageRequestData
+            PageInputToPageRequestData(PageInputModel source)
+        {
+            var result = new PageRequestData
+            {
+                Page = source.PageNumber,
+                PageSize = source.PageSize,
+            };
+            return result;
+        }
+
 
         public HomeSearchRequestData
             HomeSearchToRequestData(
-                HomeSearchInputModel source,
-                int page)
+                HomeSearchInputModel source)
         {
             var result = new HomeSearchRequestData
             {
@@ -39,8 +67,6 @@ namespace PlayOn.Web.DataBuilders
                     out var from)
                     ? from
                     : null,
-                Page = page,
-                PageSize = DefaultPageSize
             };
 
             return result;
@@ -77,25 +103,45 @@ namespace PlayOn.Web.DataBuilders
 
         public HomeViewModel
             HomeToViewModel(
-                HomeSearchInputModel source,
-                PageResult<HomeMatchCardResponseModel>? page,
-                IEnumerable<SportResponseModel> sports)
+                HomeSearchInputModel inputModel,
+                IReadOnlyList<HomeSportOptionsResponseModel> sportOptions)
         {
             var result = new HomeViewModel
             {
-                SportId = source.SportId,
-                City = source.City,
-                From = source.From,
-                Sports = sports
-                    .Select(x => sportDataBuilder.SportToSelectListItem(x, source.SportId))
-                    .ToList(),
-                MatchCards = page?.Items
-                    .Select(HomeMatchCardToViewModel)
-                    .ToList() ?? [],
-                Page = page?.Page ?? FirstPage,
-                PageSize = page?.PageSize ?? DefaultPageSize,
-                TotalPages = page?.TotalPages ?? 0,
-                TotalItems = page?.TotalCount ?? 0
+                InputInquiry = inputModel,
+                SportOptions = sportOptions
+                    .Select(x => HomeSportOptionsToSelectListItem(x, inputModel.SportId)),
+                Page = null,
+            };
+            return result;
+        }
+
+
+
+        public HomeViewModel
+            HomeToViewModel(
+                HomeSearchInputModel inputModel,
+                HomeResponseModel source)
+        {
+            PageResult<HomeMatchCardViewModel>? page = null;
+
+            if (source.Page != null)
+            {
+                page = new PageResult<HomeMatchCardViewModel>
+                (
+                    pageItems: source.Page.PageItems.Select(HomeMatchCardToViewModel).ToList(),
+                    pageMark: source.Page.PageMark,
+                    pageSize: source.Page.PageSize,
+                    totalItemsCount: source.Page.TotalItemsCount
+                );
+            }
+
+            var result = new HomeViewModel
+            {
+                InputInquiry = inputModel,
+                SportOptions = source.SportOptions
+                    .Select(x => HomeSportOptionsToSelectListItem(x, inputModel.SportId)),
+                Page = page,
             };
 
             return result;

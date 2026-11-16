@@ -7,7 +7,10 @@
     <h1 class="h3 mb-0">Matches</h1>
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <a asp-action="Create" class="btn btn-success"><i class="bi bi-plus-lg"></i> Organise a match</a>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-lg"></i>
+            Organise a match
+        </a>
     }
 </div>
 
@@ -15,21 +18,21 @@
     <div asp-validation-summary="All" class="text-danger"></div>
     <div class="row g-2">
         <div class="col-md-4">
-            <label asp-for="SearchTerm" class="form-label small">Search</label>
+            <label asp-for="SearchTerm" class="form-label small fw-bold">Search</label>
             <input asp-for="SearchTerm" class="form-control" maxlength="60" placeholder="Title, venue or sport" />
         </div>
         <div class="col-md-2">
-            <label asp-for="SportId" class="form-label small">Sport</label>
+            <label asp-for="SportId" class="form-label small fw-bold">Sport</label>
             <select asp-for="SportId" asp-items="Model.Sports" class="form-select">
                 <option value="">Any</option>
             </select>
         </div>
         <div class="col-md-3">
-            <label asp-for="City" class="form-label small">City</label>
+            <label asp-for="City" class="form-label small fw-bold">City</label>
             <input asp-for="City" class="form-control" maxlength="100" />
         </div>
         <div class="col-md-3">
-            <label asp-for="From" class="form-label small">From</label>
+            <label asp-for="From" class="form-label small fw-bold">From</label>
             <div class="input-group">
                 <input asp-for="From" type="date" class="form-control" data-date-picker data-date-picker-button="#fromToggle" />
                 <button type="button" id="fromToggle" class="btn btn-outline-secondary d-none" aria-label="Pick a date">
@@ -38,13 +41,13 @@
             </div>
         </div>
         <div class="col-md-3">
-            <label asp-for="Skill" class="form-label small">Skill</label>
+            <label asp-for="Skill" class="form-label small fw-bold">Skill</label>
             <select asp-for="Skill" asp-items="Html.GetEnumSelectList<SkillLevel>()" class="form-select">
                 <option value="">Any</option>
             </select>
         </div>
         <div class="col-md-3">
-            <label asp-for="Sort" class="form-label small">Sort by</label>
+            <label asp-for="Sort" class="form-label small fw-bold">Sort by</label>
             <select asp-for="Sort" asp-items="Html.GetEnumSelectList<MatchSort>()" class="form-select"></select>
         </div>
         <div class="col-md-3 d-flex align-items-end">

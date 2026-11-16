@@ -7,7 +7,7 @@ namespace PlayOn.Services.Contracts
     public interface IPlayerService
     {
         Task<ServiceResponse<PlayerProfileResponseModel>>
-            GetProfileAsync(Guid userId);
+            GetProfileAsync(Guid userId, Guid targetProfileId, bool isActive = true);
 
         Task<ServiceResponse<PlayerEditResponseModel>>
             GetForEditAsync(Guid userId);

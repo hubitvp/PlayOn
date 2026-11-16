@@ -69,13 +69,13 @@ public class MatchDataBuilder
             Sports = sports
                 .Select(x => sportDataBuilder.SportToSelectListItem(x, source.SportId))
                 .ToList(),
-            Matches = page?.Items
+            Matches = page?.PageItems
                 .Select(MatchCardToViewModel)
                 .ToList() ?? [],
-            Page = page?.Page ?? FirstPage,
+            Page = page?.PageMark ?? FirstPage,
             PageSize = page?.PageSize ?? DefaultPageSize,
             TotalPages = page?.TotalPages ?? 0,
-            TotalItems = page?.TotalCount ?? 0
+            TotalItems = page?.TotalItemsCount ?? 0
         };
 
         return result;

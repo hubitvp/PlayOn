@@ -35,34 +35,35 @@ namespace PlayOn.Services
 
 
         public async Task<ServiceResponse<PlayerProfileResponseModel>>
-            GetProfileAsync(Guid userId)
+            GetProfileAsync(Guid userId, Guid targetProfileId, bool isActive = true)
         {
             var player = await userRepository
                 .Query()
-                .Where(x => x.Id == userId)
+                .Where(x => x.Id == targetProfileId)
+                .Where(x => x.IsActive == isActive)
                 .Select(PlayerDataBuilder.PlayerRowProjection())
                 .SingleOrDefaultAsync();
 
-            if (player == null || !player.IsActive)
+            if (player == null )
             {
                 return ServiceResponse<PlayerProfileResponseModel>.NotFound();
             }
 
-            var attended = await CountAsync(userId, x => x.Status == ParticipantStatus.Attended);
-            var noShow = await CountAsync(userId, x => x.Status == ParticipantStatus.NoShow);
-            var lateCancel = await CountAsync(userId,
+            var attended = await CountAsync(targetProfileId, x => x.Status == ParticipantStatus.Attended);
+            var noShow = await CountAsync(targetProfileId, x => x.Status == ParticipantStatus.NoShow);
+            var lateCancel = await CountAsync(targetProfileId,
                 x => x.Status == ParticipantStatus.Cancelled && x.IsLateCancel);
 
             var visibleRatings = ratingRepository
                 .Query()
-                .Where(x => x.RatedUserId == userId && !x.IsHidden);
+                .Where(x => x.RatedUserId == targetProfileId && !x.IsHidden);
 
             var ratingCount = await visibleRatings.CountAsync();
             var ratingSum = await visibleRatings.SumAsync(x => x.Score);
 
             var skills = await preferenceRepository
                 .Query()
-                .Where(x => x.UserId == userId)
+                .Where(x => x.UserId == targetProfileId)
                 .OrderBy(x => x.Sport.Name)
                 .Select(PlayerDataBuilder.PlayerSkillProjection())
                 .ToListAsync();
@@ -74,6 +75,8 @@ namespace PlayOn.Services
                 .Select(PlayerDataBuilder.PlayerRatingProjection())
                 .ToListAsync();
 
+            bool isOwnProfile = userId != Guid.Empty && targetProfileId == userId;
+
             var response = PlayerDataBuilder.PlayerToProfileResponseModel(
                 player,
                 attended,
@@ -82,7 +85,8 @@ namespace PlayOn.Services
                 ratingCount,
                 ratingSum,
                 skills,
-                recentRatings);
+                recentRatings,
+                isOwnProfile);
 
             return ServiceResponse<PlayerProfileResponseModel>.Success(response);
         }

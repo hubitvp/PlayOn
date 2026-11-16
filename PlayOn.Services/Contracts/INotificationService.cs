@@ -7,8 +7,8 @@ namespace PlayOn.Services.Contracts
 {
     public interface INotificationService
     {
-        Task<ServiceResponse<PageResult<NotificationResponseModel>>>
-            GetNotificationsAsync(NotificationListRequestData request);
+        Task<ServiceResponse<NotificationResponseModel>>
+            GetNotificationsAsync(NotificationRequestData request);
 
         Task<int>
             GetUnreadCountAsync(Guid userId);

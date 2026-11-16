@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
+using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Web.DataBuilders;
+using PlayOn.Web.ViewModels;
 using PlayOn.Web.ViewModels.Home;
 
 namespace PlayOn.Web.Controllers
@@ -11,18 +13,15 @@ namespace PlayOn.Web.Controllers
 
     public class HomeController : BaseController
     {
-        private readonly ISportService sportService;
         private readonly IHomeService homeService;
         private readonly HomeDataBuilder homeDataBuilder;
 
         public HomeController(
-            ISportService sportService,
             IHomeService homeService,
             HomeDataBuilder homeDataBuilder,
             UserManager<ApplicationUser> userManager)
             : base(userManager)
         {
-            this.sportService = sportService;
             this.homeService = homeService;
 
             this.homeDataBuilder = homeDataBuilder;
@@ -34,39 +33,37 @@ namespace PlayOn.Web.Controllers
         public async Task<IActionResult>
             Index(
                 [FromQuery] HomeSearchInputModel searchQuery,
-                [FromQuery] int page = 1)
+                [FromQuery] PageInputModel pageInput)
         {
-            page = Math.Max(1, page);
 
-            var sports = (await sportService.GetSportsAsync()).ResponseData;
-
-            ModelState.Remove(nameof(page));
-            if (!ModelState.IsValid)
+            if (false == ModelState.IsValid)
             {
+                var errorServiceResponse = await homeService
+                        .GetSportOptionsAsync();
+
                 var errorHomeViewModel = homeDataBuilder
-                    .HomeToViewModel(searchQuery, null, sports);
+                    .HomeToViewModel(searchQuery, errorServiceResponse.ResponseData);
+
                 return View(errorHomeViewModel);
             }
 
-            var searchRequestData = homeDataBuilder
-                .HomeSearchToRequestData(searchQuery, page);
+            var searchRequestData = homeDataBuilder.HomeSearchToRequestData(searchQuery);
 
-            var response = await homeService
-                .GetMatchCardsAsync(searchRequestData);
+            var pageRequestData = homeDataBuilder.PageInputToPageRequestData(pageInput);
 
-            if (!response.IsSuccess)
-            {
-                AddServiceErrors(response.Errors);
-                var errorHomeViewModel = homeDataBuilder
-                    .HomeToViewModel(searchQuery, null, sports);
-                return View(errorHomeViewModel);
-            }
+            var serviceResponse = await homeService
+                .GetHomeAsync(searchRequestData, pageRequestData);
+
+            AddServiceErrors(serviceResponse.Errors);
 
             var viewModel = homeDataBuilder
-                .HomeToViewModel(searchQuery, response.ResponseData, sports);
+                .HomeToViewModel(searchQuery, serviceResponse.ResponseData);
 
             return View(viewModel);
         }
+
+
+
 
         [AllowAnonymous]
         [HttpGet]

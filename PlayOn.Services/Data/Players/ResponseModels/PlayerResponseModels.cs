@@ -14,6 +14,7 @@ namespace PlayOn.Services.Data.Players.ResponseModels
         public required int LateCancelCount { get; init; }
         public required int RatingCount { get; init; }
         public double? AverageRating { get; init; }
+        public required bool IsOwnProfile { get; init; }
         public required IReadOnlyList<PlayerSkillResponseModel> Skills { get; init; }
         public required IReadOnlyList<PlayerRatingResponseModel> RecentRatings { get; init; }
     }

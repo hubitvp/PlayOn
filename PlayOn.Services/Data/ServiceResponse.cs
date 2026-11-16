@@ -39,12 +39,13 @@ namespace PlayOn.Services.Data
             {
                 IsSuccess = false,
                 Status = ServiceStatus.Invalid,
-                Errors = errors
+                Errors = errors,
             };
         }
 
 
-        public static ServiceResponse<TData> Failure(string message, string memberName = "")
+        public static ServiceResponse<TData>
+            Failure(string message, string memberName = "")
         {
             return Failure(new[] { new ValidationResult(message, new[] { memberName }) });
         }

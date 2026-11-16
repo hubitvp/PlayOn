@@ -2,14 +2,17 @@
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.Match.RequestData;
 using PlayOn.Services.Data.Match.ResponseModels;
+using PlayOn.Services.Data.Sport.ResponseModels;
 
 namespace PlayOn.Services.Contracts
 {
     public interface IMatchService
     {
-        Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
-            GetMatchCardsAsync(
+        Task<ServiceResponse<MatchListResponseModel>>
+            GetMatchListAsync(
                 MatchSearchRequestData request);
+        Task<IReadOnlyList<SportResponseModel>>
+            GetSearchOptionsAsync();
 
         Task<ServiceResponse<MatchDetailsResponseModel>>
             GetDetailsAsync(

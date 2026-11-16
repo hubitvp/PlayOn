@@ -14,11 +14,6 @@ namespace PlayOn.Web.ViewModels.Home
         public IEnumerable<ValidationResult> Validate(
             ValidationContext validationContext)
         {
-            var timeProvider = (TimeProvider?)validationContext
-                .GetService(typeof(TimeProvider))
-                ?? throw new InvalidOperationException(
-                    "TimeProvider is not registered.");
-
             if (SportId.HasValue && SportId.Value == Guid.Empty)
             {
                 yield return new ValidationResult(
@@ -43,13 +38,6 @@ namespace PlayOn.Web.ViewModels.Home
                 {
                     yield return new ValidationResult(
                         "Invalid date format.",
-                        new[] { nameof(From) });
-                }
-                else if (parsedFrom < DateOnly.FromDateTime(
-                    timeProvider.GetLocalNow().DateTime))
-                {
-                    yield return new ValidationResult(
-                        "The date cannot be in the past.",
                         new[] { nameof(From) });
                 }
             }

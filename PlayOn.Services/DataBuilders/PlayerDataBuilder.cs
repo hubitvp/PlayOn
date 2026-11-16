@@ -53,7 +53,8 @@ public static class PlayerDataBuilder
             int ratingCount,
             int ratingSum,
             IReadOnlyList<PlayerSkillResponseModel> skills,
-            IReadOnlyList<PlayerRatingResponseModel> recentRatings)
+            IReadOnlyList<PlayerRatingResponseModel> recentRatings,
+            bool isOwnProfile)
     {
         var result = new PlayerProfileResponseModel
         {
@@ -67,6 +68,7 @@ public static class PlayerDataBuilder
             LateCancelCount = lateCancel,
             RatingCount = ratingCount,
             AverageRating = ratingCount == 0 ? null : (double)ratingSum / ratingCount,
+            IsOwnProfile = isOwnProfile,
             Skills = skills,
             RecentRatings = recentRatings
         };

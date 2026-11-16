@@ -10,8 +10,7 @@ public class PlayerDataBuilder
 {
     public PlayerProfileViewModel
         PlayerProfileToViewModel(
-            PlayerProfileResponseModel source,
-            bool isOwnProfile)
+            PlayerProfileResponseModel source)
     {
         var result = new PlayerProfileViewModel
         {
@@ -25,7 +24,7 @@ public class PlayerDataBuilder
             LateCancelCount = source.LateCancelCount,
             RatingCount = source.RatingCount,
             AverageRating = source.AverageRating?.ToString("0.0", CultureInfo.InvariantCulture),
-            IsOwnProfile = isOwnProfile,
+            IsOwnProfile = source.IsOwnProfile,
             Skills = source.Skills
                 .Select(PlayerSkillToViewModel)
                 .ToList(),

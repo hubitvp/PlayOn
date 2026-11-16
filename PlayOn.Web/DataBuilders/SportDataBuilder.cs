@@ -6,19 +6,6 @@ namespace PlayOn.Web.DataBuilders
     public class SportDataBuilder
     {
 
-        public SelectListItem
-            SportToSelectListItem(
-                SportResponseModel source,
-                Guid? selectedSportId)
-        {
-            var result = new SelectListItem
-            {
-                Text = source.Name,
-                Value = source.Id.ToString(),
-                Selected = source.Id == selectedSportId
-            };
-
-            return result;
-        }
+        
     }
 }
