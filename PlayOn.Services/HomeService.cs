@@ -28,7 +28,7 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
-        public async Task<ServiceResponse<HomeResponseModel>> GetHomeAsync(
+        public async Task<ServiceResponse<HomeResponseModel>> GetMainResponseModelAsync(
             HomeSearchRequestData searchRequestData,
             PageRequestData pageRequestData)
         {
@@ -40,7 +40,7 @@ namespace PlayOn.Services
                     .Failure(sportsResponse.Errors);
             }
 
-            var pageResponse = await GetPageAsync(
+            var pageResponse = await GetSinglePageAsync(
                 searchRequestData,
                 pageRequestData);
 
@@ -63,7 +63,7 @@ namespace PlayOn.Services
         }
 
         public async Task<ServiceResponse<PageResult<HomeMatchCardResponseModel>>>
-            GetPageAsync(
+            GetSinglePageAsync(
                 HomeSearchRequestData searchRequestData,
                 PageRequestData pageRequestData)
         {

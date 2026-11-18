@@ -72,9 +72,9 @@ namespace PlayOn.Services
 
 
         public async Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
-        GetSinglePageAsync(
-            MatchSearchRequestData searchRequestData,
-            PageRequestData pageRequestData)
+            GetSinglePageAsync(
+                MatchSearchRequestData searchRequestData,
+                PageRequestData pageRequestData)
         {
 
             var errors = ServiceRequestDataValidator.Validate(searchRequestData);
@@ -157,8 +157,10 @@ namespace PlayOn.Services
                     .ThenBy(x => x.Id),
 
                 MatchSort.MostSpots => query
-                    .OrderByDescending(x => x.MaxPlayers
-                        - x.Participants.Count(p => p.Status == ParticipantStatus.Joined))
+                    .OrderByDescending(
+                        x =>
+                            x.MaxPlayers - x.Participants.Count(
+                                p => p.Status == ParticipantStatus.Joined))
                     .ThenBy(x => x.Event!.Venue.Date)
                     .ThenBy(x => x.Event!.Venue.StartsAt)
                     .ThenBy(x => x.Id),
@@ -535,6 +537,11 @@ namespace PlayOn.Services
             return ServiceResponse<Guid>.Success(match.Id);
         }
 
+        public async Task<ServiceResponse<MatchOptionsResponseModel>>
+            GetFormOptionsAsync()
+        {
+            return await GetOptionsAsync(null);
+        }
 
         private bool IsOpenForChanges(MatchStatus status, DateOnly date, TimeOnly startsAt)
         {

@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PlayOn.Common.Helpers;
+using PlayOn.Services;
 using PlayOn.Services.Data.Attendance.RequestData;
 using PlayOn.Services.Data.Attendance.ResponseModels;
 using PlayOn.Services.Data.Match.RequestData;
@@ -11,7 +13,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.DataBuilders;
 
-public class MatchDataBuilder
+public class MatchDataBuilder : DataBuilder
 {
     private readonly IDisplayFormatter displayFormatter;
     private readonly SportDataBuilder sportDataBuilder;
@@ -24,10 +26,9 @@ public class MatchDataBuilder
         this.displayFormatter = displayFormatter;
     }
 
-
     public MatchSearchRequestData
         MatchSearchToRequestData(
-            MatchSearchInputModel source)
+            MatchViewModel source)
     {
         var result = new MatchSearchRequestData
         {
@@ -44,38 +45,66 @@ public class MatchDataBuilder
             Skill = source.Skill,
             OnlyWithFreeSpots = source.OnlyWithFreeSpots,
             Sort = source.Sort,
-            Page = Math.Max(FirstPage, source.Page),
-            PageSize = DefaultPageSize
         };
 
         return result;
     }
 
-    public MatchListViewModel
-        MatchListToViewModel(
-            MatchSearchInputModel source,
-            PageResult<MatchCardResponseModel>? page,
-            IEnumerable<SportResponseModel> sports)
+    public MatchViewModel ToViewModel(
+        MatchViewModel searchModel,
+        MatchResponseModel source)
     {
-        var result = new MatchListViewModel
+        return ToViewModel(searchModel, source.Page, source.Options);
+    }
+
+    public MatchViewModel
+        ToViewModel(
+            MatchViewModel searchModel,
+            PageResult<MatchCardResponseModel>? page,
+            MatchOptionsResponseModel optionsResponseModel)
+    {
+        PageResult<MatchCardViewModel>? pageViewModel = null;
+
+        if (page != null)
         {
-            SearchTerm = source.SearchTerm,
-            SportId = source.SportId,
-            City = source.City,
-            From = source.From,
-            Skill = source.Skill,
-            OnlyWithFreeSpots = source.OnlyWithFreeSpots,
-            Sort = source.Sort,
-            Sports = sports
-                .Select(x => sportDataBuilder.SportToSelectListItem(x, source.SportId))
-                .ToList(),
-            Matches = page?.PageItems
-                .Select(MatchCardToViewModel)
-                .ToList() ?? [],
-            Page = page?.PageMark ?? FirstPage,
-            PageSize = page?.PageSize ?? DefaultPageSize,
-            TotalPages = page?.TotalPages ?? 0,
-            TotalItems = page?.TotalItemsCount ?? 0
+            pageViewModel = new PageResult<MatchCardViewModel>
+            (
+                pageItems: page.PageItems
+                    .Select(MatchCardToViewModel)
+                    .ToList(),
+                pageMark: page.PageMark,
+                pageSize: page.PageSize,
+                totalItemsCount: page.TotalItemsCount
+            );
+        }
+
+        IReadOnlyList<SelectListItem> sportOptions = optionsResponseModel.SportOptions
+            .Select(x => SportOptionToSelectListItem(x, searchModel.SportId))
+            .ToList();
+
+        IReadOnlyList<CourtOptionViewModel> courtOptions = optionsResponseModel.CourtOptions
+            .Select(CourtOptionToViewModel)
+            .ToList();
+
+        IReadOnlyList<VenueOptionViewModel> venueOptions = optionsResponseModel.VenueOptions
+            .Select(VenueOptionToViewModel)
+            .ToList();
+
+        var result = new MatchViewModel
+        {
+            SearchTerm = searchModel.SearchTerm,
+            SportId = searchModel.SportId,
+            City = searchModel.City,
+            From = searchModel.From,
+            Skill = searchModel.Skill,
+            OnlyWithFreeSpots = searchModel.OnlyWithFreeSpots,
+            Sort = searchModel.Sort,
+
+            SportOptions = sportOptions,
+            CourtOptions = courtOptions,
+            VenueOptions = venueOptions,
+
+            Page = pageViewModel,
         };
 
         return result;
@@ -173,9 +202,6 @@ public class MatchDataBuilder
         return result;
     }
 
-
-
-
     public MatchEditViewModel
         MatchEditToViewModel(
             MatchEditResponseModel source)
@@ -248,64 +274,41 @@ public class MatchDataBuilder
         return result;
     }
 
-
-    public MatchFormViewModel
-        MatchFormToViewModel(
-            Guid? venueId,
-            MatchOptionsResponseModel options)
+    public SelectListItem
+        SportOptionToSelectListItem(
+            SportOptionResponseModel source,
+            Guid? selectedSportId)
     {
-        var result = new MatchFormViewModel();
-
-        if (venueId.HasValue)
+        var target = new SelectListItem
         {
-            result.VenueId = venueId.Value;
-        }
-
-        return MatchFormOptionsToViewModel(result, options);
-    }
-
-
-    public MatchFormViewModel
-        MatchFormOptionsToViewModel(
-            MatchFormViewModel target,
-            MatchOptionsResponseModel options)
-    {
-        target.Sports = options.Sports
-            .Select(x => sportDataBuilder.SportToSelectListItem(x, target.SportId))
-            .ToList();
-
-        target.Courts = options.Courts
-            .Select(CourtOptionToViewModel)
-            .ToList();
-
-        target.Slots = options.Slots
-            .Select(MatchSlotToViewModel)
-            .ToList();
-
+            Text = source.Name,
+            Value = source.Id.ToString(),
+            Selected = source.Id == selectedSportId
+        };
         return target;
     }
 
-    public MatchCourtOptionViewModel
+    public CourtOptionViewModel
         CourtOptionToViewModel(
             CourtOptionResponseModel source)
     {
-        var result = new MatchCourtOptionViewModel
+        var result = new CourtOptionViewModel
         {
             CourtId = source.CourtId,
             Name = source.Name,
             Surface = source.Surface.ToString(),
             Capacity = source.Capacity,
-            SportIds = source.SportIds.ToArray()
+            SportIds = source.SportIds,
         };
 
         return result;
     }
 
-    public MatchSlotOptionViewModel
-        MatchSlotToViewModel(
-            VenueSlotResponseModel source)
+    public VenueOptionViewModel
+        VenueOptionToViewModel(
+            VenueOptionResponseModel source)
     {
-        var result = new MatchSlotOptionViewModel
+        var target = new VenueOptionViewModel
         {
             Id = source.Id,
             Label = $"{displayFormatter.ShortDate(source.Date)}, {displayFormatter.Time(source.StartsAt)} - {source.Name}, {source.City}",
@@ -314,31 +317,7 @@ public class MatchDataBuilder
             CloseMinutes = source.ClosesAt.Hour * 60 + source.ClosesAt.Minute
         };
 
-        return result;
-    }
-
-    public MatchCreateRequestData
-        MatchFormToRequestData(
-            Guid organiserId,
-            MatchFormViewModel source)
-    {
-        var result = new MatchCreateRequestData
-        {
-            OrganiserId = organiserId,
-            SportId = source.SportId,
-            CourtId = source.CourtId,
-            VenueId = source.VenueId,
-            Title = source.Title,
-            Description = source.Description,
-            DurationMinutes = source.DurationMinutes,
-            MinPlayers = source.MinPlayers,
-            MaxPlayers = source.MaxPlayers,
-            MinSkill = source.MinSkill,
-            MaxSkill = source.MaxSkill,
-            PricePerPlayer = source.PricePerPlayer
-        };
-
-        return result;
+        return target;
     }
 
     public MatchCancelViewModel
@@ -410,7 +389,6 @@ public class MatchDataBuilder
         return result;
     }
 
-
     public AttendanceViewModel
         AttendanceApplyDisplayData(
             AttendanceViewModel target,
@@ -453,6 +431,65 @@ public class MatchDataBuilder
                     Attended = x.Attended
                 })
                 .ToList()
+        };
+
+        return result;
+    }
+
+    public MatchFormViewModel
+    MatchFormToViewModel(
+        Guid? venueId,
+        MatchOptionsResponseModel options)
+    {
+        var result = new MatchFormViewModel();
+
+        if (venueId.HasValue)
+        {
+            result.VenueId = venueId.Value;
+        }
+
+        return MatchFormOptionsToViewModel(result, options);
+    }
+
+    public MatchFormViewModel
+        MatchFormOptionsToViewModel(
+            MatchFormViewModel target,
+            MatchOptionsResponseModel options)
+    {
+        target.Sports = options.SportOptions
+            .Select(x => SportOptionToSelectListItem(x, target.SportId))
+            .ToList();
+
+        target.Courts = options.CourtOptions
+            .Select(CourtOptionToViewModel)
+            .ToList();
+
+        target.Slots = options.VenueOptions
+            .Select(VenueOptionToViewModel)
+            .ToList();
+
+        return target;
+    }
+
+    public MatchCreateRequestData
+        MatchFormToRequestData(
+            Guid organiserId,
+            MatchFormViewModel source)
+    {
+        var result = new MatchCreateRequestData
+        {
+            OrganiserId = organiserId,
+            SportId = source.SportId ?? Guid.Empty,
+            CourtId = source.CourtId ?? Guid.Empty,
+            VenueId = source.VenueId ?? Guid.Empty,
+            Title = source.Title,
+            Description = source.Description,
+            DurationMinutes = source.DurationMinutes,
+            MinPlayers = source.MinPlayers,
+            MaxPlayers = source.MaxPlayers,
+            MinSkill = source.MinSkill,
+            MaxSkill = source.MaxSkill,
+            PricePerPlayer = source.PricePerPlayer
         };
 
         return result;

@@ -29,6 +29,9 @@ namespace PlayOn.Services.Contracts
         Task<ServiceResponse<MatchOptionsResponseModel>>
             GetOptionsAsync(DateOnly? from);
 
+
+        Task<ServiceResponse<MatchOptionsResponseModel>> GetFormOptionsAsync();
+
         Task<ServiceResponse<MatchDetailsResponseModel>>
             GetDetailsAsync(
                 Guid matchId,

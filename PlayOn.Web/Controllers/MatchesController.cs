@@ -5,8 +5,8 @@ using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Match.ResponseModels;
 using PlayOn.Web.DataBuilders;
+using PlayOn.Web.ViewModels;
 using PlayOn.Web.ViewModels.Match;
 
 namespace PlayOn.Web.Controllers
@@ -32,42 +32,38 @@ namespace PlayOn.Web.Controllers
             this.matchDataBuilder = matchDataBuilder;
         }
 
-
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult>
-            Index([FromQuery] MatchSearchInputModel input)
+            Index([FromQuery][Bind(Prefix = "")] MatchViewModel searchModel, [FromQuery] PageInputModel page)
         {
             if (!ModelState.IsValid)
             {
-                var errorViewModel =
-                    await BuildListViewModelAsync(input, null);
+                var optionsResponse = await matchService.GetOptionsAsync(null);
+
+                var errorViewModel = matchDataBuilder.ToViewModel(searchModel, null, optionsResponse.ResponseData);
 
                 return View(errorViewModel);
             }
 
-            var request = matchDataBuilder
-                .MatchSearchToRequestData(input);
+            var searchRequestData = matchDataBuilder
+                .MatchSearchToRequestData(searchModel);
 
-            var response = await matchService
-                .GetMatchCardsAsync(request);
+            var pageRequestData = matchDataBuilder
+                .PageInputToPageRequestData(page);
 
-            if (!response.IsSuccess)
+            var serviceResponse = await matchService
+                .GetMainResponseModelAsync(searchRequestData, pageRequestData);
+
+            if (!serviceResponse.IsSuccess)
             {
-                AddServiceErrors(response.Errors);
-
-                var errorViewModel =
-                    await BuildListViewModelAsync(input, null);
-
-                return View(errorViewModel);
+                AddServiceErrors(serviceResponse.Errors);
             }
 
-            var viewModel =
-                await BuildListViewModelAsync(input, response.ResponseData);
+            var viewModel = matchDataBuilder.ToViewModel(searchModel, serviceResponse.ResponseData);
 
             return View(viewModel);
         }
-
 
         [AllowAnonymous]
         [HttpGet]
@@ -101,7 +97,6 @@ namespace PlayOn.Web.Controllers
 
             return View(viewModel);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
@@ -158,14 +153,18 @@ namespace PlayOn.Web.Controllers
             return await EditViewWithDisplayDataAsync(model);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Create(Guid? venueId)
         {
-            var options = await matchService.GetFormOptionsAsync();
+            var optionsResponse = await matchService.GetFormOptionsAsync();
+
+            if (!optionsResponse.IsSuccess)
+            {
+                return FromFailure(optionsResponse);
+            }
 
             var viewModel = matchDataBuilder
-                .MatchFormToViewModel(venueId, options);
+                .MatchFormToViewModel(venueId, optionsResponse.ResponseData);
 
             return View(viewModel);
         }
@@ -197,7 +196,6 @@ namespace PlayOn.Web.Controllers
                 nameof(Details),
                 new { id = response.ResponseData, slug = Slug.Create(model.Title) });
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Cancel(Guid id)
@@ -260,7 +258,6 @@ namespace PlayOn.Web.Controllers
             return View(model);
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Attendance(Guid id)
         {
@@ -322,23 +319,17 @@ namespace PlayOn.Web.Controllers
             return View(model);
         }
 
-
-        private async Task<MatchListViewModel>
-            BuildListViewModelAsync(
-                MatchSearchInputModel input,
-                PageResult<MatchCardResponseModel>? page)
-        {
-            var sports = (await sportService.GetSportsAsync()).ResponseData;
-
-            return matchDataBuilder.MatchListToViewModel(input, page, sports);
-        }
-
         private async Task<IActionResult>
             CreateViewWithOptionsAsync(MatchFormViewModel model)
         {
-            var options = await matchService.GetFormOptionsAsync();
+            var optionsResponse = await matchService.GetFormOptionsAsync();
 
-            matchDataBuilder.MatchFormOptionsToViewModel(model, options);
+            if (!optionsResponse.IsSuccess)
+            {
+                return FromFailure(optionsResponse);
+            }
+
+            matchDataBuilder.MatchFormOptionsToViewModel(model, optionsResponse.ResponseData);
 
             return View(model);
         }

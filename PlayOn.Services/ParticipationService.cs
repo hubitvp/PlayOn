@@ -128,14 +128,16 @@ namespace PlayOn.Services
 
                 userIds.Add(request.UserId);
 
-                var notifications = userIds
-                    .Select(userId => NotificationDataBuilder.NotificationToEntity(
-                        userId,
-                        NotificationType.MatchConfirmed,
-                        $"\"{info.Title}\" is confirmed: enough players have joined.",
-                        info.Id,
-                        nowUtc))
-                    .ToList();
+                //var notifications = userIds
+                //    .Select(userId => NotificationDataBuilder.NotificationToEntity(
+                //        userId,
+                //        NotificationType.MatchConfirmed,
+                //        $"\"{info.Title}\" is confirmed: enough players have joined.",
+                //        info.Id,
+                //        nowUtc))
+                //    .ToList();
+
+                IEnumerable<Notification> notifications = [];
 
                 await notificationRepository.AddRangeAsync(notifications);
             }
@@ -219,13 +221,13 @@ namespace PlayOn.Services
 
             if (isLate)
             {
-                notifications.Add(NotificationDataBuilder.NotificationToEntity(
-                    request.UserId,
-                    NotificationType.StrikeAdded,
-                    $"You left \"{info.Title}\" less than {LateCancelHours} hours before it started. "
-                        + $"This counts as a strike for {StrikeWindowDays} days.",
-                    info.Id,
-                    nowUtc));
+                //notifications.Add(NotificationDataBuilder.NotificationToEntity(
+                //    request.UserId,
+                //    NotificationType.StrikeAdded,
+                //    $"You left \"{info.Title}\" less than {LateCancelHours} hours before it started. "
+                //        + $"This counts as a strike for {StrikeWindowDays} days.",
+                //    info.Id,
+                //    nowUtc));
             }
 
             var promoted = false;
@@ -254,12 +256,12 @@ namespace PlayOn.Services
                         candidate.Status = ParticipantStatus.Joined;
                         candidate.StatusChangedOn = nowUtc;
 
-                        notifications.Add(NotificationDataBuilder.NotificationToEntity(
-                            candidate.UserId,
-                            NotificationType.Promoted,
-                            $"A spot opened up in \"{info.Title}\" and you are now playing.",
-                            info.Id,
-                            nowUtc));
+                        //notifications.Add(NotificationDataBuilder.NotificationToEntity(
+                        //    candidate.UserId,
+                        //    NotificationType.Promoted,
+                        //    $"A spot opened up in \"{info.Title}\" and you are now playing.",
+                        //    info.Id,
+                        //    nowUtc));
 
                         promoted = true;
                         joinedAfter++;

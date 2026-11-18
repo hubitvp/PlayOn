@@ -32,7 +32,7 @@ namespace PlayOn.Web.Controllers
         [HttpGet]
         public async Task<IActionResult>
             Index(
-                [FromQuery] HomeSearchInputModel searchQuery,
+                [FromQuery][Bind(Prefix = "")] HomeSearchInputModel searchQuery,
                 [FromQuery] PageInputModel pageInput)
         {
 
@@ -42,7 +42,7 @@ namespace PlayOn.Web.Controllers
                         .GetSportOptionsAsync();
 
                 var errorHomeViewModel = homeDataBuilder
-                    .HomeToViewModel(searchQuery, errorServiceResponse.ResponseData);
+                    .ToViewModel(searchQuery, errorServiceResponse.ResponseData);
 
                 return View(errorHomeViewModel);
             }
@@ -52,7 +52,7 @@ namespace PlayOn.Web.Controllers
             var pageRequestData = homeDataBuilder.PageInputToPageRequestData(pageInput);
 
             var serviceResponse = await homeService
-                .GetHomeAsync(searchRequestData, pageRequestData);
+                .GetMainResponseModelAsync(searchRequestData, pageRequestData);
 
             AddServiceErrors(serviceResponse.Errors);
 

@@ -1,4 +1,4 @@
-@model MatchListViewModel
+@model MatchViewModel
 @{
     ViewData["Title"] = "Matches";
 }
@@ -23,7 +23,7 @@
         </div>
         <div class="col-md-2">
             <label asp-for="SportId" class="form-label small fw-bold">Sport</label>
-            <select asp-for="SportId" asp-items="Model.Sports" class="form-select">
+            <select asp-for="SportId" asp-items="Model.SportOptions" class="form-select">
                 <option value="">Any</option>
             </select>
         </div>
@@ -63,19 +63,19 @@
     </div>
 </form>
 
-@if (Model.Matches.Count == 0)
+@if (Model.Page == null || Model.Page.PageItems.Count == 0)
 {
     <div class="alert alert-info">No matches found. Try a wider search.</div>
 }
 else
 {
-    var first = (Model.Page - 1) * Model.PageSize + 1;
-    var last = first + Model.Matches.Count - 1;
+    var first = (Model.Page.PageMark - 1) * Model.Page.PageSize + 1;
+    var last = first + Model.Page.PageItems.Count - 1;
 
-    <p class="text-muted small">Showing @first&ndash;@last of @Model.TotalItems matches</p>
+    <p class="text-muted small">Showing @first&ndash;@last of @Model.Page.TotalItemsCount matches</p>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-        @foreach (var match in Model.Matches)
+        @foreach (var match in Model.Page.PageItems)
         {
             <div class="col"><partial name="_MatchCardPartial" model="match" /></div>
         }
@@ -83,18 +83,18 @@ else
 
     var pagination = new PaginationViewModel
     {
-        Page = Model.Page,
-        TotalPages = Model.TotalPages,
+        Page = Model.Page.PageMark,
+        TotalPages = Model.Page.TotalPages,
         PageUrl = p => Url.Action("Index", "Matches", new
         {
-            Model.SearchTerm,
-            Model.SportId,
-            Model.City,
-            Model.From,
-            Model.Skill,
-            Model.OnlyWithFreeSpots,
-            Model.Sort,
-            Page = p
+            PageMark = p,
+            SearchTerm = Model.SearchTerm,
+            SportId = Model.SportId,
+            City = Model.City,
+            From = Model.From,
+            Skill = Model.Skill,
+            OnlyWithFreeSpots = Model.OnlyWithFreeSpots,
+            Sort = Model.Sort
         })!
     };
 

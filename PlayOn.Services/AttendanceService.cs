@@ -111,12 +111,12 @@ namespace PlayOn.Services
 
                 if (!attended)
                 {
-                    notifications.Add(NotificationDataBuilder.NotificationToEntity(
-                        participant.UserId,
-                        NotificationType.StrikeAdded,
-                        $"You were marked as a no-show for \"{info!.Title}\". This counts as a strike.",
-                        info.Id,
-                        nowUtc));
+                    //notifications.Add(NotificationDataBuilder.NotificationToEntity(
+                    //    participant.UserId,
+                    //    NotificationType.StrikeAdded,
+                    //    $"You were marked as a no-show for \"{info!.Title}\". This counts as a strike.",
+                    //    info.Id,
+                    //    nowUtc));
                 }
             }
 

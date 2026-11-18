@@ -7,12 +7,13 @@ namespace PlayOn.Services.Contracts
 {
     public interface IHomeService
     {
-        Task<ServiceResponse<HomeResponseModel>> GetHomeAsync(
-            HomeSearchRequestData searchRequestData,
-            PageRequestData pageRequestData);
+        Task<ServiceResponse<HomeResponseModel>>
+            GetMainResponseModelAsync(
+                HomeSearchRequestData searchRequestData,
+                PageRequestData pageRequestData);
 
         Task<ServiceResponse<PageResult<HomeMatchCardResponseModel>>>
-            GetPageAsync(
+            GetSinglePageAsync(
                 HomeSearchRequestData searchRequestData,
                 PageRequestData pageRequestData);
 

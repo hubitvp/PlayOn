@@ -1,34 +1,48 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PlayOn.Common.Helpers;
-using PlayOn.Web.ViewModels.Match;
 
 namespace PlayOn.Web.ViewModels.Home
 {
-
-
-
-    //public class HomeViewModel //: PageViewModel
-    //{
-    //    public required Guid? SportId { get; init; }
-    //    public required string? City { get; init; }
-    //    public required string? From { get; init; }
-
-    //    public required int TotalItems { get; init; }
-
-    //    public required IReadOnlyCollection<HomeMatchCardViewModel> MatchCards { get; init; }
-
-    //    public required IEnumerable<SelectListItem> Sports { get; init; }
-    //}
-
-
-
-
-    public class HomeViewModel //: PageViewModel
+    public class HomeViewModel : IValidatableObject
     {
-        public required HomeSearchInputModel? InputInquiry { get; init; }
+        public Guid? SportId { get; set; }
+        public string? City { get; set; }
+        public string? From { get; set; }
 
         public required PageResult<HomeMatchCardViewModel>? Page { get; init; }
-
         public required IEnumerable<SelectListItem>? SportOptions { get; init; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (SportId.HasValue && SportId.Value == Guid.Empty)
+            {
+                yield return new ValidationResult(
+                    "Sport ID must be a not empty guid.",
+                    new[] { nameof(SportId) });
+            }
+
+            if (!string.IsNullOrWhiteSpace(City) && City.Length > 100)
+            {
+                yield return new ValidationResult(
+                    "City name cannot exceed 100 characters.",
+                    new[] { nameof(City) });
+            }
+
+            if (!string.IsNullOrWhiteSpace(From))
+            {
+                if (!DateOnly.TryParse(
+                    From,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var parsedFrom))
+                {
+                    yield return new ValidationResult(
+                        "Invalid date format.",
+                        new[] { nameof(From) });
+                }
+            }
+        }
     }
 }

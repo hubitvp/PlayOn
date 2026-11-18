@@ -35,10 +35,10 @@ public class VenueDataBuilder
     {
         var result = new VenueViewModel
         {
-            Venues = page?.Items
+            Venues = page?.PageItems
                 .Select(VenueToViewModel)
                 .ToList() ?? [],
-            Page = page?.Page ?? requestedPage,
+            Page = page?.PageMark ?? requestedPage,
             PageSize = page?.PageSize ?? DefaultPageSize,
             TotalPages = page?.TotalPages ?? 0
         };

@@ -12,7 +12,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.DataBuilders
 {
-    public class HomeDataBuilder
+    public class HomeDataBuilder : DataBuilder
     {
         private readonly SportDataBuilder sportDataBuilder;
         private readonly IDisplayFormatter displayFormatter;
@@ -40,18 +40,7 @@ namespace PlayOn.Web.DataBuilders
             return result;
         }
 
-        public PageRequestData
-            PageInputToPageRequestData(PageInputModel source)
-        {
-            var result = new PageRequestData
-            {
-                Page = source.PageNumber,
-                PageSize = source.PageSize,
-            };
-            return result;
-        }
-
-
+        // Option A: If HomeSearchToRequestData still accepts HomeSearchInputModel from the controller action
         public HomeSearchRequestData
             HomeSearchToRequestData(
                 HomeSearchInputModel source)
@@ -72,7 +61,8 @@ namespace PlayOn.Web.DataBuilders
             return result;
         }
 
-
+        // Option B (Alternative): If you pass HomeViewModel directly instead of HomeSearchInputModel, 
+        // you can use this overload or map it similarly.
 
         public HomeMatchCardViewModel
             HomeMatchCardToViewModel(
@@ -100,23 +90,22 @@ namespace PlayOn.Web.DataBuilders
             return result;
         }
 
-
         public HomeViewModel
-            HomeToViewModel(
+            ToViewModel(
                 HomeSearchInputModel inputModel,
                 IReadOnlyList<HomeSportOptionsResponseModel> sportOptions)
         {
             var result = new HomeViewModel
             {
-                InputInquiry = inputModel,
+                SportId = inputModel.SportId,
+                City = inputModel.City,
+                From = inputModel.From,
                 SportOptions = sportOptions
                     .Select(x => HomeSportOptionsToSelectListItem(x, inputModel.SportId)),
                 Page = null,
             };
             return result;
         }
-
-
 
         public HomeViewModel
             HomeToViewModel(
@@ -138,7 +127,9 @@ namespace PlayOn.Web.DataBuilders
 
             var result = new HomeViewModel
             {
-                InputInquiry = inputModel,
+                SportId = inputModel.SportId,
+                City = inputModel.City,
+                From = inputModel.From,
                 SportOptions = source.SportOptions
                     .Select(x => HomeSportOptionsToSelectListItem(x, inputModel.SportId)),
                 Page = page,

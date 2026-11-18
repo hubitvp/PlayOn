@@ -124,14 +124,16 @@ namespace PlayOn.Services
                 .Select(x => RatingDataBuilder.RatingToEntity(request.MatchId, request.RaterId, x))
                 .ToList();
 
-            var notifications = request.Entries
-                .Select(x => NotificationDataBuilder.NotificationToEntity(
-                    x.RatedUserId,
-                    NotificationType.RatingReceived,
-                    $"You received a new rating after \"{access.Title}\".",
-                    request.MatchId,
-                    nowUtc))
-                .ToList();
+            //var notifications = request.Entries
+            //    .Select(x => NotificationDataBuilder.NotificationToEntity(
+            //        x.RatedUserId,
+            //        NotificationType.RatingReceived,
+            //        $"You received a new rating after \"{access.Title}\".",
+            //        request.MatchId,
+            //        nowUtc))
+            //    .ToList();
+
+            IEnumerable<Notification> notifications = [];
 
             await ratingRepository.AddRangeAsync(ratings);
             await notificationRepository.AddRangeAsync(notifications);

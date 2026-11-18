@@ -58,10 +58,10 @@ public class ParticipationDataBuilder
         var result = new MyMatchesViewModel
         {
             Tab = tab,
-            Matches = page?.Items
+            Matches = page?.PageItems
                 .Select(x => MyMatchToViewModel(tab, x))
                 .ToList() ?? [],
-            Page = page?.Page ?? requestedPage,
+            Page = page?.PageMark ?? requestedPage,
             PageSize = page?.PageSize ?? DefaultPageSize,
             TotalPages = page?.TotalPages ?? 0
         };

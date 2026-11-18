@@ -1,0 +1,35 @@
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace PlayOn.Web.ViewModels.Match
+{
+
+
+    public class CourtOptionViewModel
+    {
+        public required Guid CourtId { get; init; }
+        public required string Name { get; init; }
+        public required string Surface { get; init; }
+        public required int Capacity { get; init; }
+        public required IEnumerable<Guid> SportIds { get; init; }
+    }
+
+    public class VenueOptionViewModel
+    {
+        public required Guid Id { get; init; }
+        public required string Label { get; init; }
+        public required string Date { get; init; }
+        public required int StartMinutes { get; init; }
+        public required int CloseMinutes { get; init; }
+    }
+
+
+    public class MatchSearchOptionsViewModel
+    {
+        public required IReadOnlyList<SelectListItem> SportOptions { get; init; }
+        public required IReadOnlyList<CourtOptionViewModel> CourtOptions { get; init; }
+        public required IReadOnlyList<VenueOptionViewModel> VenueOptions { get; init; }
+    }
+}
