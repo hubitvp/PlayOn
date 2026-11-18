@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PlayOn.Common.Enums;
 using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
@@ -29,33 +31,71 @@ namespace PlayOn.Services
         {
             this.matchRepository = matchRepository;
             this.sportRepository = sportRepository;
-            this.timeProvider = timeProvider;
             this.courtRepository = courtRepository;
             this.venueRepository = venueRepository;
+            this.timeProvider = timeProvider;
         }
 
 
-        public async Task<ServiceResponse<MatchListResponseModel>>
-            GetMatchListAsync(MatchSearchRequestData request)
+        public async Task<ServiceResponse<MatchResponseModel>>
+            GetMainResponseModelAsync(MatchSearchRequestData request, PageRequestData pageRequestData)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
 
             if (errors.Any())
             {
-                return ServiceResponse<MatchListResponseModel>.Failure(errors);
+                return ServiceResponse<MatchResponseModel>.Failure(errors);
             }
 
-            if (request.SportId.HasValue
+
+            var pageResponse = await GetSinglePageAsync(request, pageRequestData);
+
+            if (!pageResponse.IsSuccess)
+            {
+                return ServiceResponse<MatchResponseModel>.Failure(pageResponse.Errors);
+            }
+
+            var optionsResponse = await GetOptionsAsync(request.From);
+            if (!optionsResponse.IsSuccess)
+            {
+                return ServiceResponse<MatchResponseModel>.Failure(optionsResponse.Errors);
+            }
+
+            var response = MatchDataBuilder.ToMatchResponseModel(
+                pageResponse.ResponseData,
+                optionsResponse.ResponseData);
+
+            return ServiceResponse<MatchResponseModel>.Success(response);
+        }
+
+
+
+
+        public async Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
+        GetSinglePageAsync(
+            MatchSearchRequestData searchRequestData,
+            PageRequestData pageRequestData)
+        {
+
+            var errors = ServiceRequestDataValidator.Validate(searchRequestData);
+
+            if (errors.Any())
+            {
+                return ServiceResponse<PageResult<MatchCardResponseModel>>.Failure(errors);
+            }
+
+            if (searchRequestData.SportId.HasValue
                 && false == await sportRepository
                     .Query()
-                    .AnyAsync(x => x.Id == request.SportId.Value))
+                    .AnyAsync(x => x.Id == searchRequestData.SportId.Value))
             {
-                return ServiceResponse<MatchListResponseModel>
-                    .Failure("Select a valid sport.", nameof(request.SportId));
+                return ServiceResponse<PageResult<MatchCardResponseModel>>
+                    .Failure("Select a valid sport.", nameof(searchRequestData.SportId));
             }
 
-            var from = request.From
-                ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+
+            var from = searchRequestData.From
+                ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
 
             var query = matchRepository
                 .Query()
@@ -66,13 +106,13 @@ namespace PlayOn.Services
                 .Where(x => !x.Event!.Venue.IsDeleted)
                 .Where(x => x.Event!.Venue.Date >= from);
 
-            if (request.SportId.HasValue)
+            if (searchRequestData.SportId.HasValue)
             {
-                var sportId = request.SportId.Value;
+                var sportId = searchRequestData.SportId.Value;
                 query = query.Where(x => x.Event!.SportId == sportId);
             }
 
-            var city = request.City?.Trim();
+            var city = searchRequestData.City?.Trim();
 
             if (!string.IsNullOrWhiteSpace(city))
             {
@@ -80,7 +120,7 @@ namespace PlayOn.Services
                     x.Event!.Venue.City.Contains(city) || city.Contains(x.Event!.Venue.City));
             }
 
-            var term = request.SearchTerm?.Trim();
+            var term = searchRequestData.SearchTerm?.Trim();
 
             if (!string.IsNullOrWhiteSpace(term))
             {
@@ -90,13 +130,13 @@ namespace PlayOn.Services
                     || x.Event!.Sport.Name.Contains(term));
             }
 
-            if (request.Skill.HasValue)
+            if (searchRequestData.Skill.HasValue)
             {
-                var skill = request.Skill.Value;
+                var skill = searchRequestData.Skill.Value;
                 query = query.Where(x => x.MinSkill <= skill && skill <= x.MaxSkill);
             }
 
-            if (request.OnlyWithFreeSpots)
+            if (searchRequestData.OnlyWithFreeSpots)
             {
                 query = query.Where(x =>
                     x.Participants.Count(p => p.Status == ParticipantStatus.Joined) < x.MaxPlayers);
@@ -104,11 +144,11 @@ namespace PlayOn.Services
 
             var totalCount = await query.CountAsync();
 
-            var pageSize = Math.Clamp(request.PageSize, 1, 50);
+            var pageSize = Math.Clamp(pageRequestData.PageSize, 1, 50);
             var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
-            var pageNumber = Math.Clamp(request.Page, 1, totalPages);
+            var pageNumber = Math.Clamp(pageRequestData.Page, 1, totalPages);
 
-            var ordered = request.Sort switch
+            var ordered = searchRequestData.Sort switch
             {
                 MatchSort.Cheapest => query
                     .OrderBy(x => x.PricePerPlayer)
@@ -131,31 +171,94 @@ namespace PlayOn.Services
                     .ThenBy(x => x.Id)
             };
 
+
             var projectedItems = await ordered
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(MatchDataBuilder.MatchCardProjection())
                 .ToListAsync();
 
-            var response = new MatchListResponseModel
-            {
-                Matches = new PageResult<MatchCardResponseModel>(projectedItems, pageNumber, pageSize, totalCount),
-                Sports = await GetSearchOptionsAsync()
-            };
+            var page = new PageResult<MatchCardResponseModel>(projectedItems, pageNumber, pageSize, totalCount);
 
-            return ServiceResponse<MatchListResponseModel>.Success(response);
+            return ServiceResponse<PageResult<MatchCardResponseModel>>.Success(page);
         }
 
 
-        public async Task<IReadOnlyList<SportResponseModel>>
-            GetSearchOptionsAsync()
+        public async Task<ServiceResponse<IReadOnlyList<SportOptionResponseModel>>>
+            GetSportOptionsAsync()
         {
-            return await sportRepository
+
+            var sportOptions = await sportRepository
                 .Query()
                 .OrderBy(x => x.Name)
-                .Select(SportDataBuilder.SportProjection())
+                .Select(MatchDataBuilder.SportToSportOptionProjection())
                 .ToListAsync();
+
+            return ServiceResponse<IReadOnlyList<SportOptionResponseModel>>.Success(sportOptions);
         }
+
+
+
+        public async Task<ServiceResponse<IReadOnlyList<VenueOptionResponseModel>>>
+            GetVenueOptionsAsync(DateOnly? from)
+        {
+            DateOnly fromDate = from ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
+
+            var venueOptions = await venueRepository
+                .Query()
+                .Where(x => !x.IsDeleted && x.Event == null && x.Date >= fromDate)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartsAt)
+                .ThenBy(x => x.Id)
+                .Select(MatchDataBuilder.VenueToVenueOptionProjection())
+                .ToListAsync();
+
+            return ServiceResponse<IReadOnlyList<VenueOptionResponseModel>>.Success(venueOptions);
+        }
+
+
+        public async Task<ServiceResponse<IReadOnlyList<CourtOptionResponseModel>>>
+            GetCourtOptionsAsync()
+        {
+            var courtOptions = await courtRepository
+                .Query()
+                .OrderBy(x => x.Name)
+                .Select(MatchDataBuilder.CourtToCourtOptionProjection())
+                .ToListAsync();
+            return ServiceResponse<IReadOnlyList<CourtOptionResponseModel>>.Success(courtOptions);
+        }
+
+
+
+        public async Task<ServiceResponse<MatchOptionsResponseModel>>
+            GetOptionsAsync(DateOnly? from)
+        {
+            var sportOptions = await GetSportOptionsAsync();
+            if (!sportOptions.IsSuccess)
+            {
+                return ServiceResponse<MatchOptionsResponseModel>.Failure(sportOptions.Errors);
+            }
+
+            var courts = await GetCourtOptionsAsync();
+            if (!courts.IsSuccess)
+            {
+                return ServiceResponse<MatchOptionsResponseModel>.Failure(courts.Errors);
+            }
+
+            var venues = await GetVenueOptionsAsync(from);
+            if (!venues.IsSuccess)
+            {
+                return ServiceResponse<MatchOptionsResponseModel>.Failure(venues.Errors);
+            }
+
+            var response = MatchDataBuilder.MatchOptionsToResponseModel(
+                sportOptions.ResponseData,
+                courts.ResponseData,
+                venues.ResponseData);
+
+            return ServiceResponse<MatchOptionsResponseModel>.Success(response);
+        }
+
 
 
         public async Task<ServiceResponse<MatchDetailsResponseModel>>
@@ -378,34 +481,6 @@ namespace PlayOn.Services
         }
 
 
-        public async Task<MatchFormOptionsResponseModel> GetFormOptionsAsync()
-        {
-            DateOnly today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
-
-            var sports = await sportRepository
-                .Query()
-                .OrderBy(x => x.Name)
-                .Select(SportDataBuilder.SportProjection())
-                .ToListAsync();
-
-            var courts = await courtRepository
-                .Query()
-                .OrderBy(x => x.Name)
-                .Select(MatchDataBuilder.MatchCourtOptionProjection())
-                .ToListAsync();
-
-            var slots = await venueRepository
-                .Query()
-                .Where(x => !x.IsDeleted && x.Event == null && x.Date >= today)
-                .OrderBy(x => x.Date)
-                .ThenBy(x => x.StartsAt)
-                .ThenBy(x => x.Id)
-                .Take(100)
-                .Select(MatchDataBuilder.VenueSlotProjection())
-                .ToListAsync();
-
-            return MatchDataBuilder.MatchFormOptionsToResponseModel(sports, courts, slots);
-        }
         public async Task<ServiceResponse<MatchEditResponseModel>>
             GetForCancelAsync(
                 Guid matchId,
@@ -469,7 +544,6 @@ namespace PlayOn.Services
 
         private bool HasStarted(DateOnly date, TimeOnly startsAt)
         {
-
             return date.ToDateTime(startsAt) <= timeProvider.GetLocalNow().LocalDateTime;
         }
     }

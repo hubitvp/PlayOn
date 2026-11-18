@@ -1,9 +1,9 @@
 ﻿using PlayOn.Common.Enums;
+using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Data.Match;
 using PlayOn.Services.Data.Match.RequestData;
 using PlayOn.Services.Data.Match.ResponseModels;
-using PlayOn.Services.Data.Sport.ResponseModels;
 using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
@@ -212,9 +212,9 @@ public static class MatchDataBuilder
         return result;
     }
 
-    public static Expression<Func<Court, MatchCourtOptionResponseModel>> MatchCourtOptionProjection()
+    public static Expression<Func<Court, CourtOptionResponseModel>> MatchCourtOptionProjection()
     {
-        return source => new MatchCourtOptionResponseModel
+        return source => new CourtOptionResponseModel
         {
             CourtId = source.Id,
             Name = source.Name,
@@ -224,9 +224,45 @@ public static class MatchDataBuilder
         };
     }
 
-    public static Expression<Func<Venue, VenueSlotResponseModel>> VenueSlotProjection()
+    public static Expression<Func<Court, CourtOptionResponseModel>> CourtToCourtOptionProjection()
     {
-        return source => new VenueSlotResponseModel
+        return source => new CourtOptionResponseModel
+        {
+            CourtId = source.Id,
+            Name = source.Name,
+            Surface = source.Surface,
+            Capacity = source.Capacity,
+            SportIds = source.Sports.Select(x => x.SportId).ToList()
+        };
+    }
+
+    public static MatchOptionsResponseModel MatchOptionsToResponseModel(
+        IReadOnlyList<SportOptionResponseModel> sportOptions,
+        IReadOnlyList<CourtOptionResponseModel> courtOptions,
+        IReadOnlyList<VenueOptionResponseModel> venueOptions)
+    {
+        return new MatchOptionsResponseModel
+        {
+            SportOptions = sportOptions,
+            CourtOptions = courtOptions,
+            VenueOptions = venueOptions
+        };
+    }
+
+    public static MatchResponseModel ToMatchResponseModel(
+        PageResult<MatchCardResponseModel> page,
+        MatchOptionsResponseModel options)
+    {
+        return new MatchResponseModel
+        {
+            Page = page,
+            Options = options
+        };
+    }
+
+    public static Expression<Func<Venue, VenueOptionResponseModel>> VenueToVenueOptionProjection()
+    {
+        return source => new VenueOptionResponseModel
         {
             Id = source.Id,
             Name = source.Name,
@@ -251,19 +287,13 @@ public static class MatchDataBuilder
         };
     }
 
-    public static MatchFormOptionsResponseModel MatchFormOptionsToResponseModel(
-        IReadOnlyList<SportResponseModel> sports,
-        IReadOnlyList<MatchCourtOptionResponseModel> courts,
-        IReadOnlyList<VenueSlotResponseModel> slots)
+    public static Expression<Func<Sport, SportOptionResponseModel>> SportToSportOptionProjection()
     {
-        var result = new MatchFormOptionsResponseModel
+        return source => new SportOptionResponseModel
         {
-            Sports = sports,
-            Courts = courts,
-            Slots = slots
+            Id = source.Id,
+            Name = source.Name
         };
-
-        return result;
     }
 
     public static Match MatchCreateToEntity(

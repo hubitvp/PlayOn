@@ -252,7 +252,7 @@ public class MatchDataBuilder
     public MatchFormViewModel
         MatchFormToViewModel(
             Guid? venueId,
-            MatchFormOptionsResponseModel options)
+            MatchOptionsResponseModel options)
     {
         var result = new MatchFormViewModel();
 
@@ -268,7 +268,7 @@ public class MatchDataBuilder
     public MatchFormViewModel
         MatchFormOptionsToViewModel(
             MatchFormViewModel target,
-            MatchFormOptionsResponseModel options)
+            MatchOptionsResponseModel options)
     {
         target.Sports = options.Sports
             .Select(x => sportDataBuilder.SportToSelectListItem(x, target.SportId))
@@ -287,7 +287,7 @@ public class MatchDataBuilder
 
     public MatchCourtOptionViewModel
         CourtOptionToViewModel(
-            MatchCourtOptionResponseModel source)
+            CourtOptionResponseModel source)
     {
         var result = new MatchCourtOptionViewModel
         {

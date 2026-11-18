@@ -1,6 +1,6 @@
 ﻿namespace PlayOn.Web.ViewModels.Notifications
 {
-    public class NotificationListViewModel //: PageViewModel
+    public class NotificationListViewModel : PageViewModel
     {
         public required IReadOnlyList<NotificationViewModel> Notifications { get; init; }
 

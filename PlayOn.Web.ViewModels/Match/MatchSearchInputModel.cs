@@ -2,7 +2,6 @@
 using PlayOn.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
-using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.ViewModels.Match
 {
@@ -31,8 +30,6 @@ namespace PlayOn.Web.ViewModels.Match
             typeof(MatchSort),
             ErrorMessage = "Select a valid sort order.")]
         public MatchSort Sort { get; set; } = MatchSort.Soonest;
-
-        public int Page { get; set; } = FirstPage;
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

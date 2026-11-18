@@ -25,8 +25,5 @@ namespace PlayOn.Services.Data.Match.RequestData
         [EnumDataType(typeof(MatchSort))]
         public MatchSort Sort { get; set; } = MatchSort.Soonest;
 
-        public int Page { get; set; } = FirstPage;
-
-        public int PageSize { get; set; } = DefaultPageSize;
     }
 }

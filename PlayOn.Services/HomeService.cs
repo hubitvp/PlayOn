@@ -52,7 +52,7 @@ namespace PlayOn.Services
 
             var responseData = new HomeResponseModel
             {
-                Sports = sportsResponse.ResponseData,
+                SportOptions = sportsResponse.ResponseData,
                 Page = pageResponse.IsSuccess
                     ? pageResponse.ResponseData
                     : null

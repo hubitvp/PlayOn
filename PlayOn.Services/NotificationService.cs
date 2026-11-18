@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
@@ -18,56 +17,43 @@ namespace PlayOn.Services
             this.notificationRepository = notificationRepository;
         }
 
-        public async Task<ServiceResponse<NotificationResponseModel>>
-            GetNotificationsAsync(NotificationRequestData request)
+        public async Task<ServiceResponse<NotificationListResponseModel>>
+            GetNotificationsAsync(
+                NotificationListRequestData requestData,
+                PageRequestData pageRequestData)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            var validationErrors =
+                ServiceRequestDataValidator.Validate(requestData);
 
-            if (errors.Any())
+            if (validationErrors.Any())
             {
-                return ServiceResponse<NotificationResponseModel>
-                    .Failure(errors);
+                return ServiceResponse<NotificationListResponseModel>
+                    .Failure(validationErrors);
             }
 
-            var query = notificationRepository
-                .Query()
-                .Where(x => x.UserId == request.UserId);
+            var page = await BuildNotificationQuery(requestData.UserId)
+                .ToPageResultAsync(
+                    NotificationDataBuilder.NotificationProjection(),
+                    pageRequestData);
 
-            var totalCount = await query.CountAsync();
+            var unreadCount = await CountUnreadAsync(requestData.UserId);
 
-            var pageSize = Math.Clamp(request.PageSize, 1, 50);
-            var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
-            var pageNumber = Math.Clamp(request.Page, 1, totalPages);
-
-            var items = await query
-                .OrderByDescending(x => x.CreatedOn)
-                .ThenByDescending(x => x.Id)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(NotificationDataBuilder.NotificationProjection())
-                .ToListAsync();
-
-            var page = new PageResult<NotificationResponseModel>(
-                items,
-                pageNumber,
-                pageSize,
-                totalCount);
-
-            var response = new NotificationListResponseModel
+            var responseData = new NotificationListResponseModel
             {
-                Notifications = page,
-                UnreadCount = await GetUnreadCountAsync(request.UserId)
+                Page = page,
+                UnreadCount = unreadCount
             };
 
             return ServiceResponse<NotificationListResponseModel>
-                .Success(response);
+                .Success(responseData);
         }
 
-        public async Task<int> GetUnreadCountAsync(Guid userId)
+        public async Task<ServiceResponse<int>>
+            GetUnreadCountAsync(Guid userId)
         {
-            return await notificationRepository
-                .Query()
-                .CountAsync(x => x.UserId == userId && !x.IsRead);
+            var unreadCount = await CountUnreadAsync(userId);
+
+            return ServiceResponse<int>.Success(unreadCount);
         }
 
         public async Task<ServiceResponse<NotificationResponseModel>>
@@ -87,6 +73,7 @@ namespace PlayOn.Services
             if (!notification.IsRead)
             {
                 notification.IsRead = true;
+
                 await notificationRepository.SaveChangesAsync();
             }
 
@@ -116,5 +103,20 @@ namespace PlayOn.Services
         }
 
 
+        private IOrderedQueryable<Notification> BuildNotificationQuery(Guid userId)
+        {
+            return notificationRepository
+                .Query()
+                .Where(x => x.UserId == userId)
+                .OrderByDescending(x => x.CreatedOn)
+                .ThenByDescending(x => x.Id);
+        }
+
+        private async Task<int> CountUnreadAsync(Guid userId)
+        {
+            return await notificationRepository
+                .Query()
+                .CountAsync(x => x.UserId == userId && !x.IsRead);
+        }
     }
 }
