@@ -197,9 +197,18 @@ namespace PlayOn.Services
             IQueryable<Match> query,
             DateOnly? from)
         {
-            var startDate = from ??
-                DateOnly.FromDateTime(
-                    timeProvider.GetLocalNow().DateTime);
+            DateOnly startDate;
+
+            DateOnly today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
+
+            if (from.HasValue && from.Value > today)
+            {
+                startDate = from.Value;
+            }
+            else
+            {
+                startDate = today.AddDays(1);
+            }
 
             return query.Where(x =>
                 x.Event!.Venue.Date >= startDate);

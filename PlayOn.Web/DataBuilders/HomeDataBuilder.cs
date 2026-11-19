@@ -7,6 +7,7 @@ using PlayOn.Services.Data.Sport.ResponseModels;
 using PlayOn.Web.DataBuilders.Formatting;
 using PlayOn.Web.ViewModels;
 using PlayOn.Web.ViewModels.Home;
+using System.Collections.Immutable;
 using System.Globalization;
 using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
@@ -14,14 +15,11 @@ namespace PlayOn.Web.DataBuilders
 {
     public class HomeDataBuilder : DataBuilder
     {
-        private readonly SportDataBuilder sportDataBuilder;
         private readonly IDisplayFormatter displayFormatter;
 
         public HomeDataBuilder(
-            SportDataBuilder sportDataBuilder,
             IDisplayFormatter displayFormatter)
         {
-            this.sportDataBuilder = sportDataBuilder;
             this.displayFormatter = displayFormatter;
         }
 
@@ -40,12 +38,12 @@ namespace PlayOn.Web.DataBuilders
             return result;
         }
 
-        // Option A: If HomeSearchToRequestData still accepts HomeSearchInputModel from the controller action
+
         public HomeSearchRequestData
             HomeSearchToRequestData(
-                HomeSearchInputModel source)
+                HomeViewModel source)
         {
-            var result = new HomeSearchRequestData
+            var target = new HomeSearchRequestData
             {
                 SportId = source.SportId,
                 City = source.City,
@@ -58,11 +56,9 @@ namespace PlayOn.Web.DataBuilders
                     : null,
             };
 
-            return result;
+            return target;
         }
 
-        // Option B (Alternative): If you pass HomeViewModel directly instead of HomeSearchInputModel, 
-        // you can use this overload or map it similarly.
 
         public HomeMatchCardViewModel
             HomeMatchCardToViewModel(
@@ -90,26 +86,11 @@ namespace PlayOn.Web.DataBuilders
             return result;
         }
 
-        public HomeViewModel
-            ToViewModel(
-                HomeSearchInputModel inputModel,
-                IReadOnlyList<HomeSportOptionsResponseModel> sportOptions)
-        {
-            var result = new HomeViewModel
-            {
-                SportId = inputModel.SportId,
-                City = inputModel.City,
-                From = inputModel.From,
-                SportOptions = sportOptions
-                    .Select(x => HomeSportOptionsToSelectListItem(x, inputModel.SportId)),
-                Page = null,
-            };
-            return result;
-        }
+
 
         public HomeViewModel
             HomeToViewModel(
-                HomeSearchInputModel inputModel,
+                HomeViewModel model,
                 HomeResponseModel source)
         {
             PageResult<HomeMatchCardViewModel>? page = null;
@@ -118,24 +99,19 @@ namespace PlayOn.Web.DataBuilders
             {
                 page = new PageResult<HomeMatchCardViewModel>
                 (
-                    pageItems: source.Page.PageItems.Select(HomeMatchCardToViewModel).ToList(),
+                    pageItems: source.Page.PageItems.Select(HomeMatchCardToViewModel).ToImmutableList(),
                     pageMark: source.Page.PageMark,
                     pageSize: source.Page.PageSize,
                     totalItemsCount: source.Page.TotalItemsCount
                 );
             }
 
-            var result = new HomeViewModel
-            {
-                SportId = inputModel.SportId,
-                City = inputModel.City,
-                From = inputModel.From,
-                SportOptions = source.SportOptions
-                    .Select(x => HomeSportOptionsToSelectListItem(x, inputModel.SportId)),
-                Page = page,
-            };
+            model.SportOptions = source.SportOptions
+                    .Select(x => HomeSportOptionsToSelectListItem(x, model.SportId))
+                    .ToImmutableList();
+            model.Page = page;
 
-            return result;
+            return model;
         }
     }
 }

@@ -1,18 +1,24 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Globalization;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PlayOn.Common.Helpers;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace PlayOn.Web.ViewModels.Home
 {
     public class HomeViewModel : IValidatableObject
     {
+        [FromQuery(Name = "sport")]
         public Guid? SportId { get; set; }
+
+        [FromQuery(Name = "city")]
         public string? City { get; set; }
+
+        [FromQuery(Name = "from")]
         public string? From { get; set; }
 
-        public PageResult<HomeMatchCardViewModel>? Page { get; init; }
-        public IEnumerable<SelectListItem> SportOptions { get; init; } = Enumerable.Empty<SelectListItem>();
+        public PageResult<HomeMatchCardViewModel>? Page { get; set; }
+        public IEnumerable<SelectListItem> SportOptions { get; set; } = Enumerable.Empty<SelectListItem>();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

@@ -33,7 +33,7 @@ namespace PlayOn.Web.ViewModels
     [ModelBinder(BinderType = typeof(PageModelBinder))]
     public class PageInputModel
     {
-        private int pageNumber = DefaultPageSize;
+        private int pageNumber = 1;
 
         public int PageNumber
         {

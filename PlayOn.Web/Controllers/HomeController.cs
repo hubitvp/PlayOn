@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
-using PlayOn.Services.Data.Home.RequestData;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.ViewModels;
 using PlayOn.Web.ViewModels.Home;
@@ -32,22 +31,18 @@ namespace PlayOn.Web.Controllers
         [HttpGet]
         public async Task<IActionResult>
             Index(
-                [FromQuery][Bind(Prefix = "")] HomeSearchInputModel searchQuery,
+                [FromQuery] HomeViewModel model,
                 [FromQuery] PageInputModel pageInput)
         {
-
             if (false == ModelState.IsValid)
             {
-                var errorServiceResponse = await homeService
+                var sportOptionsServiceResponse = await homeService
                         .GetSportOptionsAsync();
-
-                var errorHomeViewModel = homeDataBuilder
-                    .ToViewModel(searchQuery, errorServiceResponse.ResponseData);
-
-                return View(errorHomeViewModel);
+                model.SportOptions = sportOptionsServiceResponse.ResponseData.Select(x => homeDataBuilder.HomeSportOptionsToSelectListItem(x, model.SportId)); ;
+                return View(model);
             }
 
-            var searchRequestData = homeDataBuilder.HomeSearchToRequestData(searchQuery);
+            var searchRequestData = homeDataBuilder.HomeSearchToRequestData(model);
 
             var pageRequestData = homeDataBuilder.PageInputToPageRequestData(pageInput);
 
@@ -57,7 +52,7 @@ namespace PlayOn.Web.Controllers
             AddServiceErrors(serviceResponse.Errors);
 
             var viewModel = homeDataBuilder
-                .HomeToViewModel(searchQuery, serviceResponse.ResponseData);
+                .HomeToViewModel(model, serviceResponse.ResponseData);
 
             return View(viewModel);
         }

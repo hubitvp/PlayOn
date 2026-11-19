@@ -9,6 +9,8 @@
             <h1 class="display-5 fw-bold">Find a game tonight.</h1>
             <p class="lead">Join matches near you, fill your roster, and play with people you can rely on.</p>
 
+            <p>Selected SportId: @Model.SportId</p>
+
             <form asp-controller="Home"
                   asp-action="Index"
                   method="get"
@@ -16,6 +18,7 @@
                 <div asp-validation-summary="ModelOnly" class="fs-4 text-warning"></div>
                 <div class="col-md-4">
                     <select asp-for="SportId"
+                            name="sport"
                             asp-items="@Model.SportOptions"
                             class="form-select form-select-lg">
                         <option value="">Any sport</option>
@@ -26,6 +29,7 @@
 
                 <div class="col-md-3">
                     <input asp-for="City"
+                           name="city"
                            class="form-control form-control-lg"
                            placeholder="City" />
                     <span asp-validation-for="City" class="fs-4 text-warning"></span>
@@ -35,6 +39,7 @@
                 <div class="col-md-3">
                     <div class="input-group input-group-lg">
                         <input asp-for="From"
+                               name="from"
                                type="date"
                                placeholder="dd/mm/yyyy"
                                class="form-control form-control-lg"
@@ -94,10 +99,10 @@ else
         TotalPages = Model.Page?.TotalPages ?? 1,
         PageUrl = page => Url.Action("Index", "Home", new
         {
-            PageMark = page,
-            SportId = Model.SportId,
-            City = Model.City,
-            From = Model.From
+            page,
+            sport = Model.SportId,
+            city = Model.City,
+            from = Model.From
         }, null, null, "matches")!
     };
 
