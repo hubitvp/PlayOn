@@ -51,15 +51,15 @@ public class MatchDataBuilder : DataBuilder
     }
 
     public MatchViewModel ToViewModel(
-        MatchViewModel searchModel,
+        MatchViewModel model,
         MatchResponseModel source)
     {
-        return ToViewModel(searchModel, source.Page, source.Options);
+        return ToViewModel(model, source.Page, source.Options);
     }
 
     public MatchViewModel
         ToViewModel(
-            MatchViewModel searchModel,
+            MatchViewModel model,
             PageResult<MatchCardResponseModel>? page,
             MatchOptionsResponseModel optionsResponseModel)
     {
@@ -79,7 +79,7 @@ public class MatchDataBuilder : DataBuilder
         }
 
         IReadOnlyList<SelectListItem> sportOptions = optionsResponseModel.SportOptions
-            .Select(x => SportOptionToSelectListItem(x, searchModel.SportId))
+            .Select(x => SportOptionToSelectListItem(x, model.SportId))
             .ToList();
 
         IReadOnlyList<CourtOptionViewModel> courtOptions = optionsResponseModel.CourtOptions
@@ -90,24 +90,13 @@ public class MatchDataBuilder : DataBuilder
             .Select(VenueOptionToViewModel)
             .ToList();
 
-        var result = new MatchViewModel
-        {
-            SearchTerm = searchModel.SearchTerm,
-            SportId = searchModel.SportId,
-            City = searchModel.City,
-            From = searchModel.From,
-            Skill = searchModel.Skill,
-            OnlyWithFreeSpots = searchModel.OnlyWithFreeSpots,
-            Sort = searchModel.Sort,
 
-            SportOptions = sportOptions,
-            CourtOptions = courtOptions,
-            VenueOptions = venueOptions,
+        model.SportOptions = sportOptions;
+        model.CourtOptions = courtOptions;
+        model.VenueOptions = venueOptions;
+        model.Page = pageViewModel;
 
-            Page = pageViewModel,
-        };
-
-        return result;
+        return model;
     }
 
     public MatchCardViewModel

@@ -87,7 +87,7 @@ namespace PlayOn.Services
 
             var matchQuery = BuildMatchQuery(searchRequestData);
 
-            var page = await GetSinglePageAsync(
+            var page = await GetPageAsync(
                 matchQuery,
                 pageRequestData);
 
@@ -215,7 +215,7 @@ namespace PlayOn.Services
         }
 
         private async Task<PageResult<HomeMatchCardResponseModel>>
-            GetSinglePageAsync(
+            GetPageAsync(
                 IQueryable<Match> query,
                 PageRequestData pageRequestData)
         {

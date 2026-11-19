@@ -19,22 +19,26 @@
     <div class="row g-2">
         <div class="col-md-4">
             <label asp-for="SearchTerm" class="form-label small fw-bold">Search</label>
-            <input asp-for="SearchTerm" class="form-control" maxlength="60" placeholder="Title, venue or sport" />
+            <input asp-for="SearchTerm"
+                   name="term"
+                   class="form-control"
+                   maxlength="60"
+                   placeholder="Title, venue or sport" />
         </div>
         <div class="col-md-2">
             <label asp-for="SportId" class="form-label small fw-bold">Sport</label>
-            <select asp-for="SportId" asp-items="Model.SportOptions" class="form-select">
+            <select asp-for="SportId" name="sport" asp-items="Model.SportOptions" class="form-select">
                 <option value="">Any</option>
             </select>
         </div>
         <div class="col-md-3">
             <label asp-for="City" class="form-label small fw-bold">City</label>
-            <input asp-for="City" class="form-control" maxlength="100" />
+            <input asp-for="City" name="city" class="form-control" maxlength="100" />
         </div>
         <div class="col-md-3">
             <label asp-for="From" class="form-label small fw-bold">From</label>
             <div class="input-group">
-                <input asp-for="From" type="date" class="form-control" data-date-picker data-date-picker-button="#fromToggle" />
+                <input asp-for="From" name="from" type="date" class="form-control" data-date-picker data-date-picker-button="#fromToggle" />
                 <button type="button" id="fromToggle" class="btn btn-outline-secondary d-none" aria-label="Pick a date">
                     <i class="bi bi-calendar-event"></i>
                 </button>
@@ -42,18 +46,25 @@
         </div>
         <div class="col-md-3">
             <label asp-for="Skill" class="form-label small fw-bold">Skill</label>
-            <select asp-for="Skill" asp-items="Html.GetEnumSelectList<SkillLevel>()" class="form-select">
+            <select asp-for="Skill" name="skill" asp-items="Html.GetEnumSelectList<SkillLevel>()" class="form-select">
                 <option value="">Any</option>
             </select>
         </div>
         <div class="col-md-3">
             <label asp-for="Sort" class="form-label small fw-bold">Sort by</label>
-            <select asp-for="Sort" asp-items="Html.GetEnumSelectList<MatchSort>()" class="form-select"></select>
+            <select asp-for="Sort" name="sort" asp-items="Html.GetEnumSelectList<MatchSort>()" class="form-select"></select>
         </div>
         <div class="col-md-3 d-flex align-items-end">
             <div class="form-check">
-                <input asp-for="OnlyWithFreeSpots" class="form-check-input" />
-                <label asp-for="OnlyWithFreeSpots" class="form-check-label">Only with free spots</label>
+                <label asp-for="OnlyWithFreeSpots" class="form-check-label">
+                    Only with free spots
+                </label>
+
+                <input type="checkbox"
+                       name="free"
+                       value="true"
+                       checked="@Model.OnlyWithFreeSpots"
+                       class="form-check-input" />
             </div>
         </div>
         <div class="col-md-3 d-flex align-items-end gap-2">
@@ -85,16 +96,16 @@ else
     {
         Page = Model.Page.PageMark,
         TotalPages = Model.Page.TotalPages,
-        PageUrl = p => Url.Action("Index", "Matches", new
+        PageUrl = pageNumber => Url.Action("Index", "Matches", new
         {
-            PageMark = p,
-            SearchTerm = Model.SearchTerm,
-            SportId = Model.SportId,
-            City = Model.City,
-            From = Model.From,
-            Skill = Model.Skill,
-            OnlyWithFreeSpots = Model.OnlyWithFreeSpots,
-            Sort = Model.Sort
+            pageNumber,
+            term = Model.SearchTerm,
+            sport = Model.SportId,
+            city = Model.City,
+            from = Model.From,
+            skill = Model.Skill,
+            free = Model.OnlyWithFreeSpots,
+            sort = Model.Sort
         })!
     };
 

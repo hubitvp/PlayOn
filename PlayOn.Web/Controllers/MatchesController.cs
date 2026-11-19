@@ -35,19 +35,19 @@ namespace PlayOn.Web.Controllers
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult>
-            Index([FromQuery][Bind(Prefix = "")] MatchViewModel searchModel, [FromQuery] PageInputModel page)
+            Index([FromQuery] MatchViewModel model, [FromQuery] PageInputModel page)
         {
             if (!ModelState.IsValid)
             {
                 var optionsResponse = await matchService.GetOptionsAsync(null);
 
-                var errorViewModel = matchDataBuilder.ToViewModel(searchModel, null, optionsResponse.ResponseData);
+                var errorViewModel = matchDataBuilder.ToViewModel(model, null, optionsResponse.ResponseData);
 
                 return View(errorViewModel);
             }
 
             var searchRequestData = matchDataBuilder
-                .MatchSearchToRequestData(searchModel);
+                .MatchSearchToRequestData(model);
 
             var pageRequestData = matchDataBuilder
                 .PageInputToPageRequestData(page);
@@ -55,12 +55,9 @@ namespace PlayOn.Web.Controllers
             var serviceResponse = await matchService
                 .GetMainResponseModelAsync(searchRequestData, pageRequestData);
 
-            if (!serviceResponse.IsSuccess)
-            {
-                AddServiceErrors(serviceResponse.Errors);
-            }
+            AddServiceErrors(serviceResponse.Errors);
 
-            var viewModel = matchDataBuilder.ToViewModel(searchModel, serviceResponse.ResponseData);
+            var viewModel = matchDataBuilder.ToViewModel(model, serviceResponse.ResponseData);
 
             return View(viewModel);
         }

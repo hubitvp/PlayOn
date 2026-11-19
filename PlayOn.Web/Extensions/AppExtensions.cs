@@ -1,4 +1,5 @@
-﻿using PlayOn.Services;
+﻿using Microsoft.Extensions.Time.Testing;
+using PlayOn.Services;
 using PlayOn.Services.Contracts;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.DataBuilders.Formatting;
@@ -10,7 +11,17 @@ namespace PlayOn.Web.Extensions
         public static IServiceCollection AddLocalResources(this IServiceCollection services)
         {
 
-            services.AddSingleton(TimeProvider.System);
+
+            var fakeTimeProvider = new FakeTimeProvider
+            (
+                new DateTimeOffset(2026, 10, 1, 0, 0, 0, TimeSpan.Zero)
+            );
+
+
+
+
+            services.AddSingleton(fakeTimeProvider);
+            //services.AddSingleton(TimeProvider.System);
             services.AddSingleton<IDisplayFormatter, DisplayFormatter>();
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
