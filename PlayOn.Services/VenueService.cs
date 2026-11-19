@@ -4,7 +4,6 @@ using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Venue.RequestData;
 using PlayOn.Services.Data.Venue.ResponseModels;
 using PlayOn.Services.DataBuilders;
 
@@ -25,62 +24,68 @@ namespace PlayOn.Services
         }
 
         public async Task<ServiceResponse<PageResult<VenueResponseModel>>>
-            GetVenuesAsync(VenueQueryRequestData venueQuery)
+            GetSinglePageAsync(PageRequestData pageRequestData)
         {
+            var venueQuery = BuildVenueQuery();
 
+            var page = await GetSinglePageAsync(
+                venueQuery,
+                pageRequestData);
 
-            IQueryable<Venue> venueQuerySource = venueRepository
+            return ServiceResponse<PageResult<VenueResponseModel>>
+                .Success(page);
+        }
+
+        private IOrderedQueryable<Venue> BuildVenueQuery()
+        {
+            var today = DateOnly.FromDateTime(
+                timeProvider.GetLocalNow().DateTime);
+
+            return venueRepository
                 .Query()
-                .AsSplitQuery();
-
-
-            venueQuerySource = venueQuerySource
                 .Where(x => !x.IsDeleted)
                 .Where(x => x.Event != null)
                 .Where(x =>
                     x.Event!.Match.Status == MatchStatus.Open
                     || x.Event!.Match.Status == MatchStatus.Confirmed)
-                .Where(x =>
-                    x.Date >= DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime));
+                .Where(x => x.Date >= today)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.OpensAt)
+                .ThenBy(x => x.StartsAt)
+                .ThenBy(x => x.ClosesAt)
+                .ThenBy(x => x.Name)
+                .ThenBy(x => x.City);
+        }
 
+        private async Task<PageResult<VenueResponseModel>>
+            GetSinglePageAsync(
+                IOrderedQueryable<Venue> query,
+                PageRequestData pageRequestData)
+        {
+            var totalCount = await query.CountAsync();
 
-            var totalCount = await venueQuerySource.CountAsync();
-
-            var pageSize = Math.Clamp(venueQuery.PageSize, 1, 50);
+            var pageSize = Math.Clamp(
+                pageRequestData.PageSize, 1, 50);
 
             var totalPages = Math.Max(
                 1,
                 (int)Math.Ceiling(totalCount / (double)pageSize));
 
             var pageNumber = Math.Clamp(
-                venueQuery.Page,
-                1,
-                totalPages);
+                pageRequestData.Page, 1, totalPages);
 
-
-            venueQuerySource = venueQuerySource
-                .OrderBy(x => x.Date)
-                .ThenBy(x => x.OpensAt)
-                .ThenBy(x => x.StartsAt)
-                .ThenBy(x => x.ClosesAt)
-                .ThenBy(x => x.Name)
-                .ThenBy(x => x.City)
-                .ThenBy(x => x.Id);
-
-            var items = await venueQuerySource
+            var items = await query
+                .ThenBy(x => x.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(VenueDataBuilder.VenueProjection())
                 .ToListAsync();
 
-            var page = new PageResult<VenueResponseModel>(
+            return new PageResult<VenueResponseModel>(
                 items,
                 pageNumber,
                 pageSize,
                 totalCount);
-
-            return ServiceResponse<PageResult<VenueResponseModel>>
-                .Success(page);
         }
     }
 }

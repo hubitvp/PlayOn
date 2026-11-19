@@ -19,4 +19,10 @@ namespace PlayOn.Services.Data.Participation
         public DateOnly Date { get; set; }
         public TimeOnly StartsAt { get; set; }
     }
+
+    internal sealed class BookingRow
+    {
+        public TimeOnly StartsAt { get; set; }
+        public int DurationMinutes { get; set; }
+    }
 }

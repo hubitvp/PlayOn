@@ -81,10 +81,4 @@ namespace PlayOn.Services.Data.Match
         public bool IsTaken { get; set; }
         public bool IsDeleted { get; set; }
     }
-
-    internal sealed class BookingRow
-    {
-        public TimeOnly StartsAt { get; set; }
-        public int DurationMinutes { get; set; }
-    }
 }

@@ -8,7 +8,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.DataBuilders;
 
-public class ParticipationDataBuilder
+public class ParticipationDataBuilder : DataBuilder
 {
     private readonly IDisplayFormatter displayFormatter;
 
@@ -35,15 +35,12 @@ public class ParticipationDataBuilder
     public MyMatchesRequestData
         MyMatchesToRequestData(
             Guid userId,
-            MyMatchesTab tab,
-            int page)
+            MyMatchesTab tab)
     {
         var result = new MyMatchesRequestData
         {
             UserId = userId,
             Tab = tab,
-            Page = page,
-            PageSize = DefaultPageSize
         };
 
         return result;

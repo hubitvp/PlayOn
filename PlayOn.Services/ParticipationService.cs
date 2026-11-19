@@ -4,7 +4,6 @@ using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Match;
 using PlayOn.Services.Data.Participation;
 using PlayOn.Services.Data.Participation.RequestData;
 using PlayOn.Services.Data.Participation.ResponseModels;
@@ -16,7 +15,10 @@ namespace PlayOn.Services
 {
     public class ParticipationService : IParticipationService
     {
-        private const string ConflictMessage =
+        private const string MatchClosedMessage =
+            "This match is cancelled, finished or already started.";
+
+        private const string ConcurrencyMessage =
             "The match changed while you were doing this. Please try again.";
 
         private readonly IRepository<Match> matchRepository;
@@ -61,17 +63,10 @@ namespace PlayOn.Services
             if (!IsOpenForParticipation(info))
             {
                 return ServiceResponse<JoinMatchResponseModel>
-                    .Conflict("This match is cancelled, finished or already started.");
+                    .Conflict(MatchClosedMessage);
             }
 
-            var alreadyIn = await participantRepository
-                .Query()
-                .AnyAsync(x => x.MatchId == info.Id
-                    && x.UserId == request.UserId
-                    && (x.Status == ParticipantStatus.Joined
-                        || x.Status == ParticipantStatus.Waitlisted));
-
-            if (alreadyIn)
+            if (await FindActiveParticipantAsync(info.Id, request.UserId) != null)
             {
                 return ServiceResponse<JoinMatchResponseModel>
                     .Conflict("You are already part of this match.");
@@ -87,18 +82,17 @@ namespace PlayOn.Services
                     .Failure(new[] { ruleError });
             }
 
-            var joinedCount = await CountByStatusAsync(info.Id, ParticipantStatus.Joined);
+            var joinedCount = await CountByStatusAsync(
+                info.Id,
+                ParticipantStatus.Joined);
 
             var status = joinedCount < info.MaxPlayers
                 ? ParticipantStatus.Joined
                 : ParticipantStatus.Waitlisted;
 
-            var waitlistPosition = 0;
-
-            if (status == ParticipantStatus.Waitlisted)
-            {
-                waitlistPosition = await CountByStatusAsync(info.Id, ParticipantStatus.Waitlisted) + 1;
-            }
+            var waitlistPosition = status == ParticipantStatus.Waitlisted
+                ? await CountByStatusAsync(info.Id, ParticipantStatus.Waitlisted) + 1
+                : 0;
 
             var match = await matchRepository
                 .Query(asNoTracking: false)
@@ -111,52 +105,37 @@ namespace PlayOn.Services
                     status,
                     nowUtc));
 
-            var confirmed = false;
-
-            if (status == ParticipantStatus.Joined
+            var isConfirmed = status == ParticipantStatus.Joined
                 && match.Status == MatchStatus.Open
-                && joinedCount + 1 >= info.MinPlayers)
+                && joinedCount + 1 >= info.MinPlayers;
+
+            if (isConfirmed)
             {
                 match.Status = MatchStatus.Confirmed;
-                confirmed = true;
 
-                var userIds = await participantRepository
-                    .Query()
-                    .Where(x => x.MatchId == info.Id && x.Status == ParticipantStatus.Joined)
-                    .Select(x => x.UserId)
-                    .ToListAsync();
-
-                userIds.Add(request.UserId);
-
-                //var notifications = userIds
-                //    .Select(userId => NotificationDataBuilder.NotificationToEntity(
-                //        userId,
-                //        NotificationType.MatchConfirmed,
-                //        $"\"{info.Title}\" is confirmed: enough players have joined.",
-                //        info.Id,
-                //        nowUtc))
-                //    .ToList();
-
-                IEnumerable<Notification> notifications = [];
-
-                await notificationRepository.AddRangeAsync(notifications);
+                await AddMatchConfirmedNotificationsAsync(
+                    info,
+                    request.UserId,
+                    nowUtc);
             }
 
 
 
             matchRepository.Update(match);
 
-            try
+            if (!await TrySaveChangesAsync())
             {
-                await matchRepository.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return ServiceResponse<JoinMatchResponseModel>.Conflict(ConflictMessage);
+                return ServiceResponse<JoinMatchResponseModel>
+                    .Conflict(ConcurrencyMessage);
             }
 
+            var responseData = ParticipationDataBuilder.JoinToResponseModel(
+                status,
+                waitlistPosition,
+                isConfirmed);
+
             return ServiceResponse<JoinMatchResponseModel>
-                .Success(ParticipationDataBuilder.JoinToResponseModel(status, waitlistPosition, confirmed));
+                .Success(responseData);
         }
 
 
@@ -186,15 +165,13 @@ namespace PlayOn.Services
             if (!IsOpenForParticipation(info))
             {
                 return ServiceResponse<LeaveMatchResponseModel>
-                    .Conflict("This match is cancelled, finished or already started.");
+                    .Conflict(MatchClosedMessage);
             }
 
-            var participant = await participantRepository
-                .Query(asNoTracking: false)
-                .FirstOrDefaultAsync(x => x.MatchId == info.Id
-                    && x.UserId == request.UserId
-                    && (x.Status == ParticipantStatus.Joined
-                        || x.Status == ParticipantStatus.Waitlisted));
+            var participant = await FindActiveParticipantAsync(
+                info.Id,
+                request.UserId,
+                asNoTracking: false);
 
             if (participant == null)
             {
@@ -206,12 +183,14 @@ namespace PlayOn.Services
             var nowLocal = timeProvider.GetLocalNow().DateTime;
 
             var wasJoined = participant.Status == ParticipantStatus.Joined;
-            var start = info.Date.ToDateTime(info.StartsAt);
-            var isLate = wasJoined && start - nowLocal < TimeSpan.FromHours(LateCancelHours);
+
+            var isLateCancel = wasJoined
+                && info.Date.ToDateTime(info.StartsAt) - nowLocal
+                    < TimeSpan.FromHours(LateCancelHours);
 
             participant.Status = ParticipantStatus.Cancelled;
             participant.StatusChangedOn = nowUtc;
-            participant.IsLateCancel = isLate;
+            participant.IsLateCancel = isLateCancel;
 
             var match = await matchRepository
                 .Query(asNoTracking: false)
@@ -219,57 +198,40 @@ namespace PlayOn.Services
 
             var notifications = new List<Notification>();
 
-            if (isLate)
+            if (isLateCancel)
             {
-                //notifications.Add(NotificationDataBuilder.NotificationToEntity(
-                //    request.UserId,
-                //    NotificationType.StrikeAdded,
-                //    $"You left \"{info.Title}\" less than {LateCancelHours} hours before it started. "
-                //        + $"This counts as a strike for {StrikeWindowDays} days.",
-                //    info.Id,
-                //    nowUtc));
+                notifications.Add(NotificationDataBuilder.NotificationToEntity(
+                    request.UserId,
+                    NotificationType.StrikeAdded,
+                    $"You left \"{info.Title}\" less than {LateCancelHours} hours before it started. "
+                        + $"This counts as a strike for {StrikeWindowDays} days.",
+                    info.Id,
+                    nowUtc));
             }
 
-            var promoted = false;
+            var isPromoted = false;
 
             if (wasJoined)
             {
+                var joinedAfterLeave = await CountByStatusAsync(
+                    info.Id,
+                    ParticipantStatus.Joined) - 1;
 
-                var joinedAfter = await CountByStatusAsync(info.Id, ParticipantStatus.Joined) - 1;
-
-                if (joinedAfter < info.MaxPlayers)
+                if (joinedAfterLeave < info.MaxPlayers)
                 {
-                    var waiting = await participantRepository
-                        .Query(asNoTracking: false)
-                        .Where(x => x.MatchId == info.Id && x.Status == ParticipantStatus.Waitlisted)
-                        .OrderBy(x => x.JoinedOn)
-                        .ThenBy(x => x.Id)
-                        .ToListAsync();
+                    var promotion = await PromoteFromWaitlistAsync(info, nowUtc);
 
-                    foreach (var candidate in waiting)
+                    if (promotion != null)
                     {
-                        if (await CheckJoinRulesAsync(candidate.UserId, info, nowUtc) != null)
-                        {
-                            continue;
-                        }
+                        notifications.Add(promotion);
 
-                        candidate.Status = ParticipantStatus.Joined;
-                        candidate.StatusChangedOn = nowUtc;
-
-                        //notifications.Add(NotificationDataBuilder.NotificationToEntity(
-                        //    candidate.UserId,
-                        //    NotificationType.Promoted,
-                        //    $"A spot opened up in \"{info.Title}\" and you are now playing.",
-                        //    info.Id,
-                        //    nowUtc));
-
-                        promoted = true;
-                        joinedAfter++;
-                        break;
+                        isPromoted = true;
+                        joinedAfterLeave++;
                     }
                 }
 
-                if (match.Status == MatchStatus.Confirmed && joinedAfter < info.MinPlayers)
+                if (match.Status == MatchStatus.Confirmed
+                    && joinedAfterLeave < info.MinPlayers)
                 {
                     match.Status = MatchStatus.Open;
                 }
@@ -278,111 +240,153 @@ namespace PlayOn.Services
             matchRepository.Update(match);
             await notificationRepository.AddRangeAsync(notifications);
 
-            try
+            if (!await TrySaveChangesAsync())
             {
-                await matchRepository.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                return ServiceResponse<LeaveMatchResponseModel>.Conflict(ConflictMessage);
+                return ServiceResponse<LeaveMatchResponseModel>
+                    .Conflict(ConcurrencyMessage);
             }
 
+            var responseData = ParticipationDataBuilder
+                .LeaveToResponseModel(isLateCancel, isPromoted);
+
             return ServiceResponse<LeaveMatchResponseModel>
-                .Success(ParticipationDataBuilder.LeaveToResponseModel(isLate, promoted));
+                .Success(responseData);
         }
 
 
         public async Task<ServiceResponse<PageResult<MyMatchResponseModel>>>
-            GetMineAsync(MyMatchesRequestData request)
+            GetSinglePageAsync(
+                MyMatchesRequestData requestData,
+                PageRequestData pageRequestData)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            var validationErrors =
+                ServiceRequestDataValidator.Validate(requestData);
 
-            if (errors.Any())
+            if (validationErrors.Any())
             {
-                return ServiceResponse<PageResult<MyMatchResponseModel>>.Failure(errors);
+                return ServiceResponse<PageResult<MyMatchResponseModel>>
+                    .Failure(validationErrors);
             }
 
+            var participationQuery = BuildMyMatchesQuery(requestData);
+
+            var page = await GetSinglePageAsync(
+                participationQuery,
+                pageRequestData);
+
+            return ServiceResponse<PageResult<MyMatchResponseModel>>
+                .Success(page);
+        }
+
+
+        private IOrderedQueryable<MatchParticipant> BuildMyMatchesQuery(
+            MyMatchesRequestData query)
+        {
             var nowLocal = timeProvider.GetLocalNow().DateTime;
             var today = DateOnly.FromDateTime(nowLocal);
             var nowTime = TimeOnly.FromDateTime(nowLocal);
 
-            var baseQuery = participantRepository
+            var participationQuery = participantRepository
                 .Query()
-                .Where(x => x.UserId == request.UserId
+                .Where(x => x.UserId == query.UserId
                     && !x.Match.IsDeleted
                     && x.Match.Event != null);
 
-            IQueryable<MatchParticipant> query;
-
-            switch (request.Tab)
+            return query.Tab switch
             {
-                case MyMatchesTab.Upcoming:
-                    query = baseQuery
-                        .Where(x => x.Status == ParticipantStatus.Joined
-                            && x.Match.Status != MatchStatus.Cancelled
-                            && (x.Match.Event!.Venue.Date > today
+                MyMatchesTab.Upcoming => ApplyUpcomingTab(
+                    participationQuery,
+                    ParticipantStatus.Joined,
+                    today,
+                    nowTime),
+
+                MyMatchesTab.Waitlist => ApplyUpcomingTab(
+                    participationQuery,
+                    ParticipantStatus.Waitlisted,
+                    today,
+                    nowTime),
+
+                MyMatchesTab.Past => ApplyPastTab(
+                    participationQuery,
+                    today,
+                    nowTime),
+
+                _ => ApplyCancelledTab(participationQuery)
+            };
+        }
+
+        private IOrderedQueryable<MatchParticipant> ApplyUpcomingTab(
+            IQueryable<MatchParticipant> query,
+            ParticipantStatus status,
+            DateOnly today,
+            TimeOnly nowTime)
+        {
+            return query
+                .Where(x => x.Status == status
+                    && x.Match.Status != MatchStatus.Cancelled
+                    && (x.Match.Event!.Venue.Date > today
+                        || (x.Match.Event.Venue.Date == today
+                            && x.Match.Event.Venue.StartsAt >= nowTime)))
+                .OrderBy(x => x.Match.Event!.Venue.Date)
+                .ThenBy(x => x.Match.Event!.Venue.StartsAt);
+        }
+
+        private IOrderedQueryable<MatchParticipant> ApplyPastTab(
+            IQueryable<MatchParticipant> query,
+            DateOnly today,
+            TimeOnly nowTime)
+        {
+            return query
+                .Where(x => x.Match.Status != MatchStatus.Cancelled
+                    && (x.Status == ParticipantStatus.Attended
+                        || x.Status == ParticipantStatus.NoShow
+                        || (x.Status == ParticipantStatus.Joined
+                            && (x.Match.Event!.Venue.Date < today
                                 || (x.Match.Event.Venue.Date == today
-                                    && x.Match.Event.Venue.StartsAt >= nowTime)))
-                        .OrderBy(x => x.Match.Event!.Venue.Date)
-                        .ThenBy(x => x.Match.Event!.Venue.StartsAt)
-                        .ThenBy(x => x.Id);
-                    break;
+                                    && x.Match.Event.Venue.StartsAt < nowTime)))))
+                .OrderByDescending(x => x.Match.Event!.Venue.Date)
+                .ThenByDescending(x => x.Match.Event!.Venue.StartsAt);
+        }
 
-                case MyMatchesTab.Waitlist:
-                    query = baseQuery
-                        .Where(x => x.Status == ParticipantStatus.Waitlisted
-                            && x.Match.Status != MatchStatus.Cancelled
-                            && (x.Match.Event!.Venue.Date > today
-                                || (x.Match.Event.Venue.Date == today
-                                    && x.Match.Event.Venue.StartsAt >= nowTime)))
-                        .OrderBy(x => x.Match.Event!.Venue.Date)
-                        .ThenBy(x => x.Match.Event!.Venue.StartsAt)
-                        .ThenBy(x => x.Id);
-                    break;
+        private IOrderedQueryable<MatchParticipant> ApplyCancelledTab(
+            IQueryable<MatchParticipant> query)
+        {
+            return query
+                .Where(x => x.Status == ParticipantStatus.Cancelled
+                    || x.Match.Status == MatchStatus.Cancelled)
+                .OrderByDescending(x => x.Match.Event!.Venue.Date)
+                .ThenByDescending(x => x.Match.Event!.Venue.StartsAt);
+        }
 
-                case MyMatchesTab.Past:
-                    query = baseQuery
-                        .Where(x => x.Match.Status != MatchStatus.Cancelled
-                            && (x.Status == ParticipantStatus.Attended
-                                || x.Status == ParticipantStatus.NoShow
-                                || (x.Status == ParticipantStatus.Joined
-                                    && (x.Match.Event!.Venue.Date < today
-                                        || (x.Match.Event.Venue.Date == today
-                                            && x.Match.Event.Venue.StartsAt < nowTime)))))
-                        .OrderByDescending(x => x.Match.Event!.Venue.Date)
-                        .ThenByDescending(x => x.Match.Event!.Venue.StartsAt)
-                        .ThenByDescending(x => x.Id);
-                    break;
-
-                default:
-                    query = baseQuery
-                        .Where(x => x.Status == ParticipantStatus.Cancelled
-                            || x.Match.Status == MatchStatus.Cancelled)
-                        .OrderByDescending(x => x.Match.Event!.Venue.Date)
-                        .ThenByDescending(x => x.Match.Event!.Venue.StartsAt)
-                        .ThenByDescending(x => x.Id);
-                    break;
-            }
-
+        private async Task<PageResult<MyMatchResponseModel>>
+            GetSinglePageAsync(
+                IOrderedQueryable<MatchParticipant> query,
+                PageRequestData pageRequestData)
+        {
             var totalCount = await query.CountAsync();
 
-            var pageSize = Math.Clamp(request.PageSize, 1, 50);
-            var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
-            var pageNumber = Math.Clamp(request.Page, 1, totalPages);
+            var pageSize = Math.Clamp(
+                pageRequestData.PageSize, 1, 50);
+
+            var totalPages = Math.Max(
+                1,
+                (int)Math.Ceiling(totalCount / (double)pageSize));
+
+            var pageNumber = Math.Clamp(
+                pageRequestData.Page, 1, totalPages);
 
             var items = await query
+                .ThenBy(x => x.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(ParticipationDataBuilder.MyMatchProjection())
                 .ToListAsync();
 
-            var page = new PageResult<MyMatchResponseModel>(
+            return new PageResult<MyMatchResponseModel>(
                 items,
                 pageNumber,
                 pageSize,
                 totalCount);
-
-            return ServiceResponse<PageResult<MyMatchResponseModel>>.Success(page);
         }
 
 
@@ -397,27 +401,143 @@ namespace PlayOn.Services
 
         private bool IsOpenForParticipation(JoinInfoRow info)
         {
-            return (info.Status == MatchStatus.Open || info.Status == MatchStatus.Confirmed)
-                && info.Date.ToDateTime(info.StartsAt) > timeProvider.GetLocalNow().DateTime;
+            return (info.Status == MatchStatus.Open
+                    || info.Status == MatchStatus.Confirmed)
+                && info.Date.ToDateTime(info.StartsAt)
+                    > timeProvider.GetLocalNow().DateTime;
         }
 
-        private async Task<int> CountByStatusAsync(Guid matchId, ParticipantStatus status)
+        private async Task<MatchParticipant?> FindActiveParticipantAsync(
+            Guid matchId,
+            Guid userId,
+            bool asNoTracking = true)
+        {
+            return await participantRepository
+                .Query(asNoTracking)
+                .FirstOrDefaultAsync(x => x.MatchId == matchId
+                    && x.UserId == userId
+                    && (x.Status == ParticipantStatus.Joined
+                        || x.Status == ParticipantStatus.Waitlisted));
+        }
+
+        private async Task<int> CountByStatusAsync(
+            Guid matchId,
+            ParticipantStatus status)
         {
             return await participantRepository
                 .Query()
                 .CountAsync(x => x.MatchId == matchId && x.Status == status);
         }
 
+        private async Task<bool> TrySaveChangesAsync()
+        {
+            try
+            {
+                await matchRepository.SaveChangesAsync();
 
-        private async Task<ValidationResult?>
-            CheckJoinRulesAsync(
-                Guid userId,
-                JoinInfoRow info,
-                DateTime nowUtc)
+                return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return false;
+            }
+        }
+
+
+        private async Task AddMatchConfirmedNotificationsAsync(
+            JoinInfoRow info,
+            Guid joiningUserId,
+            DateTime nowUtc)
+        {
+            var userIds = await participantRepository
+                .Query()
+                .Where(x => x.MatchId == info.Id
+                    && x.Status == ParticipantStatus.Joined)
+                .Select(x => x.UserId)
+                .ToListAsync();
+
+            userIds.Add(joiningUserId);
+
+            var notifications = userIds
+                .Select(userId => NotificationDataBuilder.NotificationToEntity(
+                    userId,
+                    NotificationType.MatchConfirmed,
+                    $"\"{info.Title}\" is confirmed: enough players have joined.",
+                    info.Id,
+                    nowUtc))
+                .ToList();
+
+            await notificationRepository.AddRangeAsync(notifications);
+        }
+
+
+        private async Task<Notification?> PromoteFromWaitlistAsync(
+            JoinInfoRow info,
+            DateTime nowUtc)
+        {
+            var waitingPlayers = await participantRepository
+                .Query(asNoTracking: false)
+                .Where(x => x.MatchId == info.Id
+                    && x.Status == ParticipantStatus.Waitlisted)
+                .OrderBy(x => x.JoinedOn)
+                .ThenBy(x => x.Id)
+                .ToListAsync();
+
+            foreach (var candidate in waitingPlayers)
+            {
+                if (await CheckJoinRulesAsync(candidate.UserId, info, nowUtc) != null)
+                {
+                    continue;
+                }
+
+                candidate.Status = ParticipantStatus.Joined;
+                candidate.StatusChangedOn = nowUtc;
+
+                return NotificationDataBuilder.NotificationToEntity(
+                    candidate.UserId,
+                    NotificationType.Promoted,
+                    $"A spot opened up in \"{info.Title}\" and you are now playing.",
+                    info.Id,
+                    nowUtc);
+            }
+
+            return null;
+        }
+
+
+        private async Task<ValidationResult?> CheckJoinRulesAsync(
+            Guid userId,
+            JoinInfoRow info,
+            DateTime nowUtc)
+        {
+            if (await IsBlockedByStrikesAsync(userId, nowUtc))
+            {
+                return new ValidationResult(
+                    "You have too many late cancellations or no-shows, so you cannot join matches for now.");
+            }
+
+            if (!await IsSkillInRangeAsync(userId, info))
+            {
+                return new ValidationResult(
+                    "Your skill level for this sport is outside the range of this match. You can change it in your profile.");
+            }
+
+            if (await HasOverlappingBookingAsync(userId, info))
+            {
+                return new ValidationResult(
+                    "You are already in another match at the same time.");
+            }
+
+            return null;
+        }
+
+        private async Task<bool> IsBlockedByStrikesAsync(
+            Guid userId,
+            DateTime nowUtc)
         {
             var strikeSince = nowUtc.AddDays(-StrikeWindowDays);
 
-            var strikes = await participantRepository
+            var strikeDates = await participantRepository
                 .Query()
                 .Where(x => x.UserId == userId
                     && (x.IsLateCancel || x.Status == ParticipantStatus.NoShow)
@@ -425,13 +545,14 @@ namespace PlayOn.Services
                 .Select(x => x.StatusChangedOn)
                 .ToListAsync();
 
-            if (strikes.Count >= StrikesToBlock
-                && nowUtc < strikes.Max().AddDays(BlockDays))
-            {
-                return new ValidationResult(
-                    "You have too many late cancellations or no-shows, so you cannot join matches for now.");
-            }
+            return strikeDates.Count >= StrikesToBlock
+                && nowUtc < strikeDates.Max().AddDays(BlockDays);
+        }
 
+        private async Task<bool> IsSkillInRangeAsync(
+            Guid userId,
+            JoinInfoRow info)
+        {
             var preference = await preferenceRepository
                 .Query()
                 .Where(x => x.UserId == userId && x.SportId == info.SportId)
@@ -440,12 +561,13 @@ namespace PlayOn.Services
 
             var skill = preference ?? SkillLevel.Beginner;
 
-            if (skill < info.MinSkill || skill > info.MaxSkill)
-            {
-                return new ValidationResult(
-                    "Your skill level for this sport is outside the range of this match. You can change it in your profile.");
-            }
+            return skill >= info.MinSkill && skill <= info.MaxSkill;
+        }
 
+        private async Task<bool> HasOverlappingBookingAsync(
+            Guid userId,
+            JoinInfoRow info)
+        {
             var bookings = await participantRepository
                 .Query()
                 .Where(x => x.UserId == userId
@@ -466,19 +588,13 @@ namespace PlayOn.Services
             var start = info.StartsAt.Hour * 60 + info.StartsAt.Minute;
             var end = start + info.DurationMinutes;
 
-            foreach (var booking in bookings)
+            return bookings.Any(booking =>
             {
                 var otherStart = booking.StartsAt.Hour * 60 + booking.StartsAt.Minute;
                 var otherEnd = otherStart + booking.DurationMinutes;
 
-                if (start < otherEnd && otherStart < end)
-                {
-                    return new ValidationResult(
-                        "You are already in another match at the same time.");
-                }
-            }
-
-            return null;
+                return start < otherEnd && otherStart < end;
+            });
         }
     }
 }

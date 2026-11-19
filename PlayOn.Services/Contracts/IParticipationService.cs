@@ -14,6 +14,8 @@ namespace PlayOn.Services.Contracts
             LeaveAsync(ParticipationRequestData request);
 
         Task<ServiceResponse<PageResult<MyMatchResponseModel>>>
-            GetMineAsync(MyMatchesRequestData request);
+            GetSinglePageAsync(
+                MyMatchesRequestData requestData,
+                PageRequestData pageRequestData);
     }
 }

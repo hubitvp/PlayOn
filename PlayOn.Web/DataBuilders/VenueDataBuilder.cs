@@ -1,5 +1,4 @@
 using PlayOn.Common.Helpers;
-using PlayOn.Services.Data.Venue.RequestData;
 using PlayOn.Services.Data.Venue.ResponseModels;
 using PlayOn.Web.DataBuilders.Formatting;
 using PlayOn.Web.ViewModels.Venue;
@@ -7,7 +6,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.DataBuilders;
 
-public class VenueDataBuilder
+public class VenueDataBuilder : DataBuilder
 {
     private readonly IDisplayFormatter displayFormatter;
 
@@ -16,17 +15,17 @@ public class VenueDataBuilder
         this.displayFormatter = displayFormatter;
     }
 
-    public VenueQueryRequestData
-        VenueQueryToRequestData(int page)
-    {
-        var result = new VenueQueryRequestData
-        {
-            Page = page,
-            PageSize = DefaultPageSize
-        };
+    //public VenueQueryRequestData
+    //    VenueQueryToRequestData(int page)
+    //{
+    //    var result = new VenueQueryRequestData
+    //    {
+    //        Page = page,
+    //        PageSize = DefaultPageSize
+    //    };
 
-        return result;
-    }
+    //    return result;
+    //}
 
     public VenueViewModel
         VenueListToViewModel(

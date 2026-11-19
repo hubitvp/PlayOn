@@ -153,8 +153,7 @@ namespace PlayOn.Services
                 MatchSort.Cheapest => query
                     .OrderBy(x => x.PricePerPlayer)
                     .ThenBy(x => x.Event!.Venue.Date)
-                    .ThenBy(x => x.Event!.Venue.StartsAt)
-                    .ThenBy(x => x.Id),
+                    .ThenBy(x => x.Event!.Venue.StartsAt),
 
                 MatchSort.MostSpots => query
                     .OrderByDescending(
@@ -162,19 +161,18 @@ namespace PlayOn.Services
                             x.MaxPlayers - x.Participants.Count(
                                 p => p.Status == ParticipantStatus.Joined))
                     .ThenBy(x => x.Event!.Venue.Date)
-                    .ThenBy(x => x.Event!.Venue.StartsAt)
-                    .ThenBy(x => x.Id),
+                    .ThenBy(x => x.Event!.Venue.StartsAt),
 
                 _ => query
                     .OrderBy(x => x.Event!.Venue.Date)
                     .ThenBy(x => x.Event!.Venue.StartsAt)
                     .ThenBy(x => x.Event!.Sport.Name)
                     .ThenBy(x => x.Event!.Venue.Name)
-                    .ThenBy(x => x.Id)
             };
 
 
             var projectedItems = await ordered
+                .ThenBy(x => x.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(MatchDataBuilder.MatchCardProjection())

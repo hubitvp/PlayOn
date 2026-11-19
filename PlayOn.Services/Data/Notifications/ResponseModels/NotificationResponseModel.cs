@@ -15,7 +15,7 @@ namespace PlayOn.Services.Data.Notifications.ResponseModels
 
     public class NotificationResponseModel
     {
-        public required PageResult<NotificationResponseModelData> Notifications { get; init; }
+        public required PageResult<NotificationResponseModelData> Page { get; init; }
         public required int UnreadCount { get; init; }
     }
 }

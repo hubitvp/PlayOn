@@ -98,6 +98,39 @@ namespace PlayOn.Services
 
             var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
 
+            var notifications = ApplyAttendance(
+                participants,
+                entries,
+                info!,
+                nowUtc);
+
+            var match = await matchRepository
+                .Query(asNoTracking: false)
+                .SingleAsync(x => x.Id == request.MatchId);
+
+            match.Status = MatchStatus.Completed;
+
+            await UpdateUserStatsAsync(request.MatchId, participants);
+
+            await notificationRepository.AddRangeAsync(notifications);
+
+            if (!await TrySaveChangesAsync())
+            {
+                return ServiceResponse<Guid>.Conflict(
+                    "The match changed while you were saving. Please open the page again.");
+            }
+
+            return ServiceResponse<Guid>.Success(request.MatchId);
+        }
+
+
+        // Marks every player as attended or no-show and returns the no-show notifications.
+        private static List<Notification> ApplyAttendance(
+            IEnumerable<MatchParticipant> participants,
+            IReadOnlyDictionary<Guid, bool> entries,
+            AttendanceInfoRow info,
+            DateTime nowUtc)
+        {
             var notifications = new List<Notification>();
 
             foreach (var participant in participants)
@@ -111,38 +144,31 @@ namespace PlayOn.Services
 
                 if (!attended)
                 {
-                    //notifications.Add(NotificationDataBuilder.NotificationToEntity(
-                    //    participant.UserId,
-                    //    NotificationType.StrikeAdded,
-                    //    $"You were marked as a no-show for \"{info!.Title}\". This counts as a strike.",
-                    //    info.Id,
-                    //    nowUtc));
+                    notifications.Add(NotificationDataBuilder.NotificationToEntity(
+                        participant.UserId,
+                        NotificationType.StrikeAdded,
+                        $"You were marked as a no-show for \"{info.Title}\". This counts as a strike.",
+                        info.Id,
+                        nowUtc));
                 }
             }
 
-            var match = await matchRepository
-                .Query(asNoTracking: false)
-                .SingleAsync(x => x.Id == request.MatchId);
+            return notifications;
+        }
 
-            match.Status = MatchStatus.Completed;
-
-            await UpdateUserStatsAsync(request.MatchId, participants);
-
-            await notificationRepository.AddRangeAsync(notifications);
-
+        private async Task<bool> TrySaveChangesAsync()
+        {
             try
             {
                 await matchRepository.SaveChangesAsync();
+
+                return true;
             }
             catch (DbUpdateConcurrencyException)
             {
-                return ServiceResponse<Guid>.Conflict(
-                    "The match changed while you were saving. Please open the page again.");
+                return false;
             }
-
-            return ServiceResponse<Guid>.Success(request.MatchId);
         }
-
 
         private async Task UpdateUserStatsAsync(
             Guid matchId,

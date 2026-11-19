@@ -3,10 +3,12 @@ using PlayOn.Common.Enums;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
+using PlayOn.Services.Data.Players;
 using PlayOn.Services.Data.Players.RequestData;
 using PlayOn.Services.Data.Players.ResponseModels;
 using PlayOn.Services.DataBuilders;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using static PlayOn.Common.ApplicationConstants.ParticipationRules;
 
 namespace PlayOn.Services
@@ -35,23 +37,27 @@ namespace PlayOn.Services
 
 
         public async Task<ServiceResponse<PlayerProfileResponseModel>>
-            GetProfileAsync(Guid userId, Guid targetProfileId, bool isActive = true)
+            GetProfileAsync(
+                Guid userId,
+                Guid targetProfileId)
         {
-            var player = await userRepository
-                .Query()
-                .Where(x => x.Id == targetProfileId)
-                .Where(x => x.IsActive == isActive)
-                .Select(PlayerDataBuilder.PlayerRowProjection())
-                .SingleOrDefaultAsync();
+            var player = await GetPlayerRowAsync(targetProfileId, onlyActive: true);
 
-            if (player == null )
+            if (player == null)
             {
                 return ServiceResponse<PlayerProfileResponseModel>.NotFound();
             }
 
-            var attended = await CountAsync(targetProfileId, x => x.Status == ParticipantStatus.Attended);
-            var noShow = await CountAsync(targetProfileId, x => x.Status == ParticipantStatus.NoShow);
-            var lateCancel = await CountAsync(targetProfileId,
+            var attended = await CountParticipationsAsync(
+                targetProfileId,
+                x => x.Status == ParticipantStatus.Attended);
+
+            var noShow = await CountParticipationsAsync(
+                targetProfileId,
+                x => x.Status == ParticipantStatus.NoShow);
+
+            var lateCancel = await CountParticipationsAsync(
+                targetProfileId,
                 x => x.Status == ParticipantStatus.Cancelled && x.IsLateCancel);
 
             var visibleRatings = ratingRepository
@@ -75,9 +81,10 @@ namespace PlayOn.Services
                 .Select(PlayerDataBuilder.PlayerRatingProjection())
                 .ToListAsync();
 
-            bool isOwnProfile = userId != Guid.Empty && targetProfileId == userId;
+            var isOwnProfile = userId != Guid.Empty
+                && targetProfileId == userId;
 
-            var response = PlayerDataBuilder.PlayerToProfileResponseModel(
+            var responseData = PlayerDataBuilder.PlayerToProfileResponseModel(
                 player,
                 attended,
                 noShow,
@@ -88,48 +95,35 @@ namespace PlayOn.Services
                 recentRatings,
                 isOwnProfile);
 
-            return ServiceResponse<PlayerProfileResponseModel>.Success(response);
+            return ServiceResponse<PlayerProfileResponseModel>
+                .Success(responseData);
         }
 
 
         public async Task<ServiceResponse<PlayerEditResponseModel>>
             GetForEditAsync(Guid userId)
         {
-            var player = await userRepository
-                .Query()
-                .Where(x => x.Id == userId)
-                .Select(PlayerDataBuilder.PlayerRowProjection())
-                .SingleOrDefaultAsync();
+            var player = await GetPlayerRowAsync(userId, onlyActive: false);
 
             if (player == null)
             {
                 return ServiceResponse<PlayerEditResponseModel>.NotFound();
             }
 
-            var preferences = await preferenceRepository
-                .Query()
-                .Where(x => x.UserId == userId)
-                .ToDictionaryAsync(x => x.SportId, x => x.SkillLevel);
+            var skillOptionsResponse = await GetSkillOptionsAsync(userId);
 
-            var skills = await sportRepository
-                .Query()
-                .OrderBy(x => x.Name)
-                .Select(x => new { x.Id, x.Name })
-                .ToListAsync();
+            if (!skillOptionsResponse.IsSuccess)
+            {
+                return ServiceResponse<PlayerEditResponseModel>
+                    .Failure(skillOptionsResponse.Errors);
+            }
 
-            var options = skills
-                .Select(x => new PlayerSkillOptionResponseModel
-                {
-                    SportId = x.Id,
-                    SportName = x.Name,
-                    SkillLevel = preferences.TryGetValue(x.Id, out var level)
-                        ? level
-                        : null
-                })
-                .ToList();
+            var responseData = PlayerDataBuilder.PlayerToEditResponseModel(
+                player,
+                skillOptionsResponse.ResponseData);
 
             return ServiceResponse<PlayerEditResponseModel>
-                .Success(PlayerDataBuilder.PlayerToEditResponseModel(player, options));
+                .Success(responseData);
         }
 
 
@@ -152,48 +146,120 @@ namespace PlayOn.Services
                 return ServiceResponse<Guid>.NotFound();
             }
 
-            var validSportIds = await sportRepository
-                .Query()
-                .Select(x => x.Id)
-                .ToListAsync();
+            var skillErrors = await ValidateSkillsAsync(request.Skills);
 
-            var skillErrors = new List<ValidationResult>();
-            var seen = new HashSet<Guid>();
-
-            for (var i = 0; i < request.Skills.Count; i++)
-            {
-                var skill = request.Skills[i];
-
-                if (!validSportIds.Contains(skill.SportId) || !seen.Add(skill.SportId))
-                {
-                    skillErrors.Add(new ValidationResult(
-                        "Select a valid sport.",
-                        new[] { $"Skills[{i}].SkillLevel" }));
-                }
-                else if (skill.SkillLevel.HasValue && !Enum.IsDefined(skill.SkillLevel.Value))
-                {
-                    skillErrors.Add(new ValidationResult(
-                        "Select a valid skill level.",
-                        new[] { $"Skills[{i}].SkillLevel" }));
-                }
-            }
-
-            if (skillErrors.Count > 0)
+            if (skillErrors.Any())
             {
                 return ServiceResponse<Guid>.Failure(skillErrors);
             }
 
-            var existing = await preferenceRepository
-                .Query(asNoTracking: false)
-                .Where(x => x.UserId == request.UserId)
-                .ToListAsync();
-
             user.DisplayName = request.DisplayName.Trim();
             user.City = request.City.Trim();
 
-            foreach (var skill in request.Skills)
+            await ApplySkillsAsync(request.UserId, request.Skills);
+
+            await userRepository.SaveChangesAsync();
+
+            return ServiceResponse<Guid>.Success(request.UserId);
+        }
+
+
+        private async Task<PlayerRow?> GetPlayerRowAsync(
+            Guid userId,
+            bool onlyActive)
+        {
+            var query = userRepository
+                .Query()
+                .Where(x => x.Id == userId);
+
+            if (onlyActive)
             {
-                var current = existing.FirstOrDefault(x => x.SportId == skill.SportId);
+                query = query.Where(x => x.IsActive);
+            }
+
+            return await query
+                .Select(PlayerDataBuilder.PlayerRowProjection())
+                .SingleOrDefaultAsync();
+        }
+
+        private async Task<ServiceResponse<IReadOnlyList<PlayerSkillOptionResponseModel>>>
+            GetSkillOptionsAsync(Guid userId)
+        {
+            var skillLevels = await preferenceRepository
+                .Query()
+                .Where(x => x.UserId == userId)
+                .ToDictionaryAsync(x => x.SportId, x => x.SkillLevel);
+
+            var sports = await sportRepository
+                .Query()
+                .OrderBy(x => x.Name)
+                .Select(x => new { x.Id, x.Name })
+                .ToListAsync();
+
+            IReadOnlyList<PlayerSkillOptionResponseModel> skillOptions = sports
+                .Select(x => new PlayerSkillOptionResponseModel
+                {
+                    SportId = x.Id,
+                    SportName = x.Name,
+                    SkillLevel = skillLevels.TryGetValue(x.Id, out var level)
+                        ? level
+                        : null
+                })
+                .ToList();
+
+            return ServiceResponse<IReadOnlyList<PlayerSkillOptionResponseModel>>
+                .Success(skillOptions);
+        }
+
+        private async Task<IEnumerable<ValidationResult>> ValidateSkillsAsync(
+            IReadOnlyList<PlayerSkillRequestData> skills)
+        {
+            var validSportIds = (await sportRepository
+                .Query()
+                .Select(x => x.Id)
+                .ToListAsync())
+                .ToHashSet();
+
+            var errors = new List<ValidationResult>();
+            var seenSportIds = new HashSet<Guid>();
+
+            for (var i = 0; i < skills.Count; i++)
+            {
+                var skill = skills[i];
+                var member = $"Skills[{i}].SkillLevel";
+
+                if (!validSportIds.Contains(skill.SportId)
+                    || !seenSportIds.Add(skill.SportId))
+                {
+                    errors.Add(new ValidationResult(
+                        "Select a valid sport.",
+                        new[] { member }));
+                }
+                else if (skill.SkillLevel.HasValue
+                    && !Enum.IsDefined(skill.SkillLevel.Value))
+                {
+                    errors.Add(new ValidationResult(
+                        "Select a valid skill level.",
+                        new[] { member }));
+                }
+            }
+
+            return errors;
+        }
+
+        private async Task ApplySkillsAsync(
+            Guid userId,
+            IEnumerable<PlayerSkillRequestData> skills)
+        {
+            var currentPreferences = await preferenceRepository
+                .Query(asNoTracking: false)
+                .Where(x => x.UserId == userId)
+                .ToListAsync();
+
+            foreach (var skill in skills)
+            {
+                var current = currentPreferences
+                    .FirstOrDefault(x => x.SportId == skill.SportId);
 
                 if (skill.SkillLevel == null)
                 {
@@ -208,26 +274,21 @@ namespace PlayOn.Services
                 if (current != null)
                 {
                     current.SkillLevel = skill.SkillLevel.Value;
+
+                    continue;
                 }
-                else
-                {
-                    await preferenceRepository.AddAsync(
-                        PlayerDataBuilder.SkillToEntity(
-                            request.UserId,
-                            skill.SportId,
-                            skill.SkillLevel.Value));
-                }
+
+                await preferenceRepository.AddAsync(
+                    PlayerDataBuilder.SkillToEntity(
+                        userId,
+                        skill.SportId,
+                        skill.SkillLevel.Value));
             }
-
-            await userRepository.SaveChangesAsync();
-
-            return ServiceResponse<Guid>.Success(request.UserId);
         }
 
-
-        private async Task<int> CountAsync(
+        private async Task<int> CountParticipationsAsync(
             Guid userId,
-            System.Linq.Expressions.Expression<Func<MatchParticipant, bool>> filter)
+            Expression<Func<MatchParticipant, bool>> filter)
         {
             return await participantRepository
                 .Query()

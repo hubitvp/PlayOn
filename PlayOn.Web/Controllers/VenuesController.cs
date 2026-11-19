@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Web.DataBuilders;
+using PlayOn.Web.ViewModels;
 namespace PlayOn.Web.Controllers
 {
     [AllowAnonymous]
@@ -25,28 +26,26 @@ namespace PlayOn.Web.Controllers
         [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult>
-            Index([FromQuery] int page = 1)
+            Index([FromQuery] PageInputModel page)
         {
-            page = Math.Max(1, page);
 
-            var requestData = venueDataBuilder
-                .VenueQueryToRequestData(page);
+            var requestData = venueDataBuilder.PageInputToPageRequestData(page);
 
             var response = await venueService
-                .GetVenuesAsync(requestData);
+                .GetSinglePageAsync(requestData);
 
             if (!response.IsSuccess)
             {
                 AddServiceErrors(response.Errors);
 
                 var errorViewModel = venueDataBuilder
-                    .VenueListToViewModel(null, page);
+                    .VenueListToViewModel(null, requestData.Page);
 
                 return View(errorViewModel);
             }
 
             var viewModel = venueDataBuilder
-                .VenueListToViewModel(response.ResponseData, page);
+                .VenueListToViewModel(response.ResponseData, requestData.Page);
 
             return View(viewModel);
         }

@@ -1,24 +1,31 @@
-﻿//using PlayOn.Common.Helpers;
-//using PlayOn.Services.Data;
-//using PlayOn.Services.Data.Notifications.RequestData;
-//using PlayOn.Services.Data.Notifications.ResponseModels;
+﻿using PlayOn.Common.Helpers;
+using PlayOn.Services.Data;
+using PlayOn.Services.Data.Notifications.RequestData;
+using PlayOn.Services.Data.Notifications.ResponseModels;
 
-//namespace PlayOn.Services.Contracts
-//{
-//    public interface INotificationService
-//    {
-//        Task<ServiceResponse<NotificationResponseModel>>
-//            GetNotificationsAsync(NotificationRequestData request);
+namespace PlayOn.Services.Contracts
+{
+    public interface INotificationService
+    {
+        Task<ServiceResponse<NotificationResponseModel>>
+            GetMainResponseModelAsync(
+                NotificationListRequestData requestData,
+                PageRequestData pageRequestData);
 
-//        Task<int>
-//            GetUnreadCountAsync(Guid userId);
+        Task<ServiceResponse<PageResult<NotificationResponseModelData>>>
+            GetSinglePageAsync(
+                NotificationListRequestData requestData,
+                PageRequestData pageRequestData);
 
-//        Task<ServiceResponse<NotificationResponseModel>>
-//            MarkAsReadAsync(
-//                Guid userId,
-//                Guid notificationId);
+        Task<ServiceResponse<int>>
+            GetUnreadCountAsync(Guid userId);
 
-//        Task<ServiceResponse<int>>
-//            MarkAllAsReadAsync(Guid userId);
-//    }
-//}
+        Task<ServiceResponse<NotificationResponseModelData>>
+            MarkAsReadAsync(
+                Guid userId,
+                Guid notificationId);
+
+        Task<ServiceResponse<int>>
+            MarkAllAsReadAsync(Guid userId);
+    }
+}

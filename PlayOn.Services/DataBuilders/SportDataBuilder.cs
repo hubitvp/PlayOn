@@ -15,16 +15,4 @@ public static class SportDataBuilder
             Name = source.Name
         };
     }
-
-    public static SportResponseModel
-        SportToResponseModel(Sport source)
-    {
-        var result = new SportResponseModel
-        {
-            Id = source.Id,
-            Name = source.Name
-        };
-
-        return result;
-    }
 }

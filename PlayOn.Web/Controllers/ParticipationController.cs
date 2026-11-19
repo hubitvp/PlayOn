@@ -5,6 +5,7 @@ using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Web.DataBuilders;
+using PlayOn.Web.ViewModels;
 
 namespace PlayOn.Web.Controllers
 {
@@ -27,30 +28,31 @@ namespace PlayOn.Web.Controllers
         [HttpGet]
         public async Task<IActionResult>
             Mine(
-                MyMatchesTab tab = MyMatchesTab.Upcoming,
-                int page = 1)
+                [FromQuery] PageInputModel page,
+                MyMatchesTab tab = MyMatchesTab.Upcoming)
         {
-            page = Math.Max(1, page);
 
             if (!Enum.IsDefined(tab))
             {
                 tab = MyMatchesTab.Upcoming;
             }
 
-            var requestData = participationDataBuilder
-                .MyMatchesToRequestData(GetUserId(), tab, page);
+            var matchesRequestData = participationDataBuilder
+                .MyMatchesToRequestData(GetUserId(), tab);
 
-            var response = await participationService.GetMineAsync(requestData);
+            var pageRequestData = participationDataBuilder
+                .PageInputToPageRequestData(page);
+
+            var response = await participationService
+                .GetSinglePageAsync(matchesRequestData, pageRequestData);
 
             if (!response.IsSuccess)
             {
                 AddServiceErrors(response.Errors);
-
-                return View(participationDataBuilder.MyMatchesToViewModel(tab, null, page));
             }
 
             var viewModel = participationDataBuilder
-                .MyMatchesToViewModel(tab, response.ResponseData, page);
+                .MyMatchesToViewModel(tab, response.ResponseData, pageRequestData.Page);
 
             return View(viewModel);
         }

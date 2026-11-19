@@ -1,4 +1,5 @@
 ﻿using PlayOn.Data.Models;
+using PlayOn.Services.Data.Ratings;
 using PlayOn.Services.Data.Ratings.RequestData;
 using PlayOn.Services.Data.Ratings.ResponseModels;
 using System.Linq.Expressions;
@@ -7,6 +8,18 @@ namespace PlayOn.Services.DataBuilders;
 
 public static class RatingDataBuilder
 {
+    internal static Expression<Func<Match, RatingInfoRow>>
+        RatingInfoProjection()
+    {
+        return source => new RatingInfoRow
+        {
+            Id = source.Id,
+            Title = source.Title,
+            Status = source.Status,
+            IsDeleted = source.IsDeleted
+        };
+    }
+
     public static Expression<Func<MatchParticipant, RatingPlayerResponseModel>>
         RatingPlayerProjection()
     {

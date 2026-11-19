@@ -11,8 +11,8 @@ namespace PlayOn.Web.ViewModels.Home
         public string? City { get; set; }
         public string? From { get; set; }
 
-        public required PageResult<HomeMatchCardViewModel>? Page { get; init; }
-        public required IEnumerable<SelectListItem>? SportOptions { get; init; }
+        public PageResult<HomeMatchCardViewModel>? Page { get; init; }
+        public IEnumerable<SelectListItem> SportOptions { get; init; } = Enumerable.Empty<SelectListItem>();
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

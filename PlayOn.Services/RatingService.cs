@@ -3,6 +3,7 @@ using PlayOn.Common.Enums;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
+using PlayOn.Services.Data.Ratings;
 using PlayOn.Services.Data.Ratings.RequestData;
 using PlayOn.Services.Data.Ratings.ResponseModels;
 using PlayOn.Services.DataBuilders;
@@ -41,17 +42,26 @@ namespace PlayOn.Services
                 Guid matchId,
                 Guid raterId)
         {
-            var access = await CheckAccessAsync(matchId, raterId);
+            var info = await GetInfoAsync(matchId);
 
-            if (access.Status != ServiceStatus.Success)
+            var failure = await CheckAccessAsync<RatingFormResponseModel>(
+                info,
+                raterId);
+
+            if (failure != null)
             {
-                return ToFailure<RatingFormResponseModel>(access.Status, access.Message);
+                return failure;
             }
 
             var players = await GetRatablePlayersAsync(matchId, raterId);
 
+            var responseData = RatingDataBuilder.RatingFormToResponseModel(
+                matchId,
+                info!.Title,
+                players);
+
             return ServiceResponse<RatingFormResponseModel>
-                .Success(RatingDataBuilder.RatingFormToResponseModel(matchId, access.Title!, players));
+                .Success(responseData);
         }
 
 
@@ -67,53 +77,28 @@ namespace PlayOn.Services
 
             if (request.Entries.Count == 0)
             {
-                return ServiceResponse<int>.Failure("Rate at least one player.", "Players");
+                return ServiceResponse<int>
+                    .Failure("Rate at least one player.", "Players");
             }
 
-            var access = await CheckAccessAsync(request.MatchId, request.RaterId);
+            var info = await GetInfoAsync(request.MatchId);
 
-            if (access.Status != ServiceStatus.Success)
+            var failure = await CheckAccessAsync<int>(info, request.RaterId);
+
+            if (failure != null)
             {
-                return ToFailure<int>(access.Status, access.Message);
+                return failure;
             }
 
-            var allowedIds = (await GetRatablePlayersAsync(request.MatchId, request.RaterId))
-                .Select(x => x.UserId)
-                .ToHashSet();
+            var ratablePlayers = await GetRatablePlayersAsync(
+                request.MatchId,
+                request.RaterId);
 
-            var entryErrors = new List<ValidationResult>();
-            var seen = new HashSet<Guid>();
+            var entryErrors = ValidateEntries(
+                request.Entries,
+                ratablePlayers.Select(x => x.UserId).ToHashSet());
 
-            for (var i = 0; i < request.Entries.Count; i++)
-            {
-                var entry = request.Entries[i];
-                var scoreMember = $"Players[{i}].Score";
-
-                if (entry.Score < MinRatingScore || entry.Score > MaxRatingScore)
-                {
-                    entryErrors.Add(new ValidationResult(
-                        $"The score must be between {MinRatingScore} and {MaxRatingScore}.",
-                        new[] { scoreMember }));
-                }
-
-                if (entry.Comment is { } comment && comment.Trim().Length > CommentMaxLength)
-                {
-                    entryErrors.Add(new ValidationResult(
-                        $"The comment can have at most {CommentMaxLength} characters.",
-                        new[] { $"Players[{i}].Comment" }));
-                }
-
-                if (entry.RatedUserId == Guid.Empty
-                    || !allowedIds.Contains(entry.RatedUserId)
-                    || !seen.Add(entry.RatedUserId))
-                {
-                    entryErrors.Add(new ValidationResult(
-                        "This player cannot be rated for this match.",
-                        new[] { scoreMember }));
-                }
-            }
-
-            if (entryErrors.Count > 0)
+            if (entryErrors.Any())
             {
                 return ServiceResponse<int>.Failure(entryErrors);
             }
@@ -121,19 +106,20 @@ namespace PlayOn.Services
             var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
 
             var ratings = request.Entries
-                .Select(x => RatingDataBuilder.RatingToEntity(request.MatchId, request.RaterId, x))
+                .Select(x => RatingDataBuilder.RatingToEntity(
+                    request.MatchId,
+                    request.RaterId,
+                    x))
                 .ToList();
 
-            //var notifications = request.Entries
-            //    .Select(x => NotificationDataBuilder.NotificationToEntity(
-            //        x.RatedUserId,
-            //        NotificationType.RatingReceived,
-            //        $"You received a new rating after \"{access.Title}\".",
-            //        request.MatchId,
-            //        nowUtc))
-            //    .ToList();
-
-            IEnumerable<Notification> notifications = [];
+            var notifications = request.Entries
+                .Select(x => NotificationDataBuilder.NotificationToEntity(
+                    x.RatedUserId,
+                    NotificationType.RatingReceived,
+                    $"You received a new rating after \"{info!.Title}\".",
+                    request.MatchId,
+                    nowUtc))
+                .ToList();
 
             await ratingRepository.AddRangeAsync(ratings);
             await notificationRepository.AddRangeAsync(notifications);
@@ -143,57 +129,48 @@ namespace PlayOn.Services
         }
 
 
-        private async Task<(ServiceStatus Status, string? Message, string? Title)>
-            CheckAccessAsync(Guid matchId, Guid raterId)
+        private async Task<RatingInfoRow?> GetInfoAsync(Guid matchId)
         {
-            var match = await matchRepository
+            return await matchRepository
                 .Query()
                 .Where(x => x.Id == matchId)
-                .Select(x => new { x.Title, x.Status, x.IsDeleted })
+                .Select(RatingDataBuilder.RatingInfoProjection())
                 .SingleOrDefaultAsync();
+        }
 
-            if (match == null || match.IsDeleted)
+        private async Task<ServiceResponse<T>?> CheckAccessAsync<T>(
+            RatingInfoRow? info,
+            Guid raterId)
+        {
+            if (info == null || info.IsDeleted)
             {
-                return (ServiceStatus.NotFound, null, null);
+                return ServiceResponse<T>.NotFound();
             }
 
-            var attended = await participantRepository
+            var hasAttended = await participantRepository
                 .Query()
-                .AnyAsync(x => x.MatchId == matchId
+                .AnyAsync(x => x.MatchId == info.Id
                     && x.UserId == raterId
                     && x.Status == ParticipantStatus.Attended);
 
-            if (!attended)
+            if (!hasAttended)
             {
-                return (ServiceStatus.Forbidden, null, null);
+                return ServiceResponse<T>.Forbidden();
             }
 
-            if (match.Status != MatchStatus.Completed)
+            if (info.Status != MatchStatus.Completed)
             {
-                return (
-                    ServiceStatus.Conflict,
-                    "You can rate players after the match is completed.",
-                    null);
+                return ServiceResponse<T>
+                    .Conflict("You can rate players after the match is completed.");
             }
 
-            return (ServiceStatus.Success, null, match.Title);
-        }
-
-        private static ServiceResponse<T>
-            ToFailure<T>(ServiceStatus status, string? message)
-        {
-            return status switch
-            {
-                ServiceStatus.NotFound => ServiceResponse<T>.NotFound(),
-                ServiceStatus.Forbidden => ServiceResponse<T>.Forbidden(),
-                _ => ServiceResponse<T>.Conflict(message ?? "This action is not possible right now.")
-            };
+            return null;
         }
 
         private async Task<IReadOnlyList<RatingPlayerResponseModel>>
             GetRatablePlayersAsync(Guid matchId, Guid raterId)
         {
-            var alreadyRated = await ratingRepository
+            var alreadyRatedIds = await ratingRepository
                 .Query()
                 .Where(x => x.MatchId == matchId && x.RaterId == raterId)
                 .Select(x => x.RatedUserId)
@@ -204,10 +181,50 @@ namespace PlayOn.Services
                 .Where(x => x.MatchId == matchId
                     && x.Status == ParticipantStatus.Attended
                     && x.UserId != raterId
-                    && !alreadyRated.Contains(x.UserId))
+                    && !alreadyRatedIds.Contains(x.UserId))
                 .OrderBy(x => x.User.DisplayName)
                 .Select(RatingDataBuilder.RatingPlayerProjection())
                 .ToListAsync();
+        }
+
+        private static IReadOnlyList<ValidationResult> ValidateEntries(
+            IReadOnlyList<RatingEntryRequestData> entries,
+            HashSet<Guid> ratablePlayerIds)
+        {
+            var errors = new List<ValidationResult>();
+            var seenPlayerIds = new HashSet<Guid>();
+
+            for (var i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                var scoreMember = $"Players[{i}].Score";
+
+                if (entry.Score < MinRatingScore || entry.Score > MaxRatingScore)
+                {
+                    errors.Add(new ValidationResult(
+                        $"The score must be between {MinRatingScore} and {MaxRatingScore}.",
+                        new[] { scoreMember }));
+                }
+
+                if (entry.Comment is { } comment
+                    && comment.Trim().Length > CommentMaxLength)
+                {
+                    errors.Add(new ValidationResult(
+                        $"The comment can have at most {CommentMaxLength} characters.",
+                        new[] { $"Players[{i}].Comment" }));
+                }
+
+                if (entry.RatedUserId == Guid.Empty
+                    || !ratablePlayerIds.Contains(entry.RatedUserId)
+                    || !seenPlayerIds.Add(entry.RatedUserId))
+                {
+                    errors.Add(new ValidationResult(
+                        "This player cannot be rated for this match.",
+                        new[] { scoreMember }));
+                }
+            }
+
+            return errors;
         }
     }
 }
