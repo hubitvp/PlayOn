@@ -30,8 +30,6 @@
 //        var result = new NotificationListRequestData
 //        {
 //            UserId = userId,
-//            Page = page,
-//            PageSize = DefaultPageSize
 //        };
 
 //        return result;
@@ -57,7 +55,7 @@
 //    public NotificationViewModel
 //        NotificationToViewModel(NotificationResponseModel source)
 //    {
-//        var utc = DateTime.SpecifyKind(source.CreatedOn, DateTimeKind.Utc);
+//        var utc = DateTime.SpecifyKind(source.Page.PageItems.CreatedOn, DateTimeKind.Utc);
 //        var local = TimeZoneInfo.ConvertTimeFromUtc(utc, timeProvider.LocalTimeZone);
 
 //        var result = new NotificationViewModel

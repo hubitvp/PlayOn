@@ -1,0 +1,78 @@
+﻿@model AdminSportListViewModel
+@{
+    ViewData["Title"] = "Sports";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Sports <span class="text-muted fs-6">(@Model.TotalCount)</span></h1>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New sport</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-9">
+        <input name="Search" value="@Model.Search" class="form-control" placeholder="Sport name" maxlength="60" />
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+    </div>
+    <div asp-validation-summary="All" class="text-danger"></div>
+</form>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Default players</th>
+                <th class="text-end">Courts</th>
+                <th class="text-end">Matches</th>
+                <th class="text-end">Preferences</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var sport in Model.Sports)
+            {
+                <tr>
+                    <td><i class="@sport.IconCss"></i></td>
+                    <td>@sport.Name</td>
+                    <td>@sport.DefaultMinPlayers - @sport.DefaultMaxPlayers</td>
+                    <td class="text-end">@sport.CourtsCount</td>
+                    <td class="text-end">@sport.MatchesCount</td>
+                    <td class="text-end">@sport.PreferencesCount</td>
+                    <td class="text-end text-nowrap">
+                        <a asp-action="Edit" asp-route-id="@sport.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                        @if (sport.CanDelete)
+                        {
+                            <form asp-action="Delete" asp-route-id="@sport.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Delete this sport?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger" disabled
+                                    title="Used by courts, matches or preferences">Delete</button>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (Model.Sports.Count == 0)
+            {
+                <tr><td colspan="7" class="text-center text-muted py-4">No sports found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@{
+    var pagination = new PaginationViewModel
+    {
+        Page = Model.Page,
+        TotalPages = Model.TotalPages,
+        PageUrl = p => Url.Action("Index", "Sports", new { area = "Admin", Model.Search, Page = p })!
+    };
+}
+<partial name="_PaginationPartial" model="@pagination" />

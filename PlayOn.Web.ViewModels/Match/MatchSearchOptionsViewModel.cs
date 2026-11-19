@@ -25,11 +25,4 @@ namespace PlayOn.Web.ViewModels.Match
         public required int CloseMinutes { get; init; }
     }
 
-
-    public class MatchSearchOptionsViewModel
-    {
-        public required IReadOnlyList<SelectListItem> SportOptions { get; init; }
-        public required IReadOnlyList<CourtOptionViewModel> CourtOptions { get; init; }
-        public required IReadOnlyList<VenueOptionViewModel> VenueOptions { get; init; }
-    }
 }

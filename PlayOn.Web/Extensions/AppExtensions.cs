@@ -18,8 +18,6 @@ namespace PlayOn.Web.Extensions
             );
 
 
-
-
             services.AddSingleton(fakeTimeProvider);
             //services.AddSingleton(TimeProvider.System);
             services.AddSingleton<IDisplayFormatter, DisplayFormatter>();
@@ -47,6 +45,12 @@ namespace PlayOn.Web.Extensions
             services.AddScoped<RatingDataBuilder>();
             services.AddScoped<PlayerDataBuilder>();
             //services.AddScoped<NotificationDataBuilder>();
+
+            services.AddScoped<AdminDashboardDataBuilder>();
+            services.AddScoped<AdminUserDataBuilder>();
+            services.AddScoped<AdminSportDataBuilder>();
+            services.AddScoped<AdminVenueDataBuilder>();
+
             return services;
         }
     }

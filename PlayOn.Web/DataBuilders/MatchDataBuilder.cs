@@ -1,15 +1,12 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using PlayOn.Common.Helpers;
-using PlayOn.Services;
 using PlayOn.Services.Data.Attendance.RequestData;
 using PlayOn.Services.Data.Attendance.ResponseModels;
 using PlayOn.Services.Data.Match.RequestData;
 using PlayOn.Services.Data.Match.ResponseModels;
-using PlayOn.Services.Data.Sport.ResponseModels;
 using PlayOn.Web.DataBuilders.Formatting;
 using PlayOn.Web.ViewModels.Match;
 using System.Globalization;
-using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.DataBuilders;
 

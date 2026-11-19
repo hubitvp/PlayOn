@@ -1,3 +1,4 @@
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PlayOn.Data.Configurations.SeedData;
@@ -23,7 +24,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User001),
                     UserName = "ALEX.MORGAN@EXAMPLE.COM",
+                    FullName = "Alex Morgan",
                     DisplayName = "Alex Morgan",
+                    Address = "бул. Витоша 45",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Sofia",
                     IsActive = true,
                     ReliabilityScore = 100,
@@ -41,7 +45,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User002),
                     UserName = "JORDAN.LEE@EXAMPLE.COM",
+                    FullName = "Jordan Lee",
                     DisplayName = "Jordan Lee",
+                    Address = "ул. Иван Вазов 12",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Plovdiv",
                     IsActive = true,
                     ReliabilityScore = 100,
@@ -59,7 +66,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User003),
                     UserName = "SAM.TAYLOR@EXAMPLE.COM",
+                    FullName = "Sam Taylor",
                     DisplayName = "Sam Taylor",
+                    Address = "бул. Княз Борис I 88",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Varna",
                     IsActive = true,
                     ReliabilityScore = 100,
@@ -77,7 +87,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User004),
                     UserName = "CASEY.WILSON@EXAMPLE.COM",
+                    FullName = "Casey Wilson",
                     DisplayName = "Casey Wilson",
+                    Address = "ул. Александровска 24",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Burgas",
                     IsActive = true,
                     ReliabilityScore = 100,
@@ -95,7 +108,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User005),
                     UserName = "MORGAN.KIM@EXAMPLE.COM",
+                    FullName = "Morgan Kim",
                     DisplayName = "Morgan Kim",
+                    Address = "ул. Граф Игнатиев 18",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Sofia",
                     IsActive = true,
                     ReliabilityScore = 67,
@@ -113,7 +129,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User006),
                     UserName = "RILEY.ADAMS@EXAMPLE.COM",
+                    FullName = "Riley Adams",
                     DisplayName = "Riley Adams",
+                    Address = "ул. Борисова 32",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Ruse",
                     IsActive = true,
                     ReliabilityScore = null,
@@ -131,7 +150,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User007),
                     UserName = "TAYLOR.BROWN@EXAMPLE.COM",
+                    FullName = "Taylor Brown",
                     DisplayName = "Taylor Brown",
+                    Address = "ул. Цар Асен 15",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Sofia",
                     IsActive = true,
                     ReliabilityScore = 100,
@@ -149,7 +171,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User008),
                     UserName = "JAMIE.DAVIS@EXAMPLE.COM",
+                    FullName = "Jamie Davis",
                     DisplayName = "Jamie Davis",
+                    Address = "ул. Христо Г. Данов 27",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Plovdiv",
                     IsActive = true,
                     ReliabilityScore = 0,
@@ -167,7 +192,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User009),
                     UserName = "QUINN.CLARK@EXAMPLE.COM",
+                    FullName = "Quinn Clark",
                     DisplayName = "Quinn Clark",
+                    Address = "ул. Преслав 16",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Varna",
                     IsActive = true,
                     ReliabilityScore = 100,
@@ -185,7 +213,10 @@ namespace PlayOn.Data.Configurations
                 {
                     Id = Guid.Parse(SeedUserIds.User010),
                     UserName = "DREW.HALL@EXAMPLE.COM",
+                    FullName = "Drew Hall",
                     DisplayName = "Drew Hall",
+                    Address = "ул. Борисова 54",
+                    JoinDate = new DateOnly(2025, 1, 1),
                     City = "Ruse",
                     IsActive = true,
                     ReliabilityScore = 100,
