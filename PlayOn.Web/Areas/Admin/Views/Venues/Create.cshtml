@@ -1,0 +1,18 @@
+﻿@model AdminVenueFormViewModel
+@{
+    ViewData["Title"] = "New venue slot";
+}
+
+<h1 class="h3 mb-3">New venue slot</h1>
+
+<form asp-action="Create" method="post" class="col-xl-8" novalidate>
+    <partial name="_VenueFormPartial" model="@Model" />
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Create</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Back</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

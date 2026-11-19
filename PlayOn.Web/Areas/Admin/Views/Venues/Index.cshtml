@@ -1,0 +1,89 @@
+﻿@model AdminVenueListViewModel
+@{
+    ViewData["Title"] = "Venues";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Venue slots <span class="text-muted fs-6">(@Model.TotalCount)</span></h1>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> New slot</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input name="Search" value="@Model.Search" class="form-control" placeholder="Name, address or city" maxlength="60" />
+    </div>
+    <div class="col-md-3">
+        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<VenueStatusFilter>()"></select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+    </div>
+    <div asp-validation-summary="All" class="text-danger"></div>
+</form>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Venue</th>
+                <th>City</th>
+                <th>Date</th>
+                <th>Slot</th>
+                <th>Open</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venue in Model.Venues)
+            {
+                <tr class="@(venue.IsDeleted ? "text-muted" : "")">
+                    <td>@venue.Name<div class="small text-muted">@venue.Address</div></td>
+                    <td>@venue.City</td>
+                    <td>@venue.Date</td>
+                    <td>@venue.StartsAt</td>
+                    <td>@venue.OpeningHours</td>
+                    <td>
+                        @if (venue.IsDeleted) { <span class="badge bg-secondary">Deleted</span> }
+                        else if (venue.IsBooked) { <span class="badge bg-primary">Booked</span> <span class="small">@venue.MatchTitle</span> }
+                        else { <span class="badge bg-success">Free</span> }
+                    </td>
+                    <td class="text-end text-nowrap">
+                        @if (venue.IsDeleted)
+                        {
+                            <form asp-action="Restore" asp-route-id="@venue.Id" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-success">Restore</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a asp-action="Edit" asp-route-id="@venue.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                            @if (!venue.IsBooked)
+                            {
+                                <form asp-action="Delete" asp-route-id="@venue.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete this slot?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+            @if (Model.Venues.Count == 0)
+            {
+                <tr><td colspan="7" class="text-center text-muted py-4">No venue slots found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@{
+    var pagination = new PaginationViewModel
+    {
+        Page = Model.Page,
+        TotalPages = Model.TotalPages,
+        PageUrl = p => Url.Action("Index", "Venues", new { area = "Admin", Model.Search, Model.Status, Page = p })!
+    };
+}
+<partial name="_PaginationPartial" model="@pagination" />

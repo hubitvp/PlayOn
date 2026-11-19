@@ -1,0 +1,42 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+
+    string Active(string name) => string.Equals(controller, name, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+}
+
+<div class="row g-4">
+    <aside class="col-lg-3 col-xl-2">
+        <div class="list-group">
+            <a class="list-group-item list-group-item-action @Active("Dashboard")"
+               asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-speedometer2 me-2"></i>Dashboard
+            </a>
+            <a class="list-group-item list-group-item-action @Active("Users")"
+               asp-area="Admin" asp-controller="Users" asp-action="Index">
+                <i class="bi bi-people me-2"></i>Users
+            </a>
+            <a class="list-group-item list-group-item-action @Active("Sports")"
+               asp-area="Admin" asp-controller="Sports" asp-action="Index">
+                <i class="bi bi-trophy me-2"></i>Sports
+            </a>
+            <a class="list-group-item list-group-item-action @Active("Venues")"
+               asp-area="Admin" asp-controller="Venues" asp-action="Index">
+                <i class="bi bi-geo-alt me-2"></i>Venues
+            </a>
+        </div>
+    </aside>
+
+    <section class="col-lg-9 col-xl-10">
+        @RenderBody()
+    </section>
+</div>
+
+@section Styles {
+    @await RenderSectionAsync("Styles", required: false)
+}
+
+@section Scripts {
+    @await RenderSectionAsync("Scripts", required: false)
+}

@@ -2,14 +2,14 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 
+using PlayOn.Data.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using PlayOn.Data.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace PlayOn.Web.Areas.Identity.Pages.Account;
+namespace CommuniLend.Web.Areas.Identity.Pages.Account;
 
 public class LoginModel : PageModel
 {
@@ -105,7 +105,7 @@ public class LoginModel : PageModel
         {
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            var result = await _signInManager.PasswordSignInAsync(Input.Email.Trim().ToUpperInvariant(), Input.Password, Input.RememberMe, lockoutOnFailure: false);
+            var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");

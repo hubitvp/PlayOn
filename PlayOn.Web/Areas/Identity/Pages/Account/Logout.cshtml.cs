@@ -1,12 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
 
+using PlayOn.Data.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using PlayOn.Data.Models;
 
-namespace PlayOn.Web.Areas.Identity.Pages.Account;
+namespace CommuniLend.Web.Areas.Identity.Pages.Account;
 
 public class LogoutModel : PageModel
 {

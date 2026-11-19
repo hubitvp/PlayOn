@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PlayOn.Data;
@@ -11,7 +12,7 @@ namespace PlayOn.Web
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,7 @@ namespace PlayOn.Web
                         .GetSection("Identity:Password")
                         .Bind(options.Password);
                 })
+                .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<PlayOnDbContext>();
 
             builder.Services.AddControllersWithViews(
@@ -91,13 +93,17 @@ namespace PlayOn.Web
 
             app.MapStaticAssets();
             app.MapControllerRoute(
+                name: "areas",
+                pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}")
+                .WithStaticAssets();
+            app.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}")
                 .WithStaticAssets();
             app.MapRazorPages()
                .WithStaticAssets();
 
-            app.Run();
+            await app.RunAsync();
         }
     }
 }

@@ -1,0 +1,96 @@
+﻿@model AdminUserListViewModel
+@{
+    ViewData["Title"] = "Users";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Users <span class="text-muted fs-6">(@Model.TotalCount)</span></h1>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-md-6">
+        <input name="Search" value="@Model.Search" class="form-control" placeholder="Name, email or city" maxlength="60" />
+    </div>
+    <div class="col-md-3">
+        <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<UserStatusFilter>()"></select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Filter</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+    </div>
+    <div asp-validation-summary="All" class="text-danger"></div>
+</form>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>City</th>
+                <th class="text-end">Played</th>
+                <th class="text-end">Reliability</th>
+                <th>Roles</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <td>@user.DisplayName @if (user.IsCurrentUser) { <span class="badge bg-info text-dark">you</span> }</td>
+                    <td>@user.Email</td>
+                    <td>@user.City</td>
+                    <td class="text-end">@user.MatchesPlayed</td>
+                    <td class="text-end">@user.Reliability</td>
+                    <td>
+                        <span class="badge bg-secondary">User</span>
+                        @if (user.IsAdministrator) { <span class="badge bg-dark">Administrator</span> }
+                    </td>
+                    <td>
+                        @if (user.IsActive) { <span class="badge bg-success">Active</span> }
+                        else { <span class="badge bg-danger">Deactivated</span> }
+                    </td>
+                    <td class="text-end text-nowrap">
+                        @if (!user.IsCurrentUser)
+                        {
+                            <form asp-action="SetActive" asp-route-id="@user.Id" method="post" class="d-inline">
+                                <input type="hidden" name="isActive" value="@((!user.IsActive).ToString().ToLowerInvariant())" />
+                                <input type="hidden" name="Search" value="@Model.Search" />
+                                <input type="hidden" name="Status" value="@Model.Status" />
+                                <input type="hidden" name="Page" value="@Model.Page" />
+                                <button type="submit" class="btn btn-sm @(user.IsActive ? "btn-outline-danger" : "btn-outline-success")">
+                                    @(user.IsActive ? "Deactivate" : "Activate")
+                                </button>
+                            </form>
+                            <form asp-action="SetAdministrator" asp-route-id="@user.Id" method="post" class="d-inline">
+                                <input type="hidden" name="isAdministrator" value="@((!user.IsAdministrator).ToString().ToLowerInvariant())" />
+                                <input type="hidden" name="Search" value="@Model.Search" />
+                                <input type="hidden" name="Status" value="@Model.Status" />
+                                <input type="hidden" name="Page" value="@Model.Page" />
+                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                    @(user.IsAdministrator ? "Remove admin" : "Make admin")
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (Model.Users.Count == 0)
+            {
+                <tr><td colspan="8" class="text-center text-muted py-4">No users found.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@{
+    var pagination = new PaginationViewModel
+    {
+        Page = Model.Page,
+        TotalPages = Model.TotalPages,
+        PageUrl = p => Url.Action("Index", "Users", new { area = "Admin", Model.Search, Model.Status, Page = p })!
+    };
+}
+<partial name="_PaginationPartial" model="@pagination" />

@@ -1,0 +1,74 @@
+﻿@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin dashboard";
+
+    var tiles = new (string Label, int Value, string Icon, string Action)[]
+    {
+        ("Users", Model.UsersCount, "bi-people", "Users"),
+        ("Active users", Model.ActiveUsersCount, "bi-person-check", "Users"),
+        ("Matches", Model.MatchesCount, "bi-calendar-event", ""),
+        ("Upcoming matches", Model.UpcomingMatchesCount, "bi-calendar-plus", ""),
+        ("Cancelled matches", Model.CancelledMatchesCount, "bi-calendar-x", ""),
+        ("Sports", Model.SportsCount, "bi-trophy", "Sports"),
+        ("Venue slots", Model.VenuesCount, "bi-geo-alt", "Venues"),
+        ("Free slots", Model.FreeVenuesCount, "bi-unlock", "Venues"),
+        ("Ratings", Model.RatingsCount, "bi-star", "")
+    };
+}
+
+<h1 class="h3 mb-3">Dashboard</h1>
+
+<div class="row row-cols-2 row-cols-md-3 g-3 mb-4">
+    @foreach (var tile in tiles)
+    {
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-muted small"><i class="bi @tile.Icon me-1"></i>@tile.Label</div>
+                    <div class="display-6">@tile.Value</div>
+                    @if (tile.Action != "")
+                    {
+                        <a class="stretched-link small" asp-area="Admin" asp-controller="@tile.Action" asp-action="Index">Manage</a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<h2 class="h5">Next matches</h2>
+
+@if (Model.UpcomingMatches.Count == 0)
+{
+    <p class="text-muted">There are no upcoming matches.</p>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-sm align-middle">
+            <thead>
+                <tr>
+                    <th>Match</th>
+                    <th>Sport</th>
+                    <th>Venue</th>
+                    <th>When</th>
+                    <th class="text-end">Players</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var match in Model.UpcomingMatches)
+                {
+                    <tr>
+                        <td><a asp-area="" asp-controller="Matches" asp-action="Details" asp-route-id="@match.Id">@match.Title</a></td>
+                        <td>@match.SportName</td>
+                        <td>@match.VenueName, @match.City</td>
+                        <td>@match.StartsAt</td>
+                        <td class="text-end">@match.Joined / @match.MaxPlayers</td>
+                        <td>@match.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
