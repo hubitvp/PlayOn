@@ -2,7 +2,7 @@
 
 namespace PlayOn.Services.Data.Notifications.RequestData
 {
-    public class NotificationListRequestData
+    public class NotificationRequestData
     {
         [Required]
         public Guid UserId { get; set; }

@@ -35,7 +35,7 @@ namespace PlayOn.Web.Extensions
             services.AddScoped<IAttendanceService, AttendanceService>();
             services.AddScoped<IRatingService, RatingService>();
             services.AddScoped<IPlayerService, PlayerService>();
-            //services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             services.AddScoped<MatchDataBuilder>();
             services.AddScoped<SportDataBuilder>();
@@ -44,7 +44,7 @@ namespace PlayOn.Web.Extensions
             services.AddScoped<ParticipationDataBuilder>();
             services.AddScoped<RatingDataBuilder>();
             services.AddScoped<PlayerDataBuilder>();
-            //services.AddScoped<NotificationDataBuilder>();
+            services.AddScoped<NotificationDataBuilder>();
 
             services.AddScoped<AdminDashboardDataBuilder>();
             services.AddScoped<AdminUserDataBuilder>();

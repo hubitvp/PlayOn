@@ -21,11 +21,11 @@ namespace PlayOn.Services
 
         public async Task<ServiceResponse<NotificationResponseModel>>
             GetMainResponseModelAsync(
-                NotificationListRequestData requestData,
+                Guid userId,
                 PageRequestData pageRequestData)
         {
             var pageResponse = await GetSinglePageAsync(
-                requestData,
+                userId,
                 pageRequestData);
 
             if (!pageResponse.IsSuccess)
@@ -35,7 +35,7 @@ namespace PlayOn.Services
             }
 
             var unreadCountResponse = await GetUnreadCountAsync(
-                requestData.UserId);
+                userId);
 
             if (!unreadCountResponse.IsSuccess)
             {
@@ -54,19 +54,11 @@ namespace PlayOn.Services
 
         public async Task<ServiceResponse<PageResult<NotificationResponseModelData>>>
             GetSinglePageAsync(
-                NotificationListRequestData requestData,
+                Guid userId,
                 PageRequestData pageRequestData)
         {
-            var validationErrors =
-                ServiceRequestDataValidator.Validate(requestData);
 
-            if (validationErrors.Any())
-            {
-                return ServiceResponse<PageResult<NotificationResponseModelData>>
-                    .Failure(validationErrors);
-            }
-
-            var notificationQuery = BuildNotificationQuery(requestData.UserId);
+            var notificationQuery = BuildNotificationQuery(userId);
 
             var page = await GetSinglePageAsync(
                 notificationQuery,

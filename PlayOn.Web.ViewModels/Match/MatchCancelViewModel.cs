@@ -13,10 +13,10 @@ namespace PlayOn.Web.ViewModels.Match
         public string Reason { get; set; } = null!;
 
 
-        public string Title { get; set; } = null!;
-        public string StartsAt { get; set; } = null!;
-        public string VenueName { get; set; } = null!;
-        public int JoinedCount { get; set; }
+        public string? Title { get; set; }
+        public string? StartsAt { get; set; }
+        public string? VenueName { get; set; }
+        public int? JoinedCount { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

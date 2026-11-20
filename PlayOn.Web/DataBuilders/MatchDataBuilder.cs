@@ -194,7 +194,7 @@ public class MatchDataBuilder : DataBuilder
     {
         var result = new MatchEditViewModel
         {
-            Id = source.Id,
+            MatchId = source.Id,
             RowVersion = source.RowVersion,
             Title = source.Title,
             Description = source.Description,
@@ -222,6 +222,7 @@ public class MatchDataBuilder : DataBuilder
             MatchEditViewModel target,
             MatchEditResponseModel source)
     {
+
         target.SportName = source.SportName;
         target.SportIcon = source.SportIcon.ToCssClass();
         target.CourtName = source.CourtName;
@@ -237,15 +238,15 @@ public class MatchDataBuilder : DataBuilder
     public MatchUpdateRequestData
         MatchEditToRequestData(
             Guid matchId,
-            Guid actorId,
-            bool actorIsAdmin,
+            Guid userId,
+            bool userIsAdmin,
             MatchEditViewModel source)
     {
         var result = new MatchUpdateRequestData
         {
             MatchId = matchId,
-            ActorId = actorId,
-            ActorIsAdmin = actorIsAdmin,
+            UserId = userId,
+            UserIsAdmin = userIsAdmin,
             RowVersion = source.RowVersion,
             Title = source.Title,
             Description = source.Description,
@@ -309,7 +310,7 @@ public class MatchDataBuilder : DataBuilder
     public MatchCancelViewModel
         MatchCancelToViewModel(
             Guid matchId,
-            MatchEditResponseModel source)
+            MatchCancelResponseModel source)
     {
         var result = new MatchCancelViewModel { MatchId = matchId };
 
@@ -319,7 +320,7 @@ public class MatchDataBuilder : DataBuilder
     public MatchCancelViewModel
         MatchCancelApplyDisplayData(
             MatchCancelViewModel target,
-            MatchEditResponseModel source)
+            MatchCancelResponseModel source)
     {
         target.Title = source.Title;
         target.VenueName = source.VenueName;
@@ -332,15 +333,15 @@ public class MatchDataBuilder : DataBuilder
     public MatchCancelRequestData
         MatchCancelToRequestData(
             Guid matchId,
-            Guid actorId,
-            bool actorIsAdmin,
+            Guid userId,
+            bool userIsAdmin,
             MatchCancelViewModel source)
     {
         var result = new MatchCancelRequestData
         {
             MatchId = matchId,
-            ActorId = actorId,
-            ActorIsAdmin = actorIsAdmin,
+            UserId = userId,
+            UserIsAdmin = userIsAdmin,
             Reason = source.Reason
         };
 
@@ -422,52 +423,63 @@ public class MatchDataBuilder : DataBuilder
         return result;
     }
 
-    public MatchFormViewModel
-    MatchFormToViewModel(
-        Guid? venueId,
-        MatchOptionsResponseModel options)
-    {
-        var result = new MatchFormViewModel();
 
-        if (venueId.HasValue)
-        {
-            result.VenueId = venueId.Value;
-        }
 
-        return MatchFormOptionsToViewModel(result, options);
-    }
-
-    public MatchFormViewModel
-        MatchFormOptionsToViewModel(
-            MatchFormViewModel target,
+    public MatchCreateInputModel
+        EmbedOptionsToViewModel(
+            MatchCreateInputModel target,
             MatchOptionsResponseModel options)
     {
-        target.Sports = options.SportOptions
+        target.SportOptions = options.SportOptions
             .Select(x => SportOptionToSelectListItem(x, target.SportId))
             .ToList();
 
-        target.Courts = options.CourtOptions
+        target.CourtOptions = options.CourtOptions
             .Select(CourtOptionToViewModel)
             .ToList();
 
-        target.Slots = options.VenueOptions
+        target.VenueOptions = options.VenueOptions
             .Select(VenueOptionToViewModel)
             .ToList();
 
         return target;
     }
 
+
+    public MatchCreateInputModel
+        ToViewModel(
+            MatchOptionsResponseModel options)
+    {
+        MatchCreateInputModel model = new MatchCreateInputModel();
+
+        model.SportOptions = options.SportOptions
+            .Select(x => SportOptionToSelectListItem(x, null))
+            .ToList();
+
+        model.CourtOptions = options.CourtOptions
+            .Select(CourtOptionToViewModel)
+            .ToList();
+
+        model.VenueOptions = options.VenueOptions
+            .Select(VenueOptionToViewModel)
+            .ToList();
+
+        return model;
+    }
+
+
+
     public MatchCreateRequestData
-        MatchFormToRequestData(
+        MatchCreateInputToRequestData(
             Guid organiserId,
-            MatchFormViewModel source)
+            MatchCreateInputModel source)
     {
         var result = new MatchCreateRequestData
         {
             OrganiserId = organiserId,
-            SportId = source.SportId ?? Guid.Empty,
-            CourtId = source.CourtId ?? Guid.Empty,
-            VenueId = source.VenueId ?? Guid.Empty,
+            SportId = source.SportId,
+            CourtId = source.CourtId,
+            VenueId = source.VenueId,
             Title = source.Title,
             Description = source.Description,
             DurationMinutes = source.DurationMinutes,

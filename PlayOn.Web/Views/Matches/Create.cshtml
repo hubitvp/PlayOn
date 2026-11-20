@@ -1,4 +1,4 @@
-@* @model MatchFormViewModel
+@model MatchCreateInputModel
 @{
     ViewData["Title"] = "Organise a match";
 }
@@ -13,17 +13,17 @@
 
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                    <label asp-for="SportId" class="form-label"></label>
-                    <select asp-for="SportId" asp-items="Model.Sports" class="form-select" data-role="sport">
+                    <label asp-for="SportId" class="form-label fw-bold">Sport</label>
+                    <select asp-for="SportId" asp-items="Model.SportOptions" class="form-select" data-role="sport">
                         <option value="0">Select a sport</option>
                     </select>
                     <span asp-validation-for="SportId" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">
-                    <label asp-for="CourtId" class="form-label"></label>
+                    <label asp-for="CourtId" class="form-label fw-bold">Court</label>
                     <select asp-for="CourtId" class="form-select" data-role="court">
                         <option value="0">Select a court</option>
-                        @foreach (var court in Model.Courts)
+                        @foreach (var court in Model.CourtOptions)
                         {
                             <option value="@court.CourtId"
                                     selected="@(court.CourtId == Model.CourtId)"
@@ -38,10 +38,10 @@
             </div>
 
             <div class="mb-3">
-                <label asp-for="VenueId" class="form-label"></label>
+                <label asp-for="VenueId" class="form-label fw-bold">Venue</label>
                 <select asp-for="VenueId" class="form-select" data-role="slot">
                     <option value="0">Select a free slot</option>
-                    @foreach (var slot in Model.Slots)
+                    @foreach (var slot in Model.VenueOptions)
                     {
                         <option value="@slot.Id"
                                 selected="@(slot.Id == Model.VenueId)"
@@ -52,13 +52,62 @@
                     }
                 </select>
                 <span asp-validation-for="VenueId" class="text-danger"></span>
-                @if (!Model.Slots.Any())
+                @if (!Model.VenueOptions.Any())
                 {
                     <div class="form-text text-warning-emphasis">There are no free slots right now.</div>
                 }
             </div>
 
-            <partial name="_MatchFieldsPartial" model="@Model" />
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label fw-bold">Title</label>
+                <input asp-for="Title" class="form-control" maxlength="80" placeholder="Thursday 5-a-side" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label fw-bold">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3" maxlength="1000"
+                          placeholder="Bring both light and dark shirts. Meet at the main entrance."></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label asp-for="DurationMinutes" class="form-label fw-bold">Duration in Minutes</label>
+                    <input asp-for="DurationMinutes" type="number" class="form-control" min="30" max="180" step="15" data-role="duration" />
+                    <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+                    <div class="form-text" data-role="slot-hint"></div>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="MinPlayers" class="form-label fw-bold">Minimum Players</label>
+                    <input asp-for="MinPlayers" type="number" class="form-control" min="2" max="60" />
+                    <span asp-validation-for="MinPlayers" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="MaxPlayers" class="form-label fw-bold">Maximum Players</label>
+                    <input asp-for="MaxPlayers" type="number" class="form-control" min="2" max="60" data-role="max-players" />
+                    <span asp-validation-for="MaxPlayers" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label asp-for="MinSkill" class="form-label fw-bold"> Minimum Skill</label>
+                    <select asp-for="MinSkill" asp-items="Html.GetEnumSelectList<SkillLevel>()" class="form-select"></select>
+                    <span asp-validation-for="MinSkill" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="MaxSkill" class="form-label fw-bold">Maximum Skill</label>
+                    <select asp-for="MaxSkill" asp-items="Html.GetEnumSelectList<SkillLevel>()" class="form-select"></select>
+                    <span asp-validation-for="MaxSkill" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PricePerPlayer" class="form-label fw-bold">Price Per Player in € (EUR)</label>
+                    <input asp-for="PricePerPlayer" type="number" class="form-control" min="0" max="500" step="0.5" />
+                    <span asp-validation-for="PricePerPlayer" class="text-danger"></span>
+                </div>
+            </div>
 
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-success">Create match</button>
@@ -72,4 +121,3 @@
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/match-form.js" asp-append-version="true"></script>
 }
- *@

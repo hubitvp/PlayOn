@@ -202,7 +202,14 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<IReadOnlyList<VenueOptionResponseModel>>>
             GetVenueOptionsAsync(DateOnly? from)
         {
-            DateOnly fromDate = from ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
+            var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
+
+            DateOnly fromDate = today.AddDays(1);
+
+            if (from.HasValue && from.Value > today)
+            {
+                fromDate = from.Value;
+            }
 
             var venueOptions = await venueRepository
                 .Query()
@@ -303,12 +310,13 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<MatchEditResponseModel>>
             GetForEditAsync(
                 Guid matchId,
-                Guid actorId,
-                bool actorIsAdmin)
+                Guid userId,
+                bool userIsAdmin)
         {
+
             var row = await matchRepository
                 .Query()
-                .Where(x => x.Id == matchId && x.Event != null)
+                .Where(x => x.Id == matchId && x.Event != null && x.IsDeleted == false)
                 .Select(MatchDataBuilder.MatchEditRowProjection())
                 .SingleOrDefaultAsync();
 
@@ -318,7 +326,7 @@ namespace PlayOn.Services
                     .NotFound();
             }
 
-            if (row.OrganiserId != actorId && !actorIsAdmin)
+            if (row.OrganiserId != userId && !userIsAdmin)
             {
                 return ServiceResponse<MatchEditResponseModel>
                     .Forbidden();
@@ -357,7 +365,7 @@ namespace PlayOn.Services
                 return ServiceResponse<Guid>.NotFound();
             }
 
-            if (row.OrganiserId != request.ActorId && !request.ActorIsAdmin)
+            if (row.OrganiserId != request.UserId && !request.UserIsAdmin)
             {
                 return ServiceResponse<Guid>.Forbidden();
             }
@@ -388,6 +396,7 @@ namespace PlayOn.Services
 
             MatchDataBuilder.MatchUpdateApplyToEntity(match, request);
 
+            matchRepository.Update(match);
             await matchRepository.SaveChangesAsync();
 
             return ServiceResponse<Guid>.Success(request.MatchId);
@@ -481,13 +490,62 @@ namespace PlayOn.Services
         }
 
 
-        public async Task<ServiceResponse<MatchEditResponseModel>>
+        public async Task<ServiceResponse<MatchCancelResponseModel>>
             GetForCancelAsync(
                 Guid matchId,
-                Guid actorId,
-                bool actorIsAdmin)
+                Guid userId,
+                bool userIsAdmin)
         {
-            return await GetForEditAsync(matchId, actorId, actorIsAdmin);
+            var match = matchRepository
+                .Query()
+                .AsSplitQuery()
+                .Include(x => x.Participants)
+                .Include(x => x.Event)
+                    .ThenInclude(x => x!.Venue)
+                .Where(x => x.Id == matchId)
+                .Where(x => x.Event != null)
+                .Where(x => x.IsDeleted == false)
+                .SingleOrDefault();
+
+            if (match == null)
+            {
+                return ServiceResponse<MatchCancelResponseModel>
+                    .NotFound();
+            }
+
+            if (match.OrganiserId != userId && !userIsAdmin)
+            {
+                return ServiceResponse<MatchCancelResponseModel>
+                    .Forbidden();
+            }
+
+            if (match.Status != MatchStatus.Confirmed && match.Status != MatchStatus.Open)
+            {
+                return ServiceResponse<MatchCancelResponseModel>
+                    .Forbidden();
+            }
+
+            DateOnly today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
+
+            var cancelAllowedDate = today.AddDays(-3);
+
+            if (match.Event!.Venue.Date < cancelAllowedDate)
+            {
+                return ServiceResponse<MatchCancelResponseModel>
+                    .Forbidden();
+            }
+
+            var result = new MatchCancelResponseModel
+            {
+                Title = match.Title,
+                StartsAt = match.Event!.Venue.StartsAt,
+                Date = match.Event!.Venue.Date,
+                VenueName = match.Event!.Venue.Name,
+                JoinedCount = match.Participants.Count(x => x.Status == ParticipantStatus.Joined),
+            };
+
+
+            return ServiceResponse<MatchCancelResponseModel>.Success(result);
         }
 
 
@@ -512,7 +570,7 @@ namespace PlayOn.Services
                 return ServiceResponse<Guid>.NotFound();
             }
 
-            if (row.OrganiserId != request.ActorId && !request.ActorIsAdmin)
+            if (row.OrganiserId != request.UserId && !request.UserIsAdmin)
             {
                 return ServiceResponse<Guid>
                     .Forbidden();
@@ -535,11 +593,6 @@ namespace PlayOn.Services
             return ServiceResponse<Guid>.Success(match.Id);
         }
 
-        public async Task<ServiceResponse<MatchOptionsResponseModel>>
-            GetFormOptionsAsync()
-        {
-            return await GetOptionsAsync(null);
-        }
 
         private bool IsOpenForChanges(MatchStatus status, DateOnly date, TimeOnly startsAt)
         {

@@ -6,7 +6,7 @@ namespace PlayOn.Services.Data.Match.ResponseModels
     {
         public required Guid Id { get; init; }
         public required string Title { get; init; }
-        public string? Description { get; init; }
+        public required string? Description { get; init; }
         public required int DurationMinutes { get; init; }
         public required int MinPlayers { get; init; }
         public required int MaxPlayers { get; init; }

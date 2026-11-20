@@ -21,16 +21,15 @@ namespace PlayOn.Services.Contracts
             GetSportOptionsAsync();
 
         Task<ServiceResponse<IReadOnlyList<VenueOptionResponseModel>>>
-            GetVenueOptionsAsync(DateOnly? from);
+            GetVenueOptionsAsync(
+                DateOnly? from);
 
         Task<ServiceResponse<IReadOnlyList<CourtOptionResponseModel>>>
             GetCourtOptionsAsync();
 
         Task<ServiceResponse<MatchOptionsResponseModel>>
-            GetOptionsAsync(DateOnly? from);
-
-
-        Task<ServiceResponse<MatchOptionsResponseModel>> GetFormOptionsAsync();
+            GetOptionsAsync(
+                DateOnly? from);
 
         Task<ServiceResponse<MatchDetailsResponseModel>>
             GetDetailsAsync(
@@ -41,23 +40,25 @@ namespace PlayOn.Services.Contracts
         Task<ServiceResponse<MatchEditResponseModel>>
             GetForEditAsync(
                 Guid matchId,
-                Guid actorId,
-                bool actorIsAdmin);
+                Guid userId,
+                bool userIsAdmin);
 
         Task<ServiceResponse<Guid>>
-            UpdateAsync(MatchUpdateRequestData request);
+            UpdateAsync(
+                MatchUpdateRequestData request);
 
         Task<ServiceResponse<Guid>>
             CreateAsync(
                 MatchCreateRequestData request);
 
-        Task<ServiceResponse<MatchEditResponseModel>>
+        Task<ServiceResponse<MatchCancelResponseModel>>
             GetForCancelAsync(
                 Guid matchId,
-                Guid actorId,
-                bool actorIsAdmin);
+                Guid userId,
+                bool userIsAdmin);
 
         Task<ServiceResponse<Guid>>
-            CancelAsync(MatchCancelRequestData request);
+            CancelAsync(
+                MatchCancelRequestData request);
     }
 }

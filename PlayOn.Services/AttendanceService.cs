@@ -124,7 +124,6 @@ namespace PlayOn.Services
         }
 
 
-        // Marks every player as attended or no-show and returns the no-show notifications.
         private static List<Notification> ApplyAttendance(
             IEnumerable<MatchParticipant> participants,
             IReadOnlyDictionary<Guid, bool> entries,

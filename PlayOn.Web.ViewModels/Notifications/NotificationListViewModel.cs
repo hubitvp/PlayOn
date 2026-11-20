@@ -1,8 +1,10 @@
-﻿namespace PlayOn.Web.ViewModels.Notifications
+﻿using PlayOn.Common.Helpers;
+
+namespace PlayOn.Web.ViewModels.Notifications
 {
-    public class NotificationListViewModel : PageViewModel
+    public class NotificationListViewModel 
     {
-        public required IReadOnlyList<NotificationViewModel> Notifications { get; init; }
+        public required PageResult<NotificationViewModel> Page { get; init; }
 
         public required int UnreadCount { get; init; }
     }

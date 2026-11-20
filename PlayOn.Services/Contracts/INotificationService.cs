@@ -9,12 +9,12 @@ namespace PlayOn.Services.Contracts
     {
         Task<ServiceResponse<NotificationResponseModel>>
             GetMainResponseModelAsync(
-                NotificationListRequestData requestData,
+                Guid userId,
                 PageRequestData pageRequestData);
 
         Task<ServiceResponse<PageResult<NotificationResponseModelData>>>
             GetSinglePageAsync(
-                NotificationListRequestData requestData,
+                Guid userId,
                 PageRequestData pageRequestData);
 
         Task<ServiceResponse<int>>

@@ -8,9 +8,9 @@ using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
-public static class MatchDataBuilder
+internal static class MatchDataBuilder
 {
-    public static Expression<Func<Match, DetailsRow>> MatchDetailsRowProjection()
+    internal static Expression<Func<Match, DetailsRow>> MatchDetailsRowProjection()
     {
         return match => new DetailsRow
         {
@@ -56,7 +56,7 @@ public static class MatchDataBuilder
         };
     }
 
-    public static Expression<Func<Match, MatchCardResponseModel>> MatchCardProjection()
+    internal static Expression<Func<Match, MatchCardResponseModel>> MatchCardProjection()
     {
         return source => new MatchCardResponseModel
         {
@@ -78,7 +78,7 @@ public static class MatchDataBuilder
         };
     }
 
-    public static MatchDetailsResponseModel MatchDetailsRowToResponseModel(
+    internal static MatchDetailsResponseModel MatchDetailsRowToResponseModel(
         DetailsRow source,
         Guid? userId,
         bool isManager,
@@ -173,7 +173,7 @@ public static class MatchDataBuilder
             SportIcon = source.Event.Sport.Icon,
             CourtId = source.Event.CourtId,
             CourtName = source.Event.Court.Name,
-            CourtCapacity = source.Event.Court.Capacity,
+            CourtCapacity = source.Event!.Court.Capacity,
             VenueName = source.Event.Venue.Name,
             City = source.Event.Venue.City,
             Date = source.Event.Venue.Date,
@@ -212,7 +212,7 @@ public static class MatchDataBuilder
         return result;
     }
 
-    public static Expression<Func<Court, CourtOptionResponseModel>> MatchCourtOptionProjection()
+    internal static Expression<Func<Court, CourtOptionResponseModel>> MatchCourtOptionProjection()
     {
         return source => new CourtOptionResponseModel
         {
@@ -224,7 +224,7 @@ public static class MatchDataBuilder
         };
     }
 
-    public static Expression<Func<Court, CourtOptionResponseModel>> CourtToCourtOptionProjection()
+    internal static Expression<Func<Court, CourtOptionResponseModel>> CourtToCourtOptionProjection()
     {
         return source => new CourtOptionResponseModel
         {
@@ -236,7 +236,7 @@ public static class MatchDataBuilder
         };
     }
 
-    public static MatchOptionsResponseModel MatchOptionsToResponseModel(
+    internal static MatchOptionsResponseModel MatchOptionsToResponseModel(
         IReadOnlyList<SportOptionResponseModel> sportOptions,
         IReadOnlyList<CourtOptionResponseModel> courtOptions,
         IReadOnlyList<VenueOptionResponseModel> venueOptions)
@@ -249,7 +249,8 @@ public static class MatchDataBuilder
         };
     }
 
-    public static MatchResponseModel ToMatchResponseModel(
+
+    internal static MatchResponseModel ToMatchResponseModel(
         PageResult<MatchCardResponseModel> page,
         MatchOptionsResponseModel options)
     {
@@ -260,7 +261,7 @@ public static class MatchDataBuilder
         };
     }
 
-    public static Expression<Func<Venue, VenueOptionResponseModel>> VenueToVenueOptionProjection()
+    internal static Expression<Func<Venue, VenueOptionResponseModel>> VenueToVenueOptionProjection()
     {
         return source => new VenueOptionResponseModel
         {
@@ -287,7 +288,7 @@ public static class MatchDataBuilder
         };
     }
 
-    public static Expression<Func<Sport, SportOptionResponseModel>> SportToSportOptionProjection()
+    internal static Expression<Func<Sport, SportOptionResponseModel>> SportToSportOptionProjection()
     {
         return source => new SportOptionResponseModel
         {
@@ -296,7 +297,7 @@ public static class MatchDataBuilder
         };
     }
 
-    public static Match MatchCreateToEntity(
+    internal static Match MatchCreateToEntity(
         MatchCreateRequestData source,
         DateTime nowUtc)
     {
@@ -334,7 +335,7 @@ public static class MatchDataBuilder
         return result;
     }
 
-    public static void MatchUpdateApplyToEntity(
+    internal static void MatchUpdateApplyToEntity(
         Match target,
         MatchUpdateRequestData source)
     {
@@ -348,7 +349,7 @@ public static class MatchDataBuilder
         target.PricePerPlayer = source.PricePerPlayer;
     }
 
-    public static void MatchCancelApplyToEntity(
+    internal static void MatchCancelApplyToEntity(
         Match target,
         MatchCancelRequestData source)
     {
