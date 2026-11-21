@@ -1,16 +1,16 @@
 ﻿using PlayOn.Common.Enums;
+using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Data.Match;
 using PlayOn.Services.Data.Match.RequestData;
 using PlayOn.Services.Data.Match.ResponseModels;
-using PlayOn.Services.Data.Sport.ResponseModels;
 using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
-public static class MatchDataBuilder
+internal static class MatchDataBuilder
 {
-    public static Expression<Func<Match, DetailsRow>> MatchDetailsRowProjection()
+    internal static Expression<Func<Match, DetailsRow>> MatchDetailsRowProjection()
     {
         return match => new DetailsRow
         {
@@ -56,7 +56,7 @@ public static class MatchDataBuilder
         };
     }
 
-    public static Expression<Func<Match, MatchCardResponseModel>> MatchCardProjection()
+    internal static Expression<Func<Match, MatchCardResponseModel>> MatchCardProjection()
     {
         return source => new MatchCardResponseModel
         {
@@ -78,10 +78,25 @@ public static class MatchDataBuilder
         };
     }
 
-    public static MatchDetailsResponseModel MatchDetailsRowToResponseModel(
+    internal static MatchDetailsResponseModel MatchDetailsRowToResponseModel(
         DetailsRow source,
-        bool canManage)
+        Guid? userId,
+        bool isManager,
+        bool isOpenForChanges,
+        bool hasEnded)
     {
+        var currentStatus = userId == null
+            ? (ParticipantStatus?)null
+            : source.Participants
+                .Where(x => x.UserId == userId)
+                .Select(x => (ParticipantStatus?)x.Status)
+                .FirstOrDefault();
+
+        var isOrganiser = userId != null && userId == source.OrganiserId;
+
+        var isActive = currentStatus == ParticipantStatus.Joined
+            || currentStatus == ParticipantStatus.Waitlisted;
+
         return new MatchDetailsResponseModel
         {
             Id = source.Id,
@@ -109,9 +124,20 @@ public static class MatchDataBuilder
             Date = source.Date,
             StartsAt = source.StartsAt,
             ClosesAt = source.ClosesAt,
-            Joined = source.Participants.Count(x => x.Status == ParticipantStatus.Joined),
+            Joined = source.Participants.Count(x =>
+                x.Status == ParticipantStatus.Joined
+                || x.Status == ParticipantStatus.Attended
+                || x.Status == ParticipantStatus.NoShow),
             Waitlisted = source.Participants.Count(x => x.Status == ParticipantStatus.Waitlisted),
-            CanManage = canManage,
+            CanManage = isManager && isOpenForChanges,
+            CurrentUserStatus = currentStatus,
+            CanJoin = userId != null && isOpenForChanges && currentStatus == null,
+            CanLeave = isOpenForChanges && isActive && !isOrganiser,
+            CanTakeAttendance = isManager
+                && hasEnded
+                && (source.Status == MatchStatus.Open || source.Status == MatchStatus.Confirmed),
+            CanRate = source.Status == MatchStatus.Completed
+                && currentStatus == ParticipantStatus.Attended,
             Participants = source.Participants
                 .Select(x => new MatchParticipantResponseModel
                 {
@@ -147,7 +173,7 @@ public static class MatchDataBuilder
             SportIcon = source.Event.Sport.Icon,
             CourtId = source.Event.CourtId,
             CourtName = source.Event.Court.Name,
-            CourtCapacity = source.Event.Court.Capacity,
+            CourtCapacity = source.Event!.Court.Capacity,
             VenueName = source.Event.Venue.Name,
             City = source.Event.Venue.City,
             Date = source.Event.Venue.Date,
@@ -186,9 +212,9 @@ public static class MatchDataBuilder
         return result;
     }
 
-    public static Expression<Func<Court, MatchCourtOptionResponseModel>> MatchCourtOptionProjection()
+    internal static Expression<Func<Court, CourtOptionResponseModel>> MatchCourtOptionProjection()
     {
-        return source => new MatchCourtOptionResponseModel
+        return source => new CourtOptionResponseModel
         {
             CourtId = source.Id,
             Name = source.Name,
@@ -198,9 +224,46 @@ public static class MatchDataBuilder
         };
     }
 
-    public static Expression<Func<Venue, VenueSlotResponseModel>> VenueSlotProjection()
+    internal static Expression<Func<Court, CourtOptionResponseModel>> CourtToCourtOptionProjection()
     {
-        return source => new VenueSlotResponseModel
+        return source => new CourtOptionResponseModel
+        {
+            CourtId = source.Id,
+            Name = source.Name,
+            Surface = source.Surface,
+            Capacity = source.Capacity,
+            SportIds = source.Sports.Select(x => x.SportId).ToList()
+        };
+    }
+
+    internal static MatchOptionsResponseModel MatchOptionsToResponseModel(
+        IReadOnlyList<SportOptionResponseModel> sportOptions,
+        IReadOnlyList<CourtOptionResponseModel> courtOptions,
+        IReadOnlyList<VenueOptionResponseModel> venueOptions)
+    {
+        return new MatchOptionsResponseModel
+        {
+            SportOptions = sportOptions,
+            CourtOptions = courtOptions,
+            VenueOptions = venueOptions
+        };
+    }
+
+
+    internal static MatchResponseModel ToMatchResponseModel(
+        PageResult<MatchCardResponseModel> page,
+        MatchOptionsResponseModel options)
+    {
+        return new MatchResponseModel
+        {
+            Page = page,
+            Options = options
+        };
+    }
+
+    internal static Expression<Func<Venue, VenueOptionResponseModel>> VenueToVenueOptionProjection()
+    {
+        return source => new VenueOptionResponseModel
         {
             Id = source.Id,
             Name = source.Name,
@@ -225,22 +288,16 @@ public static class MatchDataBuilder
         };
     }
 
-    public static MatchFormOptionsResponseModel MatchFormOptionsToResponseModel(
-        IReadOnlyList<SportResponseModel> sports,
-        IReadOnlyList<MatchCourtOptionResponseModel> courts,
-        IReadOnlyList<VenueSlotResponseModel> slots)
+    internal static Expression<Func<Sport, SportOptionResponseModel>> SportToSportOptionProjection()
     {
-        var result = new MatchFormOptionsResponseModel
+        return source => new SportOptionResponseModel
         {
-            Sports = sports,
-            Courts = courts,
-            Slots = slots
+            Id = source.Id,
+            Name = source.Name
         };
-
-        return result;
     }
 
-    public static Match MatchCreateToEntity(
+    internal static Match MatchCreateToEntity(
         MatchCreateRequestData source,
         DateTime nowUtc)
     {
@@ -278,7 +335,7 @@ public static class MatchDataBuilder
         return result;
     }
 
-    public static void MatchUpdateApplyToEntity(
+    internal static void MatchUpdateApplyToEntity(
         Match target,
         MatchUpdateRequestData source)
     {
@@ -292,7 +349,7 @@ public static class MatchDataBuilder
         target.PricePerPlayer = source.PricePerPlayer;
     }
 
-    public static void MatchCancelApplyToEntity(
+    internal static void MatchCancelApplyToEntity(
         Match target,
         MatchCancelRequestData source)
     {

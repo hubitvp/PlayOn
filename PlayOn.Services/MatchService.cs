@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Azure.Core;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PlayOn.Common.Enums;
 using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
@@ -6,6 +8,7 @@ using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.Match.RequestData;
 using PlayOn.Services.Data.Match.ResponseModels;
+using PlayOn.Services.Data.Sport.ResponseModels;
 using PlayOn.Services.DataBuilders;
 
 
@@ -28,33 +31,71 @@ namespace PlayOn.Services
         {
             this.matchRepository = matchRepository;
             this.sportRepository = sportRepository;
-            this.timeProvider = timeProvider;
             this.courtRepository = courtRepository;
             this.venueRepository = venueRepository;
+            this.timeProvider = timeProvider;
         }
 
 
-        public async Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
-            GetMatchCardsAsync(MatchSearchRequestData request)
+        public async Task<ServiceResponse<MatchResponseModel>>
+            GetMainResponseModelAsync(MatchSearchRequestData request, PageRequestData pageRequestData)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
+
+            if (errors.Any())
+            {
+                return ServiceResponse<MatchResponseModel>.Failure(errors);
+            }
+
+
+            var pageResponse = await GetSinglePageAsync(request, pageRequestData);
+
+            if (!pageResponse.IsSuccess)
+            {
+                return ServiceResponse<MatchResponseModel>.Failure(pageResponse.Errors);
+            }
+
+            var optionsResponse = await GetOptionsAsync(request.From);
+            if (!optionsResponse.IsSuccess)
+            {
+                return ServiceResponse<MatchResponseModel>.Failure(optionsResponse.Errors);
+            }
+
+            var response = MatchDataBuilder.ToMatchResponseModel(
+                pageResponse.ResponseData,
+                optionsResponse.ResponseData);
+
+            return ServiceResponse<MatchResponseModel>.Success(response);
+        }
+
+
+
+
+        public async Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
+            GetSinglePageAsync(
+                MatchSearchRequestData searchRequestData,
+                PageRequestData pageRequestData)
+        {
+
+            var errors = ServiceRequestDataValidator.Validate(searchRequestData);
 
             if (errors.Any())
             {
                 return ServiceResponse<PageResult<MatchCardResponseModel>>.Failure(errors);
             }
 
-            if (request.SportId.HasValue
+            if (searchRequestData.SportId.HasValue
                 && false == await sportRepository
                     .Query()
-                    .AnyAsync(x => x.Id == request.SportId.Value))
+                    .AnyAsync(x => x.Id == searchRequestData.SportId.Value))
             {
                 return ServiceResponse<PageResult<MatchCardResponseModel>>
-                    .Failure("Select a valid sport.", nameof(request.SportId));
+                    .Failure("Select a valid sport.", nameof(searchRequestData.SportId));
             }
 
-            var from = request.From
-                ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+
+            var from = searchRequestData.From
+                ?? DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
 
             var query = matchRepository
                 .Query()
@@ -65,13 +106,13 @@ namespace PlayOn.Services
                 .Where(x => !x.Event!.Venue.IsDeleted)
                 .Where(x => x.Event!.Venue.Date >= from);
 
-            if (request.SportId.HasValue)
+            if (searchRequestData.SportId.HasValue)
             {
-                var sportId = request.SportId.Value;
+                var sportId = searchRequestData.SportId.Value;
                 query = query.Where(x => x.Event!.SportId == sportId);
             }
 
-            var city = request.City?.Trim();
+            var city = searchRequestData.City?.Trim();
 
             if (!string.IsNullOrWhiteSpace(city))
             {
@@ -79,7 +120,7 @@ namespace PlayOn.Services
                     x.Event!.Venue.City.Contains(city) || city.Contains(x.Event!.Venue.City));
             }
 
-            var term = request.SearchTerm?.Trim();
+            var term = searchRequestData.SearchTerm?.Trim();
 
             if (!string.IsNullOrWhiteSpace(term))
             {
@@ -89,13 +130,13 @@ namespace PlayOn.Services
                     || x.Event!.Sport.Name.Contains(term));
             }
 
-            if (request.Skill.HasValue)
+            if (searchRequestData.Skill.HasValue)
             {
-                var skill = request.Skill.Value;
+                var skill = searchRequestData.Skill.Value;
                 query = query.Where(x => x.MinSkill <= skill && skill <= x.MaxSkill);
             }
 
-            if (request.OnlyWithFreeSpots)
+            if (searchRequestData.OnlyWithFreeSpots)
             {
                 query = query.Where(x =>
                     x.Participants.Count(p => p.Status == ParticipantStatus.Joined) < x.MaxPlayers);
@@ -103,42 +144,128 @@ namespace PlayOn.Services
 
             var totalCount = await query.CountAsync();
 
-            var pageSize = Math.Clamp(request.PageSize, 1, 50);
+            var pageSize = Math.Clamp(pageRequestData.PageSize, 1, 50);
             var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
-            var pageNumber = Math.Clamp(request.Page, 1, totalPages);
+            var pageNumber = Math.Clamp(pageRequestData.Page, 1, totalPages);
 
-            var ordered = request.Sort switch
+            var ordered = searchRequestData.Sort switch
             {
                 MatchSort.Cheapest => query
                     .OrderBy(x => x.PricePerPlayer)
                     .ThenBy(x => x.Event!.Venue.Date)
-                    .ThenBy(x => x.Event!.Venue.StartsAt)
-                    .ThenBy(x => x.Id),
+                    .ThenBy(x => x.Event!.Venue.StartsAt),
 
                 MatchSort.MostSpots => query
-                    .OrderByDescending(x => x.MaxPlayers
-                        - x.Participants.Count(p => p.Status == ParticipantStatus.Joined))
+                    .OrderByDescending(
+                        x =>
+                            x.MaxPlayers - x.Participants.Count(
+                                p => p.Status == ParticipantStatus.Joined))
                     .ThenBy(x => x.Event!.Venue.Date)
-                    .ThenBy(x => x.Event!.Venue.StartsAt)
-                    .ThenBy(x => x.Id),
+                    .ThenBy(x => x.Event!.Venue.StartsAt),
 
                 _ => query
                     .OrderBy(x => x.Event!.Venue.Date)
                     .ThenBy(x => x.Event!.Venue.StartsAt)
                     .ThenBy(x => x.Event!.Sport.Name)
                     .ThenBy(x => x.Event!.Venue.Name)
-                    .ThenBy(x => x.Id)
             };
 
+
             var projectedItems = await ordered
+                .ThenBy(x => x.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(MatchDataBuilder.MatchCardProjection())
                 .ToListAsync();
 
-            return ServiceResponse<PageResult<MatchCardResponseModel>>
-                .Success(new PageResult<MatchCardResponseModel>(projectedItems, pageNumber, pageSize, totalCount));
+            var page = new PageResult<MatchCardResponseModel>(projectedItems, pageNumber, pageSize, totalCount);
+
+            return ServiceResponse<PageResult<MatchCardResponseModel>>.Success(page);
         }
+
+
+        public async Task<ServiceResponse<IReadOnlyList<SportOptionResponseModel>>>
+            GetSportOptionsAsync()
+        {
+
+            var sportOptions = await sportRepository
+                .Query()
+                .OrderBy(x => x.Name)
+                .Select(MatchDataBuilder.SportToSportOptionProjection())
+                .ToListAsync();
+
+            return ServiceResponse<IReadOnlyList<SportOptionResponseModel>>.Success(sportOptions);
+        }
+
+
+
+        public async Task<ServiceResponse<IReadOnlyList<VenueOptionResponseModel>>>
+            GetVenueOptionsAsync(DateOnly? from)
+        {
+            var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
+
+            DateOnly fromDate = today.AddDays(1);
+
+            if (from.HasValue && from.Value > today)
+            {
+                fromDate = from.Value;
+            }
+
+            var venueOptions = await venueRepository
+                .Query()
+                .Where(x => !x.IsDeleted && x.Event == null && x.Date >= fromDate)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.StartsAt)
+                .ThenBy(x => x.Id)
+                .Select(MatchDataBuilder.VenueToVenueOptionProjection())
+                .ToListAsync();
+
+            return ServiceResponse<IReadOnlyList<VenueOptionResponseModel>>.Success(venueOptions);
+        }
+
+
+        public async Task<ServiceResponse<IReadOnlyList<CourtOptionResponseModel>>>
+            GetCourtOptionsAsync()
+        {
+            var courtOptions = await courtRepository
+                .Query()
+                .OrderBy(x => x.Name)
+                .Select(MatchDataBuilder.CourtToCourtOptionProjection())
+                .ToListAsync();
+            return ServiceResponse<IReadOnlyList<CourtOptionResponseModel>>.Success(courtOptions);
+        }
+
+
+
+        public async Task<ServiceResponse<MatchOptionsResponseModel>>
+            GetOptionsAsync(DateOnly? from)
+        {
+            var sportOptions = await GetSportOptionsAsync();
+            if (!sportOptions.IsSuccess)
+            {
+                return ServiceResponse<MatchOptionsResponseModel>.Failure(sportOptions.Errors);
+            }
+
+            var courts = await GetCourtOptionsAsync();
+            if (!courts.IsSuccess)
+            {
+                return ServiceResponse<MatchOptionsResponseModel>.Failure(courts.Errors);
+            }
+
+            var venues = await GetVenueOptionsAsync(from);
+            if (!venues.IsSuccess)
+            {
+                return ServiceResponse<MatchOptionsResponseModel>.Failure(venues.Errors);
+            }
+
+            var response = MatchDataBuilder.MatchOptionsToResponseModel(
+                sportOptions.ResponseData,
+                courts.ResponseData,
+                venues.ResponseData);
+
+            return ServiceResponse<MatchOptionsResponseModel>.Success(response);
+        }
+
 
 
         public async Task<ServiceResponse<MatchDetailsResponseModel>>
@@ -149,7 +276,7 @@ namespace PlayOn.Services
                 .AsSplitQuery()
                 .Where(x => x.Id == matchId && !x.IsDeleted && x.Event != null)
                 .Select(MatchDataBuilder.MatchDetailsRowProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (row == null)
             {
@@ -165,10 +292,16 @@ namespace PlayOn.Services
                     .NotFound();
             }
 
+            var hasEnded = row.Date
+                .ToDateTime(row.StartsAt)
+                .AddMinutes(row.DurationMinutes) <= timeProvider.GetLocalNow().LocalDateTime;
+
             var response = MatchDataBuilder.MatchDetailsRowToResponseModel(
                 row,
-                (isOrganiser || isAdmin)
-                    && IsOpenForChanges(row.Status, row.Date, row.StartsAt));
+                userId,
+                isOrganiser || isAdmin,
+                IsOpenForChanges(row.Status, row.Date, row.StartsAt),
+                hasEnded);
 
             return ServiceResponse<MatchDetailsResponseModel>
                 .Success(response);
@@ -177,12 +310,13 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<MatchEditResponseModel>>
             GetForEditAsync(
                 Guid matchId,
-                Guid actorId,
-                bool actorIsAdmin)
+                Guid userId,
+                bool userIsAdmin)
         {
+
             var row = await matchRepository
                 .Query()
-                .Where(x => x.Id == matchId && x.Event != null)
+                .Where(x => x.Id == matchId && x.Event != null && x.IsDeleted == false)
                 .Select(MatchDataBuilder.MatchEditRowProjection())
                 .SingleOrDefaultAsync();
 
@@ -192,7 +326,7 @@ namespace PlayOn.Services
                     .NotFound();
             }
 
-            if (row.OrganiserId != actorId && !actorIsAdmin)
+            if (row.OrganiserId != userId && !userIsAdmin)
             {
                 return ServiceResponse<MatchEditResponseModel>
                     .Forbidden();
@@ -224,14 +358,14 @@ namespace PlayOn.Services
                 .Query()
                 .Where(x => x.Id == request.MatchId && x.Event != null)
                 .Select(MatchDataBuilder.MatchEditRowProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (row == null || row.IsDeleted)
             {
                 return ServiceResponse<Guid>.NotFound();
             }
 
-            if (row.OrganiserId != request.ActorId && !request.ActorIsAdmin)
+            if (row.OrganiserId != request.UserId && !request.UserIsAdmin)
             {
                 return ServiceResponse<Guid>.Forbidden();
             }
@@ -258,10 +392,11 @@ namespace PlayOn.Services
 
             var match = await matchRepository
                 .Query(asNoTracking: false)
-                .FirstAsync(x => x.Id == row.Id);
+                .SingleAsync(x => x.Id == row.Id);
 
             MatchDataBuilder.MatchUpdateApplyToEntity(match, request);
 
+            matchRepository.Update(match);
             await matchRepository.SaveChangesAsync();
 
             return ServiceResponse<Guid>.Success(request.MatchId);
@@ -287,7 +422,7 @@ namespace PlayOn.Services
                 .Query()
                 .Where(x => x.Id == request.CourtId)
                 .Select(MatchDataBuilder.MatchCourtOptionProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (court == null)
             {
@@ -317,7 +452,7 @@ namespace PlayOn.Services
                 .Query()
                 .Where(x => x.Id == request.VenueId)
                 .Select(MatchDataBuilder.SlotRowProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (slot == null || slot.IsDeleted)
             {
@@ -355,41 +490,62 @@ namespace PlayOn.Services
         }
 
 
-        public async Task<MatchFormOptionsResponseModel> GetFormOptionsAsync()
-        {
-            DateOnly today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
-
-            var sports = await sportRepository
-                .Query()
-                .OrderBy(x => x.Name)
-                .Select(SportDataBuilder.SportProjection())
-                .ToListAsync();
-
-            var courts = await courtRepository
-                .Query()
-                .OrderBy(x => x.Name)
-                .Select(MatchDataBuilder.MatchCourtOptionProjection())
-                .ToListAsync();
-
-            var slots = await venueRepository
-                .Query()
-                .Where(x => !x.IsDeleted && x.Event == null && x.Date >= today)
-                .OrderBy(x => x.Date)
-                .ThenBy(x => x.StartsAt)
-                .ThenBy(x => x.Id)
-                .Take(100)
-                .Select(MatchDataBuilder.VenueSlotProjection())
-                .ToListAsync();
-
-            return MatchDataBuilder.MatchFormOptionsToResponseModel(sports, courts, slots);
-        }
-        public async Task<ServiceResponse<MatchEditResponseModel>>
+        public async Task<ServiceResponse<MatchCancelResponseModel>>
             GetForCancelAsync(
                 Guid matchId,
-                Guid actorId,
-                bool actorIsAdmin)
+                Guid userId,
+                bool userIsAdmin)
         {
-            return await GetForEditAsync(matchId, actorId, actorIsAdmin);
+            var match = matchRepository
+                .Query()
+                .AsSplitQuery()
+                .Include(x => x.Participants)
+                .Include(x => x.Event)
+                    .ThenInclude(x => x!.Venue)
+                .Where(x => x.Id == matchId)
+                .Where(x => x.Event != null)
+                .Where(x => x.IsDeleted == false)
+                .SingleOrDefault();
+
+            if (match == null)
+            {
+                return ServiceResponse<MatchCancelResponseModel>
+                    .NotFound();
+            }
+
+            if (match.OrganiserId != userId && !userIsAdmin)
+            {
+                return ServiceResponse<MatchCancelResponseModel>
+                    .Forbidden();
+            }
+
+            if (match.Status != MatchStatus.Confirmed && match.Status != MatchStatus.Open)
+            {
+                return ServiceResponse<MatchCancelResponseModel>
+                    .Forbidden();
+            }
+
+            DateOnly today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
+
+            var cancelAllowedDate = today.AddDays(-3);
+
+            if (match.Event!.Venue.Date < cancelAllowedDate)
+            {
+                return ServiceResponse<MatchCancelResponseModel>
+                    .Forbidden();
+            }
+
+            var result = new MatchCancelResponseModel
+            {
+                Title = match.Title,
+                StartsAt = match.Event!.Venue.StartsAt,
+                Date = match.Event!.Venue.Date,
+                VenueName = match.Event!.Venue.Name,
+                JoinedCount = match.Participants.Count(x => x.Status == ParticipantStatus.Joined),
+            };
+
+
+            return ServiceResponse<MatchCancelResponseModel>.Success(result);
         }
 
 
@@ -407,14 +563,14 @@ namespace PlayOn.Services
                 .Query()
                 .Where(x => x.Id == request.MatchId && x.Event != null)
                 .Select(MatchDataBuilder.MatchEditRowProjection())
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             if (row == null || row.IsDeleted)
             {
                 return ServiceResponse<Guid>.NotFound();
             }
 
-            if (row.OrganiserId != request.ActorId && !request.ActorIsAdmin)
+            if (row.OrganiserId != request.UserId && !request.UserIsAdmin)
             {
                 return ServiceResponse<Guid>
                     .Forbidden();
@@ -428,7 +584,7 @@ namespace PlayOn.Services
 
             var match = await matchRepository
                 .Query(asNoTracking: false)
-                .FirstAsync(x => x.Id == row!.Id);
+                .SingleAsync(x => x.Id == row!.Id);
 
             MatchDataBuilder.MatchCancelApplyToEntity(match, request);
 
@@ -446,7 +602,7 @@ namespace PlayOn.Services
 
         private bool HasStarted(DateOnly date, TimeOnly startsAt)
         {
-            return date.ToDateTime(startsAt) <= timeProvider.GetLocalNow().DateTime;
+            return date.ToDateTime(startsAt) <= timeProvider.GetLocalNow().LocalDateTime;
         }
     }
 }

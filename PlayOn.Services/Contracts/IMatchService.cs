@@ -7,9 +7,29 @@ namespace PlayOn.Services.Contracts
 {
     public interface IMatchService
     {
+        Task<ServiceResponse<MatchResponseModel>>
+            GetMainResponseModelAsync(
+                MatchSearchRequestData request,
+                PageRequestData pageRequestData);
+
         Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
-            GetMatchCardsAsync(
-                MatchSearchRequestData request);
+        GetSinglePageAsync(
+            MatchSearchRequestData searchRequestData,
+            PageRequestData pageRequestData);
+
+        Task<ServiceResponse<IReadOnlyList<SportOptionResponseModel>>>
+            GetSportOptionsAsync();
+
+        Task<ServiceResponse<IReadOnlyList<VenueOptionResponseModel>>>
+            GetVenueOptionsAsync(
+                DateOnly? from);
+
+        Task<ServiceResponse<IReadOnlyList<CourtOptionResponseModel>>>
+            GetCourtOptionsAsync();
+
+        Task<ServiceResponse<MatchOptionsResponseModel>>
+            GetOptionsAsync(
+                DateOnly? from);
 
         Task<ServiceResponse<MatchDetailsResponseModel>>
             GetDetailsAsync(
@@ -17,32 +37,28 @@ namespace PlayOn.Services.Contracts
                 Guid? userId,
                 bool isAdmin);
 
-
         Task<ServiceResponse<MatchEditResponseModel>>
             GetForEditAsync(
                 Guid matchId,
-                Guid actorId,
-                bool actorIsAdmin);
-
+                Guid userId,
+                bool userIsAdmin);
 
         Task<ServiceResponse<Guid>>
-            UpdateAsync(MatchUpdateRequestData request);
-
+            UpdateAsync(
+                MatchUpdateRequestData request);
 
         Task<ServiceResponse<Guid>>
             CreateAsync(
                 MatchCreateRequestData request);
 
-        Task<MatchFormOptionsResponseModel> GetFormOptionsAsync();
-
-
-        Task<ServiceResponse<MatchEditResponseModel>>
+        Task<ServiceResponse<MatchCancelResponseModel>>
             GetForCancelAsync(
                 Guid matchId,
-                Guid actorId,
-                bool actorIsAdmin);
+                Guid userId,
+                bool userIsAdmin);
 
         Task<ServiceResponse<Guid>>
-            CancelAsync(MatchCancelRequestData request);
+            CancelAsync(
+                MatchCancelRequestData request);
     }
 }

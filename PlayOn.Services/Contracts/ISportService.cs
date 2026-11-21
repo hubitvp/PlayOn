@@ -5,7 +5,7 @@ namespace PlayOn.Services.Contracts
 {
     public interface ISportService
     {
-        Task<ServiceResponse<IEnumerable<SportResponseModel>>>
-           GetSportsAsync();
+        Task<ServiceResponse<IReadOnlyList<SportResponseModel>>>
+            GetSportOptionsAsync();
     }
 }

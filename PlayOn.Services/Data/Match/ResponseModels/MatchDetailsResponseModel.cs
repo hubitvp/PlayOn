@@ -2,6 +2,16 @@
 
 namespace PlayOn.Services.Data.Match.ResponseModels
 {
+
+    public class MatchParticipantResponseModel
+    {
+        public required Guid UserId { get; init; }
+        public required string DisplayName { get; init; }
+        public required string City { get; init; }
+        public required ParticipantStatus Status { get; init; }
+        public required bool IsOrganiser { get; init; }
+        public required int? Reliability { get; init; }
+    }
     public class MatchDetailsResponseModel
     {
         public required Guid Id { get; init; }
@@ -40,17 +50,13 @@ namespace PlayOn.Services.Data.Match.ResponseModels
 
         public required bool CanManage { get; init; }
 
-        //public required IReadOnlyList<MatchParticipantResponseModel> Participants { get; init; }
-        public required IEnumerable<MatchParticipantResponseModel> Participants { get; init; }
+        public ParticipantStatus? CurrentUserStatus { get; init; }
+        public required bool CanJoin { get; init; }
+        public required bool CanLeave { get; init; }
+        public required bool CanTakeAttendance { get; init; }
+        public required bool CanRate { get; init; }
+
+        public required IReadOnlyList<MatchParticipantResponseModel> Participants { get; init; }
     }
 
-    public class MatchParticipantResponseModel
-    {
-        public required Guid UserId { get; init; }
-        public required string DisplayName { get; init; }
-        public required string City { get; init; }
-        public required ParticipantStatus Status { get; init; }
-        public required bool IsOrganiser { get; init; }
-        public required int? Reliability { get; init; }
-    }
 }

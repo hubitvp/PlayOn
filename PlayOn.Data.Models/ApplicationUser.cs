@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.EntityConstants.ApplicationUserConstants;
 
@@ -6,6 +7,20 @@ namespace PlayOn.Data.Models
 {
     public class ApplicationUser : IdentityUser<Guid>
     {
+
+        [Required]
+        [StringLength(FullNameMaxLength)]
+        [Comment("Full name of the member")]
+        public string FullName { get; set; } = null!;
+
+        [StringLength(AddressMaxLength)]
+        [Comment("Optional home address of the member")]
+        public string? Address { get; set; }
+
+        [Required]
+        [Comment("Date the member joined")]
+        public DateOnly JoinDate { get; set; }
+
         [Required]
         [MaxLength(DisplayNameMaxLength)]
         public string DisplayName { get; set; } = null!;

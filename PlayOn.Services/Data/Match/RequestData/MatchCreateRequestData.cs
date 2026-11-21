@@ -8,13 +8,13 @@ namespace PlayOn.Services.Data.Match.RequestData
         [Required]
         public Guid OrganiserId { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Select a sport.")]
+        [Required]
         public Guid SportId { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Select a court.")]
+        [Required]
         public Guid CourtId { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Select a date and time slot.")]
+        [Required]
         public Guid VenueId { get; set; }
     }
 }

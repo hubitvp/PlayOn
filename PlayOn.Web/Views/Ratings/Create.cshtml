@@ -1,0 +1,67 @@
+﻿@model RatingFormViewModel
+@{
+    ViewData["Title"] = "Rate players";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <h1 class="h3 mb-1">Rate your teammates</h1>
+        <p class="text-muted">@Model.MatchTitle</p>
+
+        @if (Model.Players.Count == 0)
+        {
+            <div class="alert alert-info">There is nobody left to rate for this match.</div>
+            <a asp-controller="Matches" asp-action="Details" asp-route-id="@Model.MatchId"
+               class="btn btn-outline-secondary">Back to the match</a>
+        }
+        else
+        {
+            <form asp-action="Create" method="post">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input asp-for="MatchId" type="hidden" />
+
+                @for (var i = 0; i < Model.Players.Count; i++)
+                {
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <input asp-for="Players[i].UserId" type="hidden" />
+                            <h2 class="h6 mb-3">
+                                @Model.Players[i].DisplayName
+                                <small class="text-muted ms-1">@Model.Players[i].City</small>
+                            </h2>
+
+                            <div class="row g-2">
+                                <div class="col-sm-4">
+                                    <label asp-for="Players[i].Score" class="form-label">Score</label>
+                                    <select asp-for="Players[i].Score" class="form-select">
+                                        <option value="">Skip</option>
+                                        @for (var score = 1; score <= 5; score++)
+                                        {
+                                            <option value="@score" selected="@(Model.Players[i].Score == score)">@score</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Players[i].Score" class="text-danger"></span>
+                                </div>
+                                <div class="col-sm-8">
+                                    <label asp-for="Players[i].Comment" class="form-label">Comment (optional)</label>
+                                    <input asp-for="Players[i].Comment" class="form-control" maxlength="300" />
+                                    <span asp-validation-for="Players[i].Comment" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">Save ratings</button>
+                    <a asp-controller="Matches" asp-action="Details" asp-route-id="@Model.MatchId"
+                       class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

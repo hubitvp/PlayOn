@@ -1,19 +1,54 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using PlayOn.Common.Helpers;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace PlayOn.Web.ViewModels.Home
 {
-    public class HomeViewModel : PageViewModel
+    public class HomeViewModel : IValidatableObject
     {
-        public Guid? SportId { get; init; }
-        public string? City { get; init; }
-        public string? From { get; init; }
+        [FromQuery(Name = "sport")]
+        public Guid? SportId { get; set; }
 
-        public int TotalItems { get; init; }
+        [FromQuery(Name = "city")]
+        public string? City { get; set; }
 
-        public required IReadOnlyCollection<HomeMatchCardViewModel> MatchCards { get; init; }
+        [FromQuery(Name = "from")]
+        public string? From { get; set; }
 
-        public required IEnumerable<SelectListItem> Sports { get; init; }
+        public PageResult<HomeMatchCardViewModel>? Page { get; set; }
+        public IEnumerable<SelectListItem> SportOptions { get; set; } = Enumerable.Empty<SelectListItem>();
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (SportId.HasValue && SportId.Value == Guid.Empty)
+            {
+                yield return new ValidationResult(
+                    "Sport ID must be a not empty guid.",
+                    new[] { nameof(SportId) });
+            }
+
+            if (!string.IsNullOrWhiteSpace(City) && City.Length > 100)
+            {
+                yield return new ValidationResult(
+                    "City name cannot exceed 100 characters.",
+                    new[] { nameof(City) });
+            }
+
+            if (!string.IsNullOrWhiteSpace(From))
+            {
+                if (!DateOnly.TryParse(
+                    From,
+                    CultureInfo.InvariantCulture,
+                    DateTimeStyles.None,
+                    out var parsedFrom))
+                {
+                    yield return new ValidationResult(
+                        "Invalid date format.",
+                        new[] { nameof(From) });
+                }
+            }
+        }
     }
-
 }

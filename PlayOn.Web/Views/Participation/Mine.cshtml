@@ -1,0 +1,114 @@
+﻿@model MyMatchesViewModel
+@{
+    ViewData["Title"] = "My matches";
+
+    var tabs = new[]
+    {
+        (Tab: MyMatchesTab.Upcoming, Label: "Upcoming"),
+        (Tab: MyMatchesTab.Waitlist, Label: "Waiting list"),
+        (Tab: MyMatchesTab.Past, Label: "Past"),
+        (Tab: MyMatchesTab.Cancelled, Label: "Cancelled")
+    };
+
+    var returnUrl = Context.Request.Path.Add(Context.Request.QueryString);
+}
+
+<h1 class="h3 mb-3">My matches</h1>
+
+<ul class="nav nav-tabs mb-3">
+    @foreach (var item in tabs)
+    {
+        <li class="nav-item">
+            <a class="nav-link @(Model.Tab == item.Tab ? "active" : "")"
+               asp-action="Mine" asp-route-tab="@item.Tab">@item.Label</a>
+        </li>
+    }
+</ul>
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+@if (!Model.Matches.Any())
+{
+    <div class="text-center text-muted py-5">
+        <p class="mb-2">Nothing here yet.</p>
+        <a asp-controller="Matches" asp-action="Index" class="btn btn-success">Find a match</a>
+    </div>
+}
+else
+{
+    <div class="list-group shadow-sm">
+        @foreach (var match in Model.Matches)
+        {
+            <div class="list-group-item">
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                    <div>
+                        <span class="sport-chip"><i class="@match.SportIcon" aria-hidden="true"></i> @match.SportName</span>
+                        <h2 class="h6 mt-2 mb-1">
+                            <a asp-controller="Matches" asp-action="Details" asp-route-id="@match.Id"
+                               asp-route-slug="@match.Slug" class="text-decoration-none">@match.Title</a>
+                        </h2>
+                        <div class="small text-muted">
+                            <i class="bi bi-calendar-event"></i> @match.StartsAt<br />
+                            <i class="bi bi-geo-alt"></i> @match.VenueName, @match.City
+                        </div>
+                    </div>
+                    <div class="text-end">
+                        @switch (match.Status)
+                        {
+                            case ParticipantStatus.Joined:
+                                <span class="badge bg-success">Joined</span>
+                                break;
+                            case ParticipantStatus.Waitlisted:
+                                <span class="badge bg-warning text-dark">Waiting list #@match.WaitlistPosition</span>
+                                break;
+                            case ParticipantStatus.Attended:
+                                <span class="badge bg-primary">Attended</span>
+                                break;
+                            case ParticipantStatus.NoShow:
+                                <span class="badge bg-danger">No-show</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">Left</span>
+                                break;
+                        }
+                        @if (match.MatchStatus == MatchStatus.Cancelled)
+                        {
+                            <span class="badge bg-danger">Match cancelled</span>
+                        }
+                    </div>
+                </div>
+
+                @if (match.CanLeave || match.CanRate)
+                {
+                    <div class="d-flex gap-2 mt-2">
+                        @if (match.CanRate)
+                        {
+                            <a asp-controller="Ratings" asp-action="Create" asp-route-matchId="@match.Id"
+                               class="btn btn-sm btn-outline-primary">Rate players</a>
+                        }
+                        @if (match.CanLeave)
+                        {
+                            <form asp-controller="Participation" asp-action="Leave" asp-route-id="@match.Id"
+                                  asp-route-slug="@match.Slug" method="post"
+                                  onsubmit="return confirm('Leave this match?');">
+                                <input type="hidden" name="returnUrl" value="@returnUrl" />
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Leave</button>
+                            </form>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </div>
+
+    var pagination = new PaginationViewModel
+    {
+        Page = Model.Page,
+        TotalPages = Model.TotalPages,
+        PageUrl = p => Url.Action("Mine", "Participation", new { tab = Model.Tab, page = p })!
+    };
+
+    <div class="mt-4">
+        <partial name="_PaginationPartial" model="@pagination" />
+    </div>
+}

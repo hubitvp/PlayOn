@@ -17,7 +17,7 @@ namespace PlayOn.Data.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.14")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -166,6 +166,11 @@ namespace PlayOn.Data.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasComment("Optional home address of the member");
+
                     b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(60)
@@ -187,8 +192,18 @@ namespace PlayOn.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasComment("Full name of the member");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<DateOnly>("JoinDate")
+                        .HasColumnType("date")
+                        .HasComment("Date the member joined");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -248,12 +263,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("ab4028fd-29b6-4b7b-8600-cdf4c9197729"),
                             AccessFailedCount = 0,
+                            Address = "бул. Витоша 45",
                             City = "Sofia",
                             ConcurrencyStamp = "0b8d5f31-1f24-4b9b-8c4a-0c1a8c21f001",
                             DisplayName = "Alex Morgan",
                             Email = "alex.morgan@example.com",
                             EmailConfirmed = true,
+                            FullName = "Alex Morgan",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 4,
                             NormalizedEmail = "ALEX.MORGAN@EXAMPLE.COM",
@@ -269,12 +287,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("5fcf6180-cd78-4b96-a2cf-4b75c63a9673"),
                             AccessFailedCount = 0,
+                            Address = "ул. Иван Вазов 12",
                             City = "Plovdiv",
                             ConcurrencyStamp = "3e9a1d72-5c66-4a80-9f31-52e2d4b8f002",
                             DisplayName = "Jordan Lee",
                             Email = "jordan.lee@example.com",
                             EmailConfirmed = true,
+                            FullName = "Jordan Lee",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 3,
                             NormalizedEmail = "JORDAN.LEE@EXAMPLE.COM",
@@ -290,12 +311,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("9f86e28d-346a-4d51-b237-d0b67620398e"),
                             AccessFailedCount = 0,
+                            Address = "бул. Княз Борис I 88",
                             City = "Varna",
                             ConcurrencyStamp = "7a4c2e90-8b13-46fd-a275-91c3e6f4a003",
                             DisplayName = "Sam Taylor",
                             Email = "sam.taylor@example.com",
                             EmailConfirmed = true,
+                            FullName = "Sam Taylor",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 4,
                             NormalizedEmail = "SAM.TAYLOR@EXAMPLE.COM",
@@ -311,12 +335,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("d3f14be3-367f-48a6-8c34-9cc38d5875a5"),
                             AccessFailedCount = 0,
+                            Address = "ул. Александровска 24",
                             City = "Burgas",
                             ConcurrencyStamp = "d18f6b42-2a97-4e51-b803-6c7d9a5f4004",
                             DisplayName = "Casey Wilson",
                             Email = "casey.wilson@example.com",
                             EmailConfirmed = true,
+                            FullName = "Casey Wilson",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 3,
                             NormalizedEmail = "CASEY.WILSON@EXAMPLE.COM",
@@ -332,12 +359,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("4d530b4b-71d2-4039-8383-85d3a954c699"),
                             AccessFailedCount = 0,
+                            Address = "ул. Граф Игнатиев 18",
                             City = "Sofia",
                             ConcurrencyStamp = "f5b27c68-9d40-43ae-8b16-2e7a4c9d5005",
                             DisplayName = "Morgan Kim",
                             Email = "morgan.kim@example.com",
                             EmailConfirmed = true,
+                            FullName = "Morgan Kim",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 2,
                             NormalizedEmail = "MORGAN.KIM@EXAMPLE.COM",
@@ -353,12 +383,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("39ec5484-8f11-4c75-aa5f-1938bce519e7"),
                             AccessFailedCount = 0,
+                            Address = "ул. Борисова 32",
                             City = "Ruse",
                             ConcurrencyStamp = "6c1e8a53-74b9-4fd2-a605-3b9c7e2f6006",
                             DisplayName = "Riley Adams",
                             Email = "riley.adams@example.com",
                             EmailConfirmed = true,
+                            FullName = "Riley Adams",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 2,
                             NormalizedEmail = "RILEY.ADAMS@EXAMPLE.COM",
@@ -373,12 +406,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("4efb518d-d5b9-401b-893b-95fd7d67582d"),
                             AccessFailedCount = 0,
+                            Address = "ул. Цар Асен 15",
                             City = "Sofia",
                             ConcurrencyStamp = "a92d4f17-6e80-4b35-9c21-7d5a8e3f7007",
                             DisplayName = "Taylor Brown",
                             Email = "taylor.brown@example.com",
                             EmailConfirmed = true,
+                            FullName = "Taylor Brown",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 3,
                             NormalizedEmail = "TAYLOR.BROWN@EXAMPLE.COM",
@@ -394,12 +430,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("9f33f886-e2ce-4fcc-9aa9-ca83ceb984ba"),
                             AccessFailedCount = 0,
+                            Address = "ул. Христо Г. Данов 27",
                             City = "Plovdiv",
                             ConcurrencyStamp = "4f7b2c19-a638-45de-8b04-6e9d1a5c8008",
                             DisplayName = "Jamie Davis",
                             Email = "jamie.davis@example.com",
                             EmailConfirmed = true,
+                            FullName = "Jamie Davis",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 0,
                             NormalizedEmail = "JAMIE.DAVIS@EXAMPLE.COM",
@@ -415,12 +454,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("3ecf3b04-7a41-406b-adaf-d1d34a4067c4"),
                             AccessFailedCount = 0,
+                            Address = "ул. Преслав 16",
                             City = "Varna",
                             ConcurrencyStamp = "8e3a6d25-1b74-4c90-a582-9f6b2d7e9009",
                             DisplayName = "Quinn Clark",
                             Email = "quinn.clark@example.com",
                             EmailConfirmed = true,
+                            FullName = "Quinn Clark",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 4,
                             NormalizedEmail = "QUINN.CLARK@EXAMPLE.COM",
@@ -436,12 +478,15 @@ namespace PlayOn.Data.Migrations
                         {
                             Id = new Guid("35954915-3dee-4abb-9284-4fea99eb740b"),
                             AccessFailedCount = 0,
+                            Address = "ул. Борисова 54",
                             City = "Ruse",
                             ConcurrencyStamp = "b6c1f843-5a29-47de-9082-4e7d3a1f0010",
                             DisplayName = "Drew Hall",
                             Email = "drew.hall@example.com",
                             EmailConfirmed = true,
+                            FullName = "Drew Hall",
                             IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
                             LockoutEnabled = false,
                             MatchesPlayed = 4,
                             NormalizedEmail = "DREW.HALL@EXAMPLE.COM",
@@ -1891,9 +1936,8 @@ namespace PlayOn.Data.Migrations
                     b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Link")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<Guid?>("MatchId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Message")
                         .IsRequired()
@@ -1908,6 +1952,8 @@ namespace PlayOn.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MatchId");
+
                     b.HasIndex("UserId");
 
                     b.ToTable("Notifications");
@@ -1918,7 +1964,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("a87d8d14-f08a-4b5c-b27b-aa83863ef9d9"),
                             CreatedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/1cf5ea94-367c-4999-b001-a0fb68bc4d0e",
+                            MatchId = new Guid("1cf5ea94-367c-4999-b001-a0fb68bc4d0e"),
                             Message = "Baseball Practice Game was cancelled: Venue maintenance.",
                             Type = 2,
                             UserId = new Guid("35954915-3dee-4abb-9284-4fea99eb740b")
@@ -1928,7 +1974,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("5f244450-0dac-44a0-acd2-861088a9359f"),
                             CreatedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/1cf5ea94-367c-4999-b001-a0fb68bc4d0e",
+                            MatchId = new Guid("1cf5ea94-367c-4999-b001-a0fb68bc4d0e"),
                             Message = "Baseball Practice Game was cancelled: Venue maintenance.",
                             Type = 2,
                             UserId = new Guid("4efb518d-d5b9-401b-893b-95fd7d67582d")
@@ -1938,7 +1984,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("2b525941-0519-49dd-b776-88a9310c0dc2"),
                             CreatedOn = new DateTime(2026, 10, 30, 9, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/1cf5ea94-367c-4999-b001-a0fb68bc4d0e",
+                            MatchId = new Guid("1cf5ea94-367c-4999-b001-a0fb68bc4d0e"),
                             Message = "Baseball Practice Game was cancelled: Venue maintenance.",
                             Type = 2,
                             UserId = new Guid("3ecf3b04-7a41-406b-adaf-d1d34a4067c4")
@@ -1948,7 +1994,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("fa37ca9b-2bc8-43cb-a47d-60f3cf2386fd"),
                             CreatedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = true,
-                            Link = "/Matches/Details/cad33e31-98f1-4fd8-9503-2c7f873f0725",
+                            MatchId = new Guid("cad33e31-98f1-4fd8-9503-2c7f873f0725"),
                             Message = "Padel After Work has enough players and will go ahead.",
                             Type = 1,
                             UserId = new Guid("4d530b4b-71d2-4039-8383-85d3a954c699")
@@ -1958,7 +2004,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("8b4cb258-9e97-45eb-b568-af8d77f21d16"),
                             CreatedOn = new DateTime(2026, 10, 30, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/cad33e31-98f1-4fd8-9503-2c7f873f0725",
+                            MatchId = new Guid("cad33e31-98f1-4fd8-9503-2c7f873f0725"),
                             Message = "Padel After Work has enough players and will go ahead.",
                             Type = 1,
                             UserId = new Guid("ab4028fd-29b6-4b7b-8600-cdf4c9197729")
@@ -1968,7 +2014,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("409f623e-0c1f-4119-a0c6-8c3dbd785cbb"),
                             CreatedOn = new DateTime(2026, 10, 30, 18, 30, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/cad33e31-98f1-4fd8-9503-2c7f873f0725",
+                            MatchId = new Guid("cad33e31-98f1-4fd8-9503-2c7f873f0725"),
                             Message = "A spot opened in Padel After Work. You moved off the waitlist.",
                             Type = 0,
                             UserId = new Guid("d3f14be3-367f-48a6-8c34-9cc38d5875a5")
@@ -1978,7 +2024,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("61c7bc9d-299b-402c-be8f-f03af433092c"),
                             CreatedOn = new DateTime(2026, 10, 25, 12, 50, 0, 0, DateTimeKind.Unspecified),
                             IsRead = true,
-                            Link = "/Matches/Details/af0b763b-6efe-420a-be74-84426caed591",
+                            MatchId = new Guid("af0b763b-6efe-420a-be74-84426caed591"),
                             Message = "You left Hockey Training Game less than 2 hours before the start. A strike was added.",
                             Type = 4,
                             UserId = new Guid("9f33f886-e2ce-4fcc-9aa9-ca83ceb984ba")
@@ -1988,7 +2034,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("04a104d8-7e99-4a6d-88b7-95a0b8de2139"),
                             CreatedOn = new DateTime(2026, 10, 14, 20, 40, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/04c0e2e2-35fc-4b8e-8706-6e133c403a8e",
+                            MatchId = new Guid("04c0e2e2-35fc-4b8e-8706-6e133c403a8e"),
                             Message = "You were marked as a no-show for Downtown Basketball. A strike was added.",
                             Type = 4,
                             UserId = new Guid("4d530b4b-71d2-4039-8383-85d3a954c699")
@@ -1998,7 +2044,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("3fc5b7ee-04ac-4673-bdd9-c63ea5332aa9"),
                             CreatedOn = new DateTime(2026, 10, 14, 1, 30, 0, 0, DateTimeKind.Unspecified),
                             IsRead = true,
-                            Link = "/Matches/Details/5be5d6b6-e292-4b3f-b05d-db9ee49dc3c9",
+                            MatchId = new Guid("5be5d6b6-e292-4b3f-b05d-db9ee49dc3c9"),
                             Message = "Alex Morgan rated you 5/5 after Tuesday Evening Football.",
                             Type = 3,
                             UserId = new Guid("5fcf6180-cd78-4b96-a2cf-4b75c63a9673")
@@ -2008,7 +2054,7 @@ namespace PlayOn.Data.Migrations
                             Id = new Guid("406cddbb-56f7-4a87-a5ec-2bc1a6051df3"),
                             CreatedOn = new DateTime(2026, 10, 15, 2, 30, 0, 0, DateTimeKind.Unspecified),
                             IsRead = false,
-                            Link = "/Matches/Details/04c0e2e2-35fc-4b8e-8706-6e133c403a8e",
+                            MatchId = new Guid("04c0e2e2-35fc-4b8e-8706-6e133c403a8e"),
                             Message = "Jordan Lee rated you 3/5 after Downtown Basketball.",
                             Type = 3,
                             UserId = new Guid("ab4028fd-29b6-4b7b-8600-cdf4c9197729")
@@ -2903,11 +2949,18 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("PlayOn.Data.Models.Notification", b =>
                 {
+                    b.HasOne("PlayOn.Data.Models.Match", "Match")
+                        .WithMany()
+                        .HasForeignKey("MatchId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("PlayOn.Data.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Match");
 
                     b.Navigation("User");
                 });

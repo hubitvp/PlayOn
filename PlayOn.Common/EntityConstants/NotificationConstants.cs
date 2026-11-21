@@ -4,6 +4,5 @@
     {
 
         public const int MessageMaxLength = 300;
-        public const int LinkMaxLength = 200;
     }
 }

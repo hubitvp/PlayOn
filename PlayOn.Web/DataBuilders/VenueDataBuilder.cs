@@ -1,5 +1,4 @@
 using PlayOn.Common.Helpers;
-using PlayOn.Services.Data.Venue.RequestData;
 using PlayOn.Services.Data.Venue.ResponseModels;
 using PlayOn.Web.DataBuilders.Formatting;
 using PlayOn.Web.ViewModels.Venue;
@@ -7,7 +6,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.DataBuilders;
 
-public class VenueDataBuilder
+public class VenueDataBuilder : DataBuilder
 {
     private readonly IDisplayFormatter displayFormatter;
 
@@ -16,17 +15,17 @@ public class VenueDataBuilder
         this.displayFormatter = displayFormatter;
     }
 
-    public VenueQueryRequestData
-        VenueQueryToRequestData(int page)
-    {
-        var result = new VenueQueryRequestData
-        {
-            Page = page,
-            PageSize = DefaultPageSize
-        };
+    //public VenueQueryRequestData
+    //    VenueQueryToRequestData(int page)
+    //{
+    //    var result = new VenueQueryRequestData
+    //    {
+    //        Page = page,
+    //        PageSize = DefaultPageSize
+    //    };
 
-        return result;
-    }
+    //    return result;
+    //}
 
     public VenueViewModel
         VenueListToViewModel(
@@ -35,10 +34,10 @@ public class VenueDataBuilder
     {
         var result = new VenueViewModel
         {
-            Venues = page?.Items
+            Venues = page?.PageItems
                 .Select(VenueToViewModel)
                 .ToList() ?? [],
-            Page = page?.Page ?? requestedPage,
+            Page = page?.PageMark ?? requestedPage,
             PageSize = page?.PageSize ?? DefaultPageSize,
             TotalPages = page?.TotalPages ?? 0
         };
@@ -61,7 +60,7 @@ public class VenueDataBuilder
             ClosesAt = displayFormatter.Time(source.ClosesAt),
             MatchId = source.MatchId,
             MatchTitle = source.MatchTitle,
-            MatchSlug = Slug.Create(source.MatchTitle),
+            Slug = Slug.Create(source.MatchTitle),
             Court = CourtToViewModel(source.Court)
         };
 
@@ -77,7 +76,7 @@ public class VenueDataBuilder
             SportIconCss = source.SportIcon.ToCssClass(),
             Surface = source.Surface.ToString(),
             Capacity = source.Capacity,
-            HourlyPrice = source.HourlyPrice.ToFormattedString()
+            HourlyPrice = displayFormatter.Price(source.HourlyPrice)
         };
 
         return result;

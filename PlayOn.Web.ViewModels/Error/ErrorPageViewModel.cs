@@ -1,8 +1,9 @@
-namespace PlayOn.Web.ViewModels.Error;
-
-public class ErrorPageViewModel
+namespace PlayOn.Web.ViewModels.Error
 {
-    public int Code { get; init; }
-    public string Title { get; init; } = string.Empty;
-    public string Message { get; init; } = string.Empty;
+    public class ErrorPageViewModel
+    {
+        public required int Code { get; init; }
+        public required string Title { get; init; }
+        public required string Message { get; init; }
+    }
 }

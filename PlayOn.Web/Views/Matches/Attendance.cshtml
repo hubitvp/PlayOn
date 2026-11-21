@@ -1,0 +1,59 @@
+﻿@model AttendanceViewModel
+@{
+    ViewData["Title"] = "Attendance";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <h1 class="h3 mb-3">Who showed up?</h1>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h2 class="h5">@Model.Title</h2>
+                <p class="mb-0 text-muted small">
+                    <i class="bi bi-calendar-event"></i> @Model.StartsAt<br />
+                    <i class="bi bi-geo-alt"></i> @Model.VenueName
+                </p>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            Untick the players who did not come. They get a no-show, which counts as a strike.
+            After you save, the match is completed and players can rate each other.
+        </div>
+
+        <form asp-action="Attendance" asp-route-id="@Model.MatchId" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+            <span asp-validation-for="Players" class="text-danger"></span>
+
+            @if (Model.Players.Count == 0)
+            {
+                <p class="text-muted">Nobody was signed up for this match.</p>
+            }
+            else
+            {
+                <ul class="list-group mb-3">
+                    @for (var i = 0; i < Model.Players.Count; i++)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <input asp-for="Players[i].UserId" type="hidden" />
+                                @Model.Players[i].DisplayName
+                                <small class="text-muted ms-1">@Model.Players[i].City</small>
+                            </div>
+                            <div class="form-check form-switch mb-0">
+                                <input asp-for="Players[i].Attended" class="form-check-input" />
+                                <label asp-for="Players[i].Attended" class="form-check-label">Attended</label>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success">Save attendance</button>
+                <a asp-action="Details" asp-route-id="@Model.MatchId" class="btn btn-outline-secondary">Back</a>
+            </div>
+        </form>
+    </div>
+</div>

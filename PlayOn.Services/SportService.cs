@@ -5,8 +5,6 @@ using PlayOn.Services.Data;
 using PlayOn.Services.Data.Sport.ResponseModels;
 using PlayOn.Services.DataBuilders;
 
-
-
 namespace PlayOn.Services
 {
     public class SportService : ISportService
@@ -18,21 +16,17 @@ namespace PlayOn.Services
             this.sportRepository = sportRepository;
         }
 
-        public async Task<ServiceResponse<IEnumerable<SportResponseModel>>>
-            GetSportsAsync()
+        public async Task<ServiceResponse<IReadOnlyList<SportResponseModel>>>
+            GetSportOptionsAsync()
         {
             var sports = await sportRepository
                 .Query()
                 .OrderBy(x => x.Name)
+                .Select(SportDataBuilder.SportProjection())
                 .ToListAsync();
 
-            IEnumerable<SportResponseModel> response = sports
-                .Select(SportDataBuilder.SportToResponseModel)
-                .ToList();
-
-            return ServiceResponse<IEnumerable<SportResponseModel>>
-                .Success(response);
+            return ServiceResponse<IReadOnlyList<SportResponseModel>>
+                .Success(sports);
         }
-
     }
 }

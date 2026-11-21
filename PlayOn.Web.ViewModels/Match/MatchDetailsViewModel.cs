@@ -37,11 +37,18 @@ namespace PlayOn.Web.ViewModels.Match
 
         public required bool CanManage { get; init; }
 
-        public required IEnumerable<MatchParticipantViewModel> Participants { get; init; }
+        public ParticipantStatus? CurrentUserStatus { get; init; }
+        public required bool CanJoin { get; init; }
+        public required bool CanLeave { get; init; }
+        public required bool CanTakeAttendance { get; init; }
+        public required bool CanRate { get; init; }
+
+        public required IReadOnlyList<MatchParticipantViewModel> Participants { get; init; }
     }
 
     public class MatchParticipantViewModel
     {
+        public required Guid UserId { get; init; }
         public required string DisplayName { get; init; }
         public required string City { get; init; }
         public required ParticipantStatus Status { get; init; }

@@ -3,28 +3,26 @@
     public class PageResult<T>
     {
         public PageResult(
-            IReadOnlyList<T> items,
-            int page,
+            IReadOnlyList<T> pageItems,
+            int pageMark,
             int pageSize,
-            int totalCount)
+            int totalItemsCount)
         {
-            Items = items;
-            Page = page;
+            PageItems = pageItems;
+            PageMark = pageMark;
             PageSize = pageSize;
-            TotalCount = totalCount;
+            TotalItemsCount = totalItemsCount;
         }
 
-        public IReadOnlyList<T> Items { get; }
+        public IReadOnlyList<T> PageItems { get; }
 
-        public int Page { get; }
+        public int PageMark { get; }
 
         public int PageSize { get; }
 
-        public int TotalCount { get; }
+        public int TotalItemsCount { get; }
 
-        public int TotalPages => PageSize <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling(TotalCount / (double)PageSize));
+        public int TotalPages => PageSize <= 0 ? 1 : Math.Max(1, (int)Math.Ceiling(TotalItemsCount / (double)PageSize));
 
-        public PageResult<TOut> Map<TOut>(Func<T, TOut> map)
-            => new(Items.Select(map).ToList(), Page, PageSize, TotalCount);
     }
 }

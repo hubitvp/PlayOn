@@ -9,6 +9,7 @@
             <h1 class="display-5 fw-bold">Find a game tonight.</h1>
             <p class="lead">Join matches near you, fill your roster, and play with people you can rely on.</p>
 
+            <p>Selected SportId: @Model.SportId</p>
 
             <form asp-controller="Home"
                   asp-action="Index"
@@ -17,7 +18,8 @@
                 <div asp-validation-summary="ModelOnly" class="fs-4 text-warning"></div>
                 <div class="col-md-4">
                     <select asp-for="SportId"
-                            asp-items="@Model.Sports"
+                            name="sport"
+                            asp-items="@Model.SportOptions"
                             class="form-select form-select-lg">
                         <option value="">Any sport</option>
                     </select>
@@ -27,6 +29,7 @@
 
                 <div class="col-md-3">
                     <input asp-for="City"
+                           name="city"
                            class="form-control form-control-lg"
                            placeholder="City" />
                     <span asp-validation-for="City" class="fs-4 text-warning"></span>
@@ -36,6 +39,7 @@
                 <div class="col-md-3">
                     <div class="input-group input-group-lg">
                         <input asp-for="From"
+                               name="from"
                                type="date"
                                placeholder="dd/mm/yyyy"
                                class="form-control form-control-lg"
@@ -47,9 +51,6 @@
                     <span asp-validation-for="From" class="fs-4 text-warning"></span>
 
                 </div>
-
-
-
 
                 <div class="col-md-2 d-grid">
                     <button class="btn btn-light btn-lg" type="submit">
@@ -63,7 +64,13 @@
 
 
 
-@if (Model.MatchCards.Count == 0)
+@if (Model.Page == null)
+{
+    <div class="alert alert-info">
+        No upcoming matches
+    </div>
+}
+else if (Model.Page.PageItems.Count == 0)
 {
     <div class="alert alert-info">
         No upcoming matches
@@ -71,16 +78,16 @@
 }
 else
 {
-    var first = (Model.Page - 1) * Model.PageSize + 1;
-    var last = first + Model.MatchCards.Count - 1;
+    var first = (Model.Page.PageMark - 1) * Model.Page.PageSize + 1;
+    var last = first + Model.Page.PageItems.Count - 1;
 
     <div id="matches" class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h5 mb-0">Upcoming matches</h2>
-        <span class="text-muted small">Showing @first&ndash;@last of @Model.TotalItems</span>
+        <span class="text-muted small">Showing @first&ndash;@last of @Model.Page.TotalItemsCount</span>
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
-        @foreach (var match in Model.MatchCards)
+        @foreach (var match in Model.Page.PageItems)
         {
             <div class="col"><partial name="_MatchCardPartial" model="match" /></div>
         }
@@ -88,9 +95,15 @@ else
 
     var pagination = new PaginationViewModel
     {
-        Page = Model.Page,
-        TotalPages = Model.TotalPages,
-        PageUrl = p => Url.Action("Index", "Home", new { Model.SportId, Model.City, Model.From, Page = p }, null, null, "matches")!
+        Page = Model.Page?.PageMark ?? 1,
+        TotalPages = Model.Page?.TotalPages ?? 1,
+        PageUrl = page => Url.Action("Index", "Home", new
+        {
+            page,
+            sport = Model.SportId,
+            city = Model.City,
+            from = Model.From
+        }, null, null, "matches")!
     };
 
     <div class="mt-4">

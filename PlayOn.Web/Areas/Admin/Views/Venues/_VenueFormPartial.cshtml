@@ -1,0 +1,70 @@
+﻿@model AdminVenueFormViewModel
+
+<div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+@if (Model.IsBooked)
+{
+    <div class="alert alert-warning">A match is booked on this slot, so its date and start time cannot be changed.</div>
+}
+
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-3">
+        <label asp-for="Address" class="form-label"></label>
+        <input asp-for="Address" class="form-control" />
+
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div class="col-md-4 mb-3">
+        <label asp-for="City" class="form-label"></label>
+        <input asp-for="City" class="form-control" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="Latitude" class="form-label"></label>
+        <input asp-for="Latitude" class="form-control" type="number" step="any" />
+        <span asp-validation-for="Latitude" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="Longitude" class="form-label"></label>
+        <input asp-for="Longitude" class="form-control" type="number" step="any" />
+        <span asp-validation-for="Longitude" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <label asp-for="Date" class="form-label"></label>
+        <input asp-for="Date" class="form-control" readonly="@Model.IsBooked" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+    <div class="col-md-3 mb-3">
+        <label asp-for="StartsAt" class="form-label"></label>
+        <input asp-for="StartsAt" class="form-control" readonly="@Model.IsBooked" />
+        <span asp-validation-for="StartsAt" class="text-danger"></span>
+    </div>
+    <div class="col-md-3 mb-3">
+        <label asp-for="OpensAt" class="form-label"></label>
+        <input asp-for="OpensAt" class="form-control" />
+        <span asp-validation-for="OpensAt" class="text-danger"></span>
+    </div>
+    <div class="col-md-3 mb-3">
+        <label asp-for="ClosesAt" class="form-label"></label>
+        <input asp-for="ClosesAt" class="form-control" />
+        <span asp-validation-for="ClosesAt" class="text-danger"></span>
+    </div>
+</div>
+
+<div class="mb-3">
+    <label asp-for="PhotoUrl" class="form-label"></label>
+    <input asp-for="PhotoUrl" class="form-control" type="url" />
+    <span asp-validation-for="PhotoUrl" class="text-danger"></span>
+</div>
