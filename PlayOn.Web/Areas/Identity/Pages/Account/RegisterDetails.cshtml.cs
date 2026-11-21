@@ -17,17 +17,20 @@ public class RegisterDetailsModel : PageModel
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IDataProtectionProvider _dataProtectionProvider;
     private readonly ILogger<RegisterDetailsModel> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public RegisterDetailsModel(
         SignInManager<ApplicationUser> signInManager,
         UserManager<ApplicationUser> userManager,
         IDataProtectionProvider dataProtectionProvider,
-        ILogger<RegisterDetailsModel> logger)
+        ILogger<RegisterDetailsModel> logger,
+        TimeProvider timeProvider)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _dataProtectionProvider = dataProtectionProvider;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     [BindProperty]
@@ -108,7 +111,7 @@ public class RegisterDetailsModel : PageModel
             PhoneNumber = Input.PhoneNumber.Trim(),
             Address = string.IsNullOrWhiteSpace(Input.Address) ? null : Input.Address.Trim(),
             City = Input.City,
-            JoinDate = DateOnly.FromDateTime(DateTime.UtcNow),
+            JoinDate = DateOnly.FromDateTime(_timeProvider.GetLocalNow().LocalDateTime),
             EmailConfirmed = true,
             PhoneNumberConfirmed = true,
             LockoutEnabled = false,

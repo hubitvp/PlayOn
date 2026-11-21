@@ -51,7 +51,7 @@ namespace PlayOn.Web
             });
 
 
-            builder.Services.AddLocalResources();
+            builder.Services.AddLocalResources(builder.Configuration);
 
 
             var app = builder.Build();

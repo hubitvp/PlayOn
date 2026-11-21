@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Time.Testing;
-using PlayOn.Services;
+﻿using PlayOn.Services;
 using PlayOn.Services.Contracts;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.DataBuilders.Formatting;
@@ -8,18 +7,12 @@ namespace PlayOn.Web.Extensions
 {
     public static class AppExtensions
     {
-        public static IServiceCollection AddLocalResources(this IServiceCollection services)
+        public static IServiceCollection AddLocalResources(
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
+            services.AddSingleton<TimeProvider>(TimeProvider.System);
 
-
-            var fakeTimeProvider = new FakeTimeProvider
-            (
-                new DateTimeOffset(2026, 10, 1, 0, 0, 0, TimeSpan.Zero)
-            );
-
-
-            services.AddSingleton(fakeTimeProvider);
-            //services.AddSingleton(TimeProvider.System);
             services.AddSingleton<IDisplayFormatter, DisplayFormatter>();
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
@@ -37,6 +30,11 @@ namespace PlayOn.Web.Extensions
             services.AddScoped<IPlayerService, PlayerService>();
             services.AddScoped<INotificationService, NotificationService>();
 
+            services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+            services.AddScoped<IAdminUserService, AdminUserService>();
+            services.AddScoped<IAdminSportService, AdminSportService>();
+            services.AddScoped<IAdminVenueService, AdminVenueService>();
+
             services.AddScoped<MatchDataBuilder>();
             services.AddScoped<SportDataBuilder>();
             services.AddScoped<HomeDataBuilder>();
@@ -53,5 +51,6 @@ namespace PlayOn.Web.Extensions
 
             return services;
         }
+
     }
 }
