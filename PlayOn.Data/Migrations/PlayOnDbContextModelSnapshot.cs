@@ -106,6 +106,73 @@ namespace PlayOn.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = new Guid("ab4028fd-29b6-4b7b-8600-cdf4c9197729"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("5fcf6180-cd78-4b96-a2cf-4b75c63a9673"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("9f86e28d-346a-4d51-b237-d0b67620398e"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("d3f14be3-367f-48a6-8c34-9cc38d5875a5"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("4d530b4b-71d2-4039-8383-85d3a954c699"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("39ec5484-8f11-4c75-aa5f-1938bce519e7"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("4efb518d-d5b9-401b-893b-95fd7d67582d"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("9f33f886-e2ce-4fcc-9aa9-ca83ceb984ba"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("3ecf3b04-7a41-406b-adaf-d1d34a4067c4"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("35954915-3dee-4abb-9284-4fea99eb740b"),
+                            RoleId = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3")
+                        },
+                        new
+                        {
+                            UserId = new Guid("1de24f29-29ee-40c5-b575-b6b85f925ef9"),
+                            RoleId = new Guid("66e04508-4a18-4c79-8bdb-24b4dc4dece0")
+                        },
+                        new
+                        {
+                            UserId = new Guid("6e3ed491-c85e-4b32-b600-96aa78c2251d"),
+                            RoleId = new Guid("66e04508-4a18-4c79-8bdb-24b4dc4dece0")
+                        },
+                        new
+                        {
+                            UserId = new Guid("f754f39b-4ebe-4cbd-a705-51394372b3d3"),
+                            RoleId = new Guid("66e04508-4a18-4c79-8bdb-24b4dc4dece0")
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
@@ -155,6 +222,22 @@ namespace PlayOn.Data.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("66e04508-4a18-4c79-8bdb-24b4dc4dece0"),
+                            ConcurrencyStamp = "22fd9079-6192-4b3b-a553-98a4812f7869",
+                            Name = "Administrator",
+                            NormalizedName = "ADMINISTRATOR"
+                        },
+                        new
+                        {
+                            Id = new Guid("cd705d13-51b2-4f16-bdfc-533fdc14e7c3"),
+                            ConcurrencyStamp = "d6ecc739-d33f-4f53-8dfc-feac22c08b9d",
+                            Name = "User",
+                            NormalizedName = "USER"
+                        });
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.ApplicationUser", b =>
@@ -497,6 +580,78 @@ namespace PlayOn.Data.Migrations
                             SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
                             TwoFactorEnabled = false,
                             UserName = "DREW.HALL@EXAMPLE.COM"
+                        },
+                        new
+                        {
+                            Id = new Guid("1de24f29-29ee-40c5-b575-b6b85f925ef9"),
+                            AccessFailedCount = 0,
+                            Address = "бул. България 12",
+                            City = "Sofia",
+                            ConcurrencyStamp = "b8844aae-c63e-4267-bfdf-231affb29c99",
+                            DisplayName = "Ivan Petrov",
+                            Email = "ivan.petrov@example.com",
+                            EmailConfirmed = true,
+                            FullName = "Ivan Petrov",
+                            IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
+                            LockoutEnabled = false,
+                            MatchesPlayed = 0,
+                            NormalizedEmail = "IVAN.PETROV@EXAMPLE.COM",
+                            NormalizedUserName = "IVAN.PETROV@EXAMPLE.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "IVAN.PETROV@EXAMPLE.COM"
+                        },
+                        new
+                        {
+                            Id = new Guid("6e3ed491-c85e-4b32-b600-96aa78c2251d"),
+                            AccessFailedCount = 0,
+                            Address = "ул. Граф Игнатиев 28",
+                            City = "Plovdiv",
+                            ConcurrencyStamp = "01c5b515-8d35-4036-9b47-07f413b7dd58",
+                            DisplayName = "Maria Ivanova",
+                            Email = "maria.ivanova@example.com",
+                            EmailConfirmed = true,
+                            FullName = "Maria Ivanova",
+                            IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
+                            LockoutEnabled = false,
+                            MatchesPlayed = 0,
+                            NormalizedEmail = "MARIA.IVANOVA@EXAMPLE.COM",
+                            NormalizedUserName = "MARIA.IVANOVA@EXAMPLE.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "MARIA.IVANOVA@EXAMPLE.COM"
+                        },
+                        new
+                        {
+                            Id = new Guid("f754f39b-4ebe-4cbd-a705-51394372b3d3"),
+                            AccessFailedCount = 0,
+                            Address = "ул. Александровска 15",
+                            City = "Varna",
+                            ConcurrencyStamp = "a2eb819e-0a44-4075-98a0-27a7e06e998c",
+                            DisplayName = "Georgi Dimitrov",
+                            Email = "georgi.dimitrov@example.com",
+                            EmailConfirmed = true,
+                            FullName = "Georgi Dimitrov",
+                            IsActive = true,
+                            JoinDate = new DateOnly(2025, 1, 1),
+                            LockoutEnabled = false,
+                            MatchesPlayed = 0,
+                            NormalizedEmail = "GEORGI.DIMITROV@EXAMPLE.COM",
+                            NormalizedUserName = "GEORGI.DIMITROV@EXAMPLE.COM",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF86nB57LUhgocPl9wkStNa2Svp+fHGNi/3hE6or/QJMzteRck+ThqQsgLDjNlHc8A==",
+                            PhoneNumberConfirmed = false,
+                            ReliabilityScore = 100,
+                            SecurityStamp = "364894f5-ab00-5eb4-a4a7-40ac99d7f27f",
+                            TwoFactorEnabled = false,
+                            UserName = "GEORGI.DIMITROV@EXAMPLE.COM"
                         });
                 });
 

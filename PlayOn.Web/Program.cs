@@ -56,7 +56,6 @@ namespace PlayOn.Web
 
             var app = builder.Build();
 
-            await IdentitySeeder.SeedAsync(app.Services);
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -83,126 +82,23 @@ namespace PlayOn.Web
 
             app.MapControllerRoute(
                 name: "areas",
-                pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}")
+                pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id:guid?}")
                 .WithStaticAssets();
 
             app.MapControllerRoute(
                 name: "with-slug",
-                pattern: "{controller}/{action}/{id}/{slug}")
+                pattern: "{controller}/{action}/{id:guid}/{slug:regex(^[a-z-]+$)}")
                 .WithStaticAssets();
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}")
+                pattern: "{controller=Home}/{action=Index}/{id:guid?}")
                 .WithStaticAssets();
 
             app.MapRazorPages()
                .WithStaticAssets();
 
             await app.RunAsync();
-        }
-    }
-
-
-
-    public static class IdentitySeeder
-    {
-        public static async Task SeedAsync(IServiceProvider services)
-        {
-            using var scope = services.CreateScope();
-
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
-            var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(IdentitySeeder));
-
-            foreach (var roleName in new[] { RoleNames.User, RoleNames.Administrator })
-            {
-                if (!await roleManager.RoleExistsAsync(roleName))
-                {
-                    var created = await roleManager.CreateAsync(new ApplicationRole { Name = roleName });
-
-                    if (!created.Succeeded)
-                    {
-                        throw new InvalidOperationException(
-                            $"Could not create role '{roleName}': {Describe(created)}");
-                    }
-                }
-            }
-
-            await EnsureEveryoneHasUserRoleAsync(userManager);
-            await EnsureAdministratorAsync(userManager, configuration, logger);
-        }
-
-        private static async Task EnsureEveryoneHasUserRoleAsync(UserManager<ApplicationUser> userManager)
-        {
-            var inRole = (await userManager.GetUsersInRoleAsync(RoleNames.User))
-                .Select(x => x.Id)
-                .ToHashSet();
-
-            var missing = await userManager.Users
-                .Where(x => !inRole.Contains(x.Id))
-                .ToListAsync();
-
-            foreach (var user in missing)
-            {
-                await userManager.AddToRoleAsync(user, RoleNames.User);
-            }
-        }
-
-        private static async Task EnsureAdministratorAsync(
-            UserManager<ApplicationUser> userManager,
-            IConfiguration configuration,
-            ILogger logger)
-        {
-            var section = configuration.GetSection("Seed:Admin");
-
-            var email = section["Email"];
-            var password = section["Password"];
-
-            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-            {
-                logger.LogInformation("Seed:Admin is not configured; no administrator was seeded.");
-                return;
-            }
-
-            email = email.Trim();
-
-            var user = await userManager.FindByEmailAsync(email);
-
-            if (user == null)
-            {
-                user = new ApplicationUser
-                {
-                    UserName = email.ToUpperInvariant(),
-                    Email = email,
-                    EmailConfirmed = true,
-                    DisplayName = section["DisplayName"] ?? "Administrator",
-                    City = section["City"] ?? "Sofia",
-                    IsActive = true
-                };
-
-                var created = await userManager.CreateAsync(user, password);
-
-                if (!created.Succeeded)
-                {
-                    throw new InvalidOperationException(
-                        $"Could not create the seeded administrator: {Describe(created)}");
-                }
-            }
-
-            foreach (var roleName in new[] { RoleNames.User, RoleNames.Administrator })
-            {
-                if (!await userManager.IsInRoleAsync(user, roleName))
-                {
-                    await userManager.AddToRoleAsync(user, roleName);
-                }
-            }
-        }
-
-        private static string Describe(IdentityResult result)
-        {
-            return string.Join(" ", result.Errors.Select(x => x.Description));
         }
     }
 }

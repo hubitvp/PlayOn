@@ -25,16 +25,25 @@ namespace PlayOn.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.ApplyConfiguration(new ApplicationRoleConfiguration());
             modelBuilder.ApplyConfiguration(new ApplicationUserConfiguration());
+            modelBuilder.ApplyConfiguration(new ApplicationUserRoleConfiguration());
+
             modelBuilder.ApplyConfiguration(new CourtConfiguration());
             modelBuilder.ApplyConfiguration(new CourtSportConfiguration());
+
             modelBuilder.ApplyConfiguration(new EventConfiguration());
+
             modelBuilder.ApplyConfiguration(new MatchConfiguration());
             modelBuilder.ApplyConfiguration(new MatchParticipantConfiguration());
+
             modelBuilder.ApplyConfiguration(new NotificationConfiguration());
+
             modelBuilder.ApplyConfiguration(new PlayerRatingConfiguration());
+
             modelBuilder.ApplyConfiguration(new SportConfiguration());
             modelBuilder.ApplyConfiguration(new SportPreferenceConfiguration());
+
             modelBuilder.ApplyConfiguration(new VenueConfiguration());
 
         }

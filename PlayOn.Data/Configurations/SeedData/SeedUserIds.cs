@@ -12,5 +12,11 @@ namespace PlayOn.Data.Configurations.SeedData
         public const string User008 = "9f33f886-e2ce-4fcc-9aa9-ca83ceb984ba";
         public const string User009 = "3ecf3b04-7a41-406b-adaf-d1d34a4067c4";
         public const string User010 = "35954915-3dee-4abb-9284-4fea99eb740b";
+
+
+        public const string Admin001 = "1de24f29-29ee-40c5-b575-b6b85f925ef9";
+        public const string Admin002 = "6e3ed491-c85e-4b32-b600-96aa78c2251d";
+        public const string Admin003 = "f754f39b-4ebe-4cbd-a705-51394372b3d3";
+
     }
 }

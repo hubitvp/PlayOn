@@ -230,6 +230,75 @@ namespace PlayOn.Data.Configurations
                     ConcurrencyStamp = "b6c1f843-5a29-47de-9082-4e7d3a1f0010",
                     LockoutEnabled = false
                 });
+
+
+
+            builder.HasData(
+                        new ApplicationUser
+                        {
+                            Id = Guid.Parse(SeedUserIds.Admin001),
+                            UserName = "IVAN.PETROV@EXAMPLE.COM",
+                            NormalizedUserName = "IVAN.PETROV@EXAMPLE.COM",
+                            Email = "ivan.petrov@example.com",
+                            NormalizedEmail = "IVAN.PETROV@EXAMPLE.COM",
+                            FullName = "Ivan Petrov",
+                            DisplayName = "Ivan Petrov",
+                            Address = "бул. България 12",
+                            JoinDate = new DateOnly(2025, 1, 1),
+                            City = "Sofia",
+                            IsActive = true,
+                            ReliabilityScore = 100,
+                            MatchesPlayed = 0,
+                            EmailConfirmed = true,
+                            PasswordHash = SeedPasswordHash,
+                            SecurityStamp = SeedSecurityStamp,
+                            ConcurrencyStamp = "b8844aae-c63e-4267-bfdf-231affb29c99",
+                            LockoutEnabled = false
+                        },
+                        new ApplicationUser
+                        {
+                            Id = Guid.Parse(SeedUserIds.Admin002),
+                            UserName = "MARIA.IVANOVA@EXAMPLE.COM",
+                            NormalizedUserName = "MARIA.IVANOVA@EXAMPLE.COM",
+                            Email = "maria.ivanova@example.com",
+                            NormalizedEmail = "MARIA.IVANOVA@EXAMPLE.COM",
+                            FullName = "Maria Ivanova",
+                            DisplayName = "Maria Ivanova",
+                            Address = "ул. Граф Игнатиев 28",
+                            JoinDate = new DateOnly(2025, 1, 1),
+                            City = "Plovdiv",
+                            IsActive = true,
+                            ReliabilityScore = 100,
+                            MatchesPlayed = 0,
+                            EmailConfirmed = true,
+                            PasswordHash = SeedPasswordHash,
+                            SecurityStamp = SeedSecurityStamp,
+                            ConcurrencyStamp = "01c5b515-8d35-4036-9b47-07f413b7dd58",
+                            LockoutEnabled = false
+                        },
+                        new ApplicationUser
+                        {
+                            Id = Guid.Parse(SeedUserIds.Admin003),
+                            UserName = "GEORGI.DIMITROV@EXAMPLE.COM",
+                            NormalizedUserName = "GEORGI.DIMITROV@EXAMPLE.COM",
+                            Email = "georgi.dimitrov@example.com",
+                            NormalizedEmail = "GEORGI.DIMITROV@EXAMPLE.COM",
+                            FullName = "Georgi Dimitrov",
+                            DisplayName = "Georgi Dimitrov",
+                            Address = "ул. Александровска 15",
+                            JoinDate = new DateOnly(2025, 1, 1),
+                            City = "Varna",
+                            IsActive = true,
+                            ReliabilityScore = 100,
+                            MatchesPlayed = 0,
+                            EmailConfirmed = true,
+                            PasswordHash = SeedPasswordHash,
+                            SecurityStamp = SeedSecurityStamp,
+                            ConcurrencyStamp = "a2eb819e-0a44-4075-98a0-27a7e06e998c",
+                            LockoutEnabled = false
+                        }
+                    );
+
         }
     }
 }
