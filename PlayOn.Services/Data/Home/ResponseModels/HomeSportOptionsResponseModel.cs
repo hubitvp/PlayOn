@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PlayOn.Services.Data.Home.ResponseModels
+﻿namespace PlayOn.Services.Data.Home.ResponseModels
 {
     public class HomeSportOptionsResponseModel
     {

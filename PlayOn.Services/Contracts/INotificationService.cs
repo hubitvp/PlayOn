@@ -1,6 +1,5 @@
 ﻿using PlayOn.Common.Helpers;
 using PlayOn.Services.Data;
-using PlayOn.Services.Data.Notifications.RequestData;
 using PlayOn.Services.Data.Notifications.ResponseModels;
 
 namespace PlayOn.Services.Contracts

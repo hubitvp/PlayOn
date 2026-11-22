@@ -27,4 +27,8 @@
     <ProjectReference Include="..\PlayOn.Web.ViewModels\PlayOn.Web.ViewModels.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SeedData\" />
+  </ItemGroup>
+
 </Project>

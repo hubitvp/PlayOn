@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace PlayOn.Services.Data.Match.ResponseModels
+﻿namespace PlayOn.Services.Data.Match.ResponseModels
 {
     public class MatchCancelResponseModel
     {

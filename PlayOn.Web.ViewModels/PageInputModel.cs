@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using static PlayOn.Common.ApplicationConstants.PaginationConstants;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.ViewModels
 {

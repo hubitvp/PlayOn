@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using PlayOn.Common.ApplicationConstants;
+﻿using PlayOn.Common.ApplicationConstants;
 using PlayOn.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.EntityConstants.MatchConstants;

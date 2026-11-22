@@ -2,7 +2,7 @@
 
 namespace PlayOn.Web.ViewModels.Notifications
 {
-    public class NotificationListViewModel 
+    public class NotificationListViewModel
     {
         public required PageResult<NotificationViewModel> Page { get; init; }
 

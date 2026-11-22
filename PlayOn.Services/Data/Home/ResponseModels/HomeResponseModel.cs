@@ -1,6 +1,4 @@
 ﻿using PlayOn.Common.Helpers;
-using PlayOn.Services.Data.Home.RequestData;
-using PlayOn.Services.Data.Sport.ResponseModels;
 
 namespace PlayOn.Services.Data.Home.ResponseModels
 {

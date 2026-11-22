@@ -1,7 +1,6 @@
 ﻿using PlayOn.Common.ApplicationConstants;
 using PlayOn.Common.Enums;
 using System.ComponentModel.DataAnnotations;
-using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Services.Data.Match.RequestData
 {

@@ -11,7 +11,6 @@ namespace PlayOn.Web.Extensions
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            services.AddSingleton<TimeProvider>(TimeProvider.System);
 
             services.AddSingleton<IDisplayFormatter, DisplayFormatter>();
 

@@ -10,8 +10,11 @@
                 @User.Identity!.Name
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" asp-controller="Players" asp-action="Edit">My profile</a></li>
-                <li><a class="dropdown-item" asp-controller="Notifications" asp-action="Index">Notifications</a></li>
+                <li><a class="dropdown-item" asp-area="" asp-controller="Players" asp-action="Edit">My Profile</a></li>
+
+                <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">Manage Account</a></li>
+
+                <li><a class="dropdown-item" asp-area="" asp-controller="Notifications" asp-action="Index">Notifications</a></li>
                 <li><hr class="dropdown-divider" /></li>
                 <li>
                     <form asp-area="Identity" asp-page="/Account/Logout" method="post">

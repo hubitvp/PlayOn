@@ -1,7 +1,6 @@
 ﻿using PlayOn.Common.Enums;
 using PlayOn.Data.Models;
 using PlayOn.Services.Data.Home.ResponseModels;
-using PlayOn.Services.Data.Sport.ResponseModels;
 using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;

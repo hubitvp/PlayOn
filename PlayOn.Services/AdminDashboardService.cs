@@ -39,7 +39,7 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<AdminDashboardResponseModel>>
             GetDashboardAsync()
         {
-            var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().DateTime);
+            var today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
 
             var usersCount = await userRepository.Query().CountAsync();
             var activeUsersCount = await userRepository.Query().CountAsync(x => x.IsActive);
