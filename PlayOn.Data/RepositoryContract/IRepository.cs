@@ -1,6 +1,6 @@
 using System.Linq.Expressions;
 
-namespace PlayOn.Services.Contracts
+namespace PlayOn.Data.RepositoryContract
 {
     public interface IRepository<TEntity>
         where TEntity : class

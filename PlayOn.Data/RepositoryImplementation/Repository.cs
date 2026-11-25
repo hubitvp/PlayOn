@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using PlayOn.Data;
-using PlayOn.Services.Contracts;
+using PlayOn.Data.RepositoryContract;
 using System.Linq.Expressions;
 
-namespace PlayOn.Services
+namespace PlayOn.Data.RepositoryImplementation
 {
     public sealed class Repository<TEntity>(PlayOnDbContext context)
         : IRepository<TEntity>

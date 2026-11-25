@@ -4,6 +4,8 @@ using Microsoft.Extensions.Hosting;
 using PlayOn.Common.ApplicationConstants;
 using PlayOn.Common.Enums;
 using PlayOn.Data.Models;
+using PlayOn.Data.RepositoryContract;
+using PlayOn.Data.RepositoryImplementation;
 using System.Security.Cryptography;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -44,6 +46,68 @@ namespace PlayOn.Data.Seeding
             string? jsonFilePath = null,
             CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(context);
+
+            var sportRepo = new Repository<Sport>(context);
+            var venueRepo = new Repository<Venue>(context);
+            var courtRepo = new Repository<Court>(context);
+            var sportPreferenceRepo = new Repository<SportPreference>(context);
+            var courtSportRepo = new Repository<CourtSport>(context);
+            var matchRepo = new Repository<Match>(context);
+            var eventRepo = new Repository<Event>(context);
+            var matchParticipantRepo = new Repository<MatchParticipant>(context);
+            var notificationRepo = new Repository<Notification>(context);
+            var playerRatingRepo = new Repository<PlayerRating>(context);
+
+            await SeedAsync(
+                sportRepo,
+                venueRepo,
+                courtRepo,
+                sportPreferenceRepo,
+                courtSportRepo,
+                matchRepo,
+                eventRepo,
+                matchParticipantRepo,
+                notificationRepo,
+                playerRatingRepo,
+                userManager,
+                roleManager,
+                hostEnvironment,
+                jsonFilePath,
+                cancellationToken);
+        }
+
+        public static async Task SeedAsync(
+            IRepository<Sport> sportRepository,
+            IRepository<Venue> venueRepository,
+            IRepository<Court> courtRepository,
+            IRepository<SportPreference> sportPreferenceRepository,
+            IRepository<CourtSport> courtSportRepository,
+            IRepository<Match> matchRepository,
+            IRepository<Event> eventRepository,
+            IRepository<MatchParticipant> matchParticipantRepository,
+            IRepository<Notification> notificationRepository,
+            IRepository<PlayerRating> playerRatingRepository,
+            UserManager<ApplicationUser> userManager,
+            RoleManager<ApplicationRole> roleManager,
+            IHostEnvironment hostEnvironment,
+            string? jsonFilePath = null,
+            CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(sportRepository);
+            ArgumentNullException.ThrowIfNull(venueRepository);
+            ArgumentNullException.ThrowIfNull(courtRepository);
+            ArgumentNullException.ThrowIfNull(sportPreferenceRepository);
+            ArgumentNullException.ThrowIfNull(courtSportRepository);
+            ArgumentNullException.ThrowIfNull(matchRepository);
+            ArgumentNullException.ThrowIfNull(eventRepository);
+            ArgumentNullException.ThrowIfNull(matchParticipantRepository);
+            ArgumentNullException.ThrowIfNull(notificationRepository);
+            ArgumentNullException.ThrowIfNull(playerRatingRepository);
+            ArgumentNullException.ThrowIfNull(userManager);
+            ArgumentNullException.ThrowIfNull(roleManager);
+            ArgumentNullException.ThrowIfNull(hostEnvironment);
+
             var resolvedPath = jsonFilePath
                 ?? Path.Combine(hostEnvironment.ContentRootPath, "SeedData", "playon-seed.json");
 
@@ -52,19 +116,19 @@ namespace PlayOn.Data.Seeding
             await SeedRolesAsync(roleManager, bundle.Roles, cancellationToken);
 
             var usersByEmail = await SeedUsersAndRolesAsync(userManager, bundle.Users, cancellationToken);
-            var sportsByName = await SeedSportsAsync(context, bundle.Sports, cancellationToken);
-            var venues = await SeedVenuesAsync(context, bundle.Venues, cancellationToken);
-            var courtsByName = await SeedCourtsAsync(context, bundle.Courts, cancellationToken);
+            var sportsByName = await SeedSportsAsync(sportRepository, bundle.Sports, cancellationToken);
+            var venues = await SeedVenuesAsync(venueRepository, bundle.Venues, cancellationToken);
+            var courtsByName = await SeedCourtsAsync(courtRepository, bundle.Courts, cancellationToken);
 
-            await SeedSportPreferencesAsync(context, usersByEmail, sportsByName, bundle.SportPreferences, cancellationToken);
-            await SeedCourtSportsAsync(context, courtsByName, sportsByName, bundle.CourtSports, cancellationToken);
+            await SeedSportPreferencesAsync(sportPreferenceRepository, usersByEmail, sportsByName, bundle.SportPreferences, cancellationToken);
+            await SeedCourtSportsAsync(courtSportRepository, courtsByName, sportsByName, bundle.CourtSports, cancellationToken);
 
-            var matchesByTitle = await SeedMatchesAsync(context, usersByEmail, bundle.Matches, cancellationToken);
+            var matchesByTitle = await SeedMatchesAsync(matchRepository, usersByEmail, bundle.Matches, cancellationToken);
 
-            await SeedEventsAsync(context, matchesByTitle, courtsByName, sportsByName, venues, bundle.Events, cancellationToken);
-            await SeedMatchParticipantsAsync(context, matchesByTitle, usersByEmail, bundle.MatchParticipants, cancellationToken);
-            await SeedNotificationsAsync(context, matchesByTitle, usersByEmail, bundle.Notifications, cancellationToken);
-            await SeedPlayerRatingsAsync(context, matchesByTitle, usersByEmail, bundle.PlayerRatings, cancellationToken);
+            await SeedEventsAsync(eventRepository, matchesByTitle, courtsByName, sportsByName, venues, bundle.Events, cancellationToken);
+            await SeedMatchParticipantsAsync(matchParticipantRepository, matchesByTitle, usersByEmail, bundle.MatchParticipants, cancellationToken);
+            await SeedNotificationsAsync(notificationRepository, matchesByTitle, usersByEmail, bundle.Notifications, cancellationToken);
+            await SeedPlayerRatingsAsync(playerRatingRepository, matchesByTitle, usersByEmail, bundle.PlayerRatings, cancellationToken);
         }
 
         private static async Task<SeedDataBundle> LoadOrCreateSeedBundleAsync(
@@ -176,7 +240,7 @@ namespace PlayOn.Data.Seeding
                 new(new DateOnly(2026, 11, 28), new TimeOnly(11, 0), "Mountain Sports Hall", "5 Vitosha Avenue", "Sofia", 42.650700m, 23.347000m, null, new TimeOnly(8, 0), new TimeOnly(23, 0), false),
                 new(new DateOnly(2026, 12, 3), new TimeOnly(18, 0), "Danube Sports Hub", "16 Harbor Avenue", "Ruse", 43.848000m, 25.960000m, null, new TimeOnly(8, 30), new TimeOnly(22, 30), false),
                 new(new DateOnly(2026, 12, 5), new TimeOnly(15, 0), "West End Club", "44 West Street", "Sofia", 42.705000m, 23.270000m, null, new TimeOnly(9, 0), new TimeOnly(22, 0), false)
-                ],
+            ],
             SportPreferences =
             [
                 new("alex.morgan@example.com", "Football", SkillLevel.Intermediate),
@@ -198,7 +262,7 @@ namespace PlayOn.Data.Seeding
                 new("quinn.clark@example.com", "Padel", SkillLevel.Advanced),
                 new("quinn.clark@example.com", "Handball", SkillLevel.Intermediate),
                 new("drew.hall@example.com", "Handball", SkillLevel.Intermediate)
-                ],
+            ],
             Courts =
             [
                 new("Main Football Pitch", Surface.Artificial, 22, 80m),
@@ -396,6 +460,7 @@ namespace PlayOn.Data.Seeding
                 }
             }
         }
+
         private static async Task<Dictionary<string, ApplicationUser>> SeedUsersAndRolesAsync(
             UserManager<ApplicationUser> userManager,
             IReadOnlyList<SeedUserDto> seedUsers,
@@ -456,38 +521,50 @@ namespace PlayOn.Data.Seeding
         }
 
         private static async Task<Dictionary<string, Sport>> SeedSportsAsync(
-            PlayOnDbContext context,
+            IRepository<Sport> sportRepository,
             IReadOnlyList<SeedSportDto> seedSports,
             CancellationToken cancellationToken)
         {
-            var existing = await context.Set<Sport>().ToListAsync(cancellationToken);
+            var existing = await sportRepository.Query().ToListAsync(cancellationToken);
             var map = existing.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
-            var toAdd = seedSports.Where(x => !map.ContainsKey(x.Name)).Select(x => new Sport
-            {
-                Name = x.Name,
-                Icon = x.Icon,
-                DefaultMinPlayers = x.DefaultMinPlayers,
-                DefaultMaxPlayers = x.DefaultMaxPlayers
-            }).ToList();
+
+            var toAdd = seedSports
+                .Where(x => !map.ContainsKey(x.Name))
+                .Select(x => new Sport
+                {
+                    Name = x.Name,
+                    Icon = x.Icon,
+                    DefaultMinPlayers = x.DefaultMinPlayers,
+                    DefaultMaxPlayers = x.DefaultMaxPlayers
+                })
+                .ToList();
+
             if (toAdd.Count > 0)
             {
-                await context.Set<Sport>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
-                foreach (var item in toAdd) map[item.Name] = item;
+                await sportRepository.AddRangeAsync(toAdd, cancellationToken);
+                await sportRepository.SaveChangesAsync(cancellationToken);
+
+                foreach (var item in toAdd)
+                {
+                    map[item.Name] = item;
+                }
             }
+
             return map;
         }
 
         private static async Task<List<Venue>> SeedVenuesAsync(
-            PlayOnDbContext context,
+            IRepository<Venue> venueRepository,
             IReadOnlyList<SeedVenueDto> seedVenues,
             CancellationToken cancellationToken)
         {
-            var existing = await context.Set<Venue>().ToListAsync(cancellationToken);
+            var existing = await venueRepository.Query().ToListAsync(cancellationToken);
             var map = existing.ToDictionary(
                 x => (x.Name, x.Address, x.City, x.Date, x.StartsAt));
+
             var ordered = new List<Venue>(seedVenues.Count);
             var toAdd = new List<Venue>();
+
             foreach (var dto in seedVenues)
             {
                 var key = (dto.Name, dto.Address, dto.City, dto.Date, dto.StartsAt);
@@ -510,48 +587,65 @@ namespace PlayOn.Data.Seeding
                     map[key] = venue;
                     toAdd.Add(venue);
                 }
+
                 ordered.Add(venue);
             }
+
             if (toAdd.Count > 0)
             {
-                await context.Set<Venue>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await venueRepository.AddRangeAsync(toAdd, cancellationToken);
+                await venueRepository.SaveChangesAsync(cancellationToken);
             }
+
             return ordered;
         }
 
         private static async Task SeedSportPreferencesAsync(
-            PlayOnDbContext context,
+            IRepository<SportPreference> sportPreferenceRepository,
             Dictionary<string, ApplicationUser> usersByEmail,
             Dictionary<string, Sport> sportsByName,
             IReadOnlyList<SeedSportPreferenceDto> preferences,
             CancellationToken cancellationToken)
         {
-            var existing = (await context.Set<SportPreference>()
+            var existing = (await sportPreferenceRepository.Query()
                 .Select(x => new { x.UserId, x.SportId })
                 .ToListAsync(cancellationToken))
-                .Select(x => (x.UserId, x.SportId)).ToHashSet();
+                .Select(x => (x.UserId, x.SportId))
+                .ToHashSet();
+
             var toAdd = new List<SportPreference>();
             foreach (var item in preferences)
             {
                 if (!usersByEmail.TryGetValue(item.UserEmail, out var user) ||
-                    !sportsByName.TryGetValue(item.SportName, out var sport)) continue;
+                    !sportsByName.TryGetValue(item.SportName, out var sport))
+                {
+                    continue;
+                }
+
                 if (existing.Add((user.Id, sport.Id)))
-                    toAdd.Add(new SportPreference { UserId = user.Id, SportId = sport.Id, SkillLevel = item.SkillLevel });
+                {
+                    toAdd.Add(new SportPreference
+                    {
+                        UserId = user.Id,
+                        SportId = sport.Id,
+                        SkillLevel = item.SkillLevel
+                    });
+                }
             }
+
             if (toAdd.Count > 0)
             {
-                await context.Set<SportPreference>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await sportPreferenceRepository.AddRangeAsync(toAdd, cancellationToken);
+                await sportPreferenceRepository.SaveChangesAsync(cancellationToken);
             }
         }
 
         private static async Task<Dictionary<string, Court>> SeedCourtsAsync(
-            PlayOnDbContext context,
+            IRepository<Court> courtRepository,
             IReadOnlyList<SeedCourtDto> seedCourts,
             CancellationToken cancellationToken)
         {
-            var existingCourts = await context.Set<Court>().ToListAsync(cancellationToken);
+            var existingCourts = await courtRepository.Query().ToListAsync(cancellationToken);
             var map = existingCourts.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
             var toAdd = new List<Court>();
@@ -571,8 +665,8 @@ namespace PlayOn.Data.Seeding
 
             if (toAdd.Count > 0)
             {
-                await context.Set<Court>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await courtRepository.AddRangeAsync(toAdd, cancellationToken);
+                await courtRepository.SaveChangesAsync(cancellationToken);
 
                 foreach (var added in toAdd)
                 {
@@ -584,13 +678,13 @@ namespace PlayOn.Data.Seeding
         }
 
         private static async Task SeedCourtSportsAsync(
-            PlayOnDbContext context,
+            IRepository<CourtSport> courtSportRepository,
             Dictionary<string, Court> courtsByName,
             Dictionary<string, Sport> sportsByName,
             IReadOnlyList<SeedCourtSportDto> pairs,
             CancellationToken cancellationToken)
         {
-            var existingKeys = (await context.Set<CourtSport>()
+            var existingKeys = (await courtSportRepository.Query()
                 .Select(x => new { x.CourtId, x.SportId })
                 .ToListAsync(cancellationToken))
                 .Select(x => (x.CourtId, x.SportId))
@@ -605,27 +699,26 @@ namespace PlayOn.Data.Seeding
                     continue;
                 }
 
-                if (!existingKeys.Contains((court.Id, sport.Id)))
+                if (existingKeys.Add((court.Id, sport.Id)))
                 {
                     toAdd.Add(new CourtSport { CourtId = court.Id, SportId = sport.Id });
-                    existingKeys.Add((court.Id, sport.Id));
                 }
             }
 
             if (toAdd.Count > 0)
             {
-                await context.Set<CourtSport>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await courtSportRepository.AddRangeAsync(toAdd, cancellationToken);
+                await courtSportRepository.SaveChangesAsync(cancellationToken);
             }
         }
 
         private static async Task<Dictionary<string, Match>> SeedMatchesAsync(
-            PlayOnDbContext context,
+            IRepository<Match> matchRepository,
             Dictionary<string, ApplicationUser> usersByEmail,
             IReadOnlyList<SeedMatchDto> seedMatches,
             CancellationToken cancellationToken)
         {
-            var existingMatches = await context.Set<Match>().ToListAsync(cancellationToken);
+            var existingMatches = await matchRepository.Query().ToListAsync(cancellationToken);
             var map = existingMatches.ToDictionary(m => m.Title, StringComparer.OrdinalIgnoreCase);
 
             var toAdd = new List<Match>();
@@ -656,8 +749,8 @@ namespace PlayOn.Data.Seeding
 
             if (toAdd.Count > 0)
             {
-                await context.Set<Match>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await matchRepository.AddRangeAsync(toAdd, cancellationToken);
+                await matchRepository.SaveChangesAsync(cancellationToken);
 
                 foreach (var added in toAdd)
                 {
@@ -669,7 +762,7 @@ namespace PlayOn.Data.Seeding
         }
 
         private static async Task SeedEventsAsync(
-            PlayOnDbContext context,
+            IRepository<Event> eventRepository,
             Dictionary<string, Match> matchesByTitle,
             Dictionary<string, Court> courtsByName,
             Dictionary<string, Sport> sportsByName,
@@ -682,7 +775,7 @@ namespace PlayOn.Data.Seeding
                 return;
             }
 
-            var existingKeys = (await context.Set<Event>()
+            var existingKeys = (await eventRepository.Query()
                 .Select(x => new { x.MatchId, x.SportId, x.CourtId, x.VenueId })
                 .ToListAsync(cancellationToken))
                 .Select(x => (x.MatchId, x.SportId, x.CourtId, x.VenueId))
@@ -700,7 +793,7 @@ namespace PlayOn.Data.Seeding
                 }
 
                 var venue = venues[item.VenueIndex];
-                if (!existingKeys.Contains((match.Id, sport.Id, court.Id, venue.Id)))
+                if (existingKeys.Add((match.Id, sport.Id, court.Id, venue.Id)))
                 {
                     toAdd.Add(new Event
                     {
@@ -709,25 +802,24 @@ namespace PlayOn.Data.Seeding
                         CourtId = court.Id,
                         VenueId = venue.Id
                     });
-                    existingKeys.Add((match.Id, sport.Id, court.Id, venue.Id));
                 }
             }
 
             if (toAdd.Count > 0)
             {
-                await context.Set<Event>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await eventRepository.AddRangeAsync(toAdd, cancellationToken);
+                await eventRepository.SaveChangesAsync(cancellationToken);
             }
         }
 
         private static async Task SeedMatchParticipantsAsync(
-            PlayOnDbContext context,
+            IRepository<MatchParticipant> matchParticipantRepository,
             Dictionary<string, Match> matchesByTitle,
             Dictionary<string, ApplicationUser> usersByEmail,
             IReadOnlyList<SeedMatchParticipantDto> seedParticipants,
             CancellationToken cancellationToken)
         {
-            var existingPairs = (await context.Set<MatchParticipant>()
+            var existingPairs = (await matchParticipantRepository.Query()
                 .Select(x => new { x.MatchId, x.UserId })
                 .ToListAsync(cancellationToken))
                 .Select(x => (x.MatchId, x.UserId))
@@ -742,7 +834,7 @@ namespace PlayOn.Data.Seeding
                     continue;
                 }
 
-                if (!existingPairs.Contains((match.Id, user.Id)))
+                if (existingPairs.Add((match.Id, user.Id)))
                 {
                     toAdd.Add(new MatchParticipant
                     {
@@ -753,25 +845,24 @@ namespace PlayOn.Data.Seeding
                         StatusChangedOn = item.StatusChangedOn,
                         IsLateCancel = item.IsLateCancel
                     });
-                    existingPairs.Add((match.Id, user.Id));
                 }
             }
 
             if (toAdd.Count > 0)
             {
-                await context.Set<MatchParticipant>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await matchParticipantRepository.AddRangeAsync(toAdd, cancellationToken);
+                await matchParticipantRepository.SaveChangesAsync(cancellationToken);
             }
         }
 
         private static async Task SeedNotificationsAsync(
-            PlayOnDbContext context,
+            IRepository<Notification> notificationRepository,
             Dictionary<string, Match> matchesByTitle,
             Dictionary<string, ApplicationUser> usersByEmail,
             IReadOnlyList<SeedNotificationDto> seedNotifications,
             CancellationToken cancellationToken)
         {
-            var existingKeys = (await context.Set<Notification>()
+            var existingKeys = (await notificationRepository.Query()
                 .Select(x => new { x.UserId, x.MatchId, x.Message, x.CreatedOn })
                 .ToListAsync(cancellationToken))
                 .Select(x => (x.UserId, x.MatchId, x.Message, x.CreatedOn))
@@ -787,7 +878,7 @@ namespace PlayOn.Data.Seeding
                 }
 
                 var key = (user.Id, (Guid?)match.Id, item.Message, item.CreatedOn);
-                if (!existingKeys.Contains(key))
+                if (existingKeys.Add(key))
                 {
                     toAdd.Add(new Notification
                     {
@@ -798,25 +889,24 @@ namespace PlayOn.Data.Seeding
                         IsRead = item.IsRead,
                         CreatedOn = item.CreatedOn
                     });
-                    existingKeys.Add(key);
                 }
             }
 
             if (toAdd.Count > 0)
             {
-                await context.Set<Notification>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await notificationRepository.AddRangeAsync(toAdd, cancellationToken);
+                await notificationRepository.SaveChangesAsync(cancellationToken);
             }
         }
 
         private static async Task SeedPlayerRatingsAsync(
-            PlayOnDbContext context,
+            IRepository<PlayerRating> playerRatingRepository,
             Dictionary<string, Match> matchesByTitle,
             Dictionary<string, ApplicationUser> usersByEmail,
             IReadOnlyList<SeedPlayerRatingDto> seedRatings,
             CancellationToken cancellationToken)
         {
-            var existingKeys = (await context.Set<PlayerRating>()
+            var existingKeys = (await playerRatingRepository.Query()
                 .Select(x => new { x.MatchId, x.RaterId, x.RatedUserId })
                 .ToListAsync(cancellationToken))
                 .Select(x => (x.MatchId, x.RaterId, x.RatedUserId))
@@ -832,7 +922,7 @@ namespace PlayOn.Data.Seeding
                     continue;
                 }
 
-                if (!existingKeys.Contains((match.Id, rater.Id, ratedUser.Id)))
+                if (existingKeys.Add((match.Id, rater.Id, ratedUser.Id)))
                 {
                     toAdd.Add(new PlayerRating
                     {
@@ -843,14 +933,13 @@ namespace PlayOn.Data.Seeding
                         Comment = item.Comment,
                         IsHidden = false
                     });
-                    existingKeys.Add((match.Id, rater.Id, ratedUser.Id));
                 }
             }
 
             if (toAdd.Count > 0)
             {
-                await context.Set<PlayerRating>().AddRangeAsync(toAdd, cancellationToken);
-                await context.SaveChangesAsync(cancellationToken);
+                await playerRatingRepository.AddRangeAsync(toAdd, cancellationToken);
+                await playerRatingRepository.SaveChangesAsync(cancellationToken);
             }
         }
     }
