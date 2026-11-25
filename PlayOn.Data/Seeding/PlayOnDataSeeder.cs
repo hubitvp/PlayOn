@@ -131,6 +131,16 @@ namespace PlayOn.Data.Seeding
             await SeedPlayerRatingsAsync(playerRatingRepository, matchesByTitle, usersByEmail, bundle.PlayerRatings, cancellationToken);
         }
 
+        private static bool TryRegisterGuid(Guid id, HashSet<Guid> knownIds)
+        {
+            if (id == Guid.Empty)
+            {
+                return false;
+            }
+
+            return knownIds.Add(id);
+        }
+
         private static async Task<SeedDataBundle> LoadOrCreateSeedBundleAsync(
             string filePath,
             CancellationToken cancellationToken)
@@ -467,13 +477,21 @@ namespace PlayOn.Data.Seeding
             CancellationToken cancellationToken)
         {
             var resultMap = new Dictionary<string, ApplicationUser>(StringComparer.OrdinalIgnoreCase);
+            var seenUserIds = new HashSet<Guid>();
 
             foreach (var item in seedUsers)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var user = await userManager.FindByEmailAsync(item.Email);
-                if (user == null)
+                if (user != null)
+                {
+                    if (!TryRegisterGuid(user.Id, seenUserIds))
+                    {
+                        continue;
+                    }
+                }
+                else
                 {
                     if (string.IsNullOrWhiteSpace(item.Password))
                     {
@@ -495,6 +513,11 @@ namespace PlayOn.Data.Seeding
                         EmailConfirmed = true,
                         LockoutEnabled = false
                     };
+
+                    if (!TryRegisterGuid(user.Id, seenUserIds))
+                    {
+                        continue;
+                    }
 
                     var createResult = await userManager.CreateAsync(user, item.Password);
                     if (!createResult.Succeeded)
@@ -526,28 +549,40 @@ namespace PlayOn.Data.Seeding
             CancellationToken cancellationToken)
         {
             var existing = await sportRepository.Query().ToListAsync(cancellationToken);
+            var knownIds = existing.Select(x => x.Id).Where(id => id != Guid.Empty).ToHashSet();
             var map = existing.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
-            var toAdd = seedSports
-                .Where(x => !map.ContainsKey(x.Name))
-                .Select(x => new Sport
+            var toAdd = new List<Sport>();
+            foreach (var dto in seedSports)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (map.ContainsKey(dto.Name))
                 {
-                    Name = x.Name,
-                    Icon = x.Icon,
-                    DefaultMinPlayers = x.DefaultMinPlayers,
-                    DefaultMaxPlayers = x.DefaultMaxPlayers
-                })
-                .ToList();
+                    continue;
+                }
+
+                var entity = new Sport
+                {
+                    Name = dto.Name,
+                    Icon = dto.Icon,
+                    DefaultMinPlayers = dto.DefaultMinPlayers,
+                    DefaultMaxPlayers = dto.DefaultMaxPlayers
+                };
+
+                if (!TryRegisterGuid(entity.Id, knownIds))
+                {
+                    continue;
+                }
+
+                map[entity.Name] = entity;
+                toAdd.Add(entity);
+            }
 
             if (toAdd.Count > 0)
             {
                 await sportRepository.AddRangeAsync(toAdd, cancellationToken);
                 await sportRepository.SaveChangesAsync(cancellationToken);
-
-                foreach (var item in toAdd)
-                {
-                    map[item.Name] = item;
-                }
             }
 
             return map;
@@ -559,6 +594,7 @@ namespace PlayOn.Data.Seeding
             CancellationToken cancellationToken)
         {
             var existing = await venueRepository.Query().ToListAsync(cancellationToken);
+            var knownIds = existing.Select(x => x.Id).Where(id => id != Guid.Empty).ToHashSet();
             var map = existing.ToDictionary(
                 x => (x.Name, x.Address, x.City, x.Date, x.StartsAt));
 
@@ -567,6 +603,8 @@ namespace PlayOn.Data.Seeding
 
             foreach (var dto in seedVenues)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 var key = (dto.Name, dto.Address, dto.City, dto.Date, dto.StartsAt);
                 if (!map.TryGetValue(key, out var venue))
                 {
@@ -584,6 +622,12 @@ namespace PlayOn.Data.Seeding
                         ClosesAt = dto.ClosesAt,
                         IsDeleted = dto.IsDeleted
                     };
+
+                    if (!TryRegisterGuid(venue.Id, knownIds))
+                    {
+                        continue;
+                    }
+
                     map[key] = venue;
                     toAdd.Add(venue);
                 }
@@ -607,30 +651,41 @@ namespace PlayOn.Data.Seeding
             IReadOnlyList<SeedSportPreferenceDto> preferences,
             CancellationToken cancellationToken)
         {
-            var existing = (await sportPreferenceRepository.Query()
+            var existingPairs = (await sportPreferenceRepository.Query()
                 .Select(x => new { x.UserId, x.SportId })
                 .ToListAsync(cancellationToken))
+                .Where(x => x.UserId != Guid.Empty && x.SportId != Guid.Empty)
                 .Select(x => (x.UserId, x.SportId))
                 .ToHashSet();
 
             var toAdd = new List<SportPreference>();
             foreach (var item in preferences)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (!usersByEmail.TryGetValue(item.UserEmail, out var user) ||
                     !sportsByName.TryGetValue(item.SportName, out var sport))
                 {
                     continue;
                 }
 
-                if (existing.Add((user.Id, sport.Id)))
+                if (user.Id == Guid.Empty || sport.Id == Guid.Empty)
                 {
-                    toAdd.Add(new SportPreference
-                    {
-                        UserId = user.Id,
-                        SportId = sport.Id,
-                        SkillLevel = item.SkillLevel
-                    });
+                    continue;
                 }
+
+                var pair = (user.Id, sport.Id);
+                if (!existingPairs.Add(pair))
+                {
+                    continue;
+                }
+
+                toAdd.Add(new SportPreference
+                {
+                    UserId = user.Id,
+                    SportId = sport.Id,
+                    SkillLevel = item.SkillLevel
+                });
             }
 
             if (toAdd.Count > 0)
@@ -646,32 +701,40 @@ namespace PlayOn.Data.Seeding
             CancellationToken cancellationToken)
         {
             var existingCourts = await courtRepository.Query().ToListAsync(cancellationToken);
+            var knownIds = existingCourts.Select(x => x.Id).Where(id => id != Guid.Empty).ToHashSet();
             var map = existingCourts.ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
 
             var toAdd = new List<Court>();
             foreach (var dto in seedCourts)
             {
-                if (!map.ContainsKey(dto.Name))
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (map.ContainsKey(dto.Name))
                 {
-                    toAdd.Add(new Court
-                    {
-                        Name = dto.Name,
-                        Surface = dto.Surface,
-                        Capacity = dto.Capacity,
-                        HourlyPrice = dto.HourlyPrice
-                    });
+                    continue;
                 }
+
+                var entity = new Court
+                {
+                    Name = dto.Name,
+                    Surface = dto.Surface,
+                    Capacity = dto.Capacity,
+                    HourlyPrice = dto.HourlyPrice
+                };
+
+                if (!TryRegisterGuid(entity.Id, knownIds))
+                {
+                    continue;
+                }
+
+                map[entity.Name] = entity;
+                toAdd.Add(entity);
             }
 
             if (toAdd.Count > 0)
             {
                 await courtRepository.AddRangeAsync(toAdd, cancellationToken);
                 await courtRepository.SaveChangesAsync(cancellationToken);
-
-                foreach (var added in toAdd)
-                {
-                    map[added.Name] = added;
-                }
             }
 
             return map;
@@ -687,22 +750,37 @@ namespace PlayOn.Data.Seeding
             var existingKeys = (await courtSportRepository.Query()
                 .Select(x => new { x.CourtId, x.SportId })
                 .ToListAsync(cancellationToken))
+                .Where(x => x.CourtId != Guid.Empty && x.SportId != Guid.Empty)
                 .Select(x => (x.CourtId, x.SportId))
                 .ToHashSet();
 
             var toAdd = new List<CourtSport>();
             foreach (var pair in pairs)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (!courtsByName.TryGetValue(pair.CourtName, out var court) ||
                     !sportsByName.TryGetValue(pair.SportName, out var sport))
                 {
                     continue;
                 }
 
-                if (existingKeys.Add((court.Id, sport.Id)))
+                if (court.Id == Guid.Empty || sport.Id == Guid.Empty)
                 {
-                    toAdd.Add(new CourtSport { CourtId = court.Id, SportId = sport.Id });
+                    continue;
                 }
+
+                var key = (court.Id, sport.Id);
+                if (!existingKeys.Add(key))
+                {
+                    continue;
+                }
+
+                toAdd.Add(new CourtSport
+                {
+                    CourtId = court.Id,
+                    SportId = sport.Id
+                });
             }
 
             if (toAdd.Count > 0)
@@ -719,17 +797,20 @@ namespace PlayOn.Data.Seeding
             CancellationToken cancellationToken)
         {
             var existingMatches = await matchRepository.Query().ToListAsync(cancellationToken);
+            var knownIds = existingMatches.Select(m => m.Id).Where(id => id != Guid.Empty).ToHashSet();
             var map = existingMatches.ToDictionary(m => m.Title, StringComparer.OrdinalIgnoreCase);
 
             var toAdd = new List<Match>();
             foreach (var item in seedMatches)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (map.ContainsKey(item.Title) || !usersByEmail.TryGetValue(item.OrganiserEmail, out var organiser))
                 {
                     continue;
                 }
 
-                toAdd.Add(new Match
+                var entity = new Match
                 {
                     OrganiserId = organiser.Id,
                     Title = item.Title,
@@ -744,18 +825,21 @@ namespace PlayOn.Data.Seeding
                     CancelReason = item.CancelReason,
                     IsHidden = false,
                     IsDeleted = false
-                });
+                };
+
+                if (!TryRegisterGuid(entity.Id, knownIds))
+                {
+                    continue;
+                }
+
+                map[entity.Title] = entity;
+                toAdd.Add(entity);
             }
 
             if (toAdd.Count > 0)
             {
                 await matchRepository.AddRangeAsync(toAdd, cancellationToken);
                 await matchRepository.SaveChangesAsync(cancellationToken);
-
-                foreach (var added in toAdd)
-                {
-                    map[added.Title] = added;
-                }
             }
 
             return map;
@@ -775,15 +859,28 @@ namespace PlayOn.Data.Seeding
                 return;
             }
 
-            var existingKeys = (await eventRepository.Query()
+            var existingRows = await eventRepository.Query()
                 .Select(x => new { x.MatchId, x.SportId, x.CourtId, x.VenueId })
-                .ToListAsync(cancellationToken))
+                .ToListAsync(cancellationToken);
+
+            var existingKeys = existingRows
+                .Where(x => x.MatchId != Guid.Empty
+                    && x.SportId != Guid.Empty
+                    && x.CourtId != Guid.Empty
+                    && x.VenueId != Guid.Empty)
                 .Select(x => (x.MatchId, x.SportId, x.CourtId, x.VenueId))
+                .ToHashSet();
+
+            var usedVenueIds = existingRows
+                .Select(x => x.VenueId)
+                .Where(id => id != Guid.Empty)
                 .ToHashSet();
 
             var toAdd = new List<Event>();
             foreach (var item in seedEvents)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (!matchesByTitle.TryGetValue(item.MatchTitle, out var match) ||
                     !sportsByName.TryGetValue(item.SportName, out var sport) ||
                     !courtsByName.TryGetValue(item.CourtName, out var court) ||
@@ -793,16 +890,34 @@ namespace PlayOn.Data.Seeding
                 }
 
                 var venue = venues[item.VenueIndex];
-                if (existingKeys.Add((match.Id, sport.Id, court.Id, venue.Id)))
+
+                if (match.Id == Guid.Empty
+                    || sport.Id == Guid.Empty
+                    || court.Id == Guid.Empty
+                    || venue.Id == Guid.Empty)
                 {
-                    toAdd.Add(new Event
-                    {
-                        MatchId = match.Id,
-                        SportId = sport.Id,
-                        CourtId = court.Id,
-                        VenueId = venue.Id
-                    });
+                    continue;
                 }
+
+                var key = (match.Id, sport.Id, court.Id, venue.Id);
+                if (!existingKeys.Add(key))
+                {
+                    continue;
+                }
+
+                if (!usedVenueIds.Add(venue.Id))
+                {
+                    existingKeys.Remove(key);
+                    continue;
+                }
+
+                toAdd.Add(new Event
+                {
+                    MatchId = match.Id,
+                    SportId = sport.Id,
+                    CourtId = court.Id,
+                    VenueId = venue.Id
+                });
             }
 
             if (toAdd.Count > 0)
@@ -819,33 +934,47 @@ namespace PlayOn.Data.Seeding
             IReadOnlyList<SeedMatchParticipantDto> seedParticipants,
             CancellationToken cancellationToken)
         {
-            var existingPairs = (await matchParticipantRepository.Query()
-                .Select(x => new { x.MatchId, x.UserId })
-                .ToListAsync(cancellationToken))
-                .Select(x => (x.MatchId, x.UserId))
-                .ToHashSet();
+            var existingRows = await matchParticipantRepository.Query()
+                .Select(x => new { x.Id, x.MatchId, x.UserId })
+                .ToListAsync(cancellationToken);
+
+            var knownIds = existingRows.Select(x => x.Id).Where(id => id != Guid.Empty).ToHashSet();
+            var existingPairs = existingRows.Select(x => (x.MatchId, x.UserId)).ToHashSet();
 
             var toAdd = new List<MatchParticipant>();
             foreach (var item in seedParticipants)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (!matchesByTitle.TryGetValue(item.MatchTitle, out var match) ||
                     !usersByEmail.TryGetValue(item.UserEmail, out var user))
                 {
                     continue;
                 }
 
-                if (existingPairs.Add((match.Id, user.Id)))
+                var pair = (match.Id, user.Id);
+                if (!existingPairs.Add(pair))
                 {
-                    toAdd.Add(new MatchParticipant
-                    {
-                        MatchId = match.Id,
-                        UserId = user.Id,
-                        Status = item.Status,
-                        JoinedOn = item.JoinedOn,
-                        StatusChangedOn = item.StatusChangedOn,
-                        IsLateCancel = item.IsLateCancel
-                    });
+                    continue;
                 }
+
+                var entity = new MatchParticipant
+                {
+                    MatchId = match.Id,
+                    UserId = user.Id,
+                    Status = item.Status,
+                    JoinedOn = item.JoinedOn,
+                    StatusChangedOn = item.StatusChangedOn,
+                    IsLateCancel = item.IsLateCancel
+                };
+
+                if (!TryRegisterGuid(entity.Id, knownIds))
+                {
+                    existingPairs.Remove(pair);
+                    continue;
+                }
+
+                toAdd.Add(entity);
             }
 
             if (toAdd.Count > 0)
@@ -862,15 +991,20 @@ namespace PlayOn.Data.Seeding
             IReadOnlyList<SeedNotificationDto> seedNotifications,
             CancellationToken cancellationToken)
         {
-            var existingKeys = (await notificationRepository.Query()
-                .Select(x => new { x.UserId, x.MatchId, x.Message, x.CreatedOn })
-                .ToListAsync(cancellationToken))
+            var existingRows = await notificationRepository.Query()
+                .Select(x => new { x.Id, x.UserId, x.MatchId, x.Message, x.CreatedOn })
+                .ToListAsync(cancellationToken);
+
+            var knownIds = existingRows.Select(x => x.Id).Where(id => id != Guid.Empty).ToHashSet();
+            var existingKeys = existingRows
                 .Select(x => (x.UserId, x.MatchId, x.Message, x.CreatedOn))
                 .ToHashSet();
 
             var toAdd = new List<Notification>();
             foreach (var item in seedNotifications)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (!usersByEmail.TryGetValue(item.UserEmail, out var user) ||
                     !matchesByTitle.TryGetValue(item.MatchTitle, out var match))
                 {
@@ -878,18 +1012,28 @@ namespace PlayOn.Data.Seeding
                 }
 
                 var key = (user.Id, (Guid?)match.Id, item.Message, item.CreatedOn);
-                if (existingKeys.Add(key))
+                if (!existingKeys.Add(key))
                 {
-                    toAdd.Add(new Notification
-                    {
-                        UserId = user.Id,
-                        Type = item.Type,
-                        Message = item.Message,
-                        MatchId = match.Id,
-                        IsRead = item.IsRead,
-                        CreatedOn = item.CreatedOn
-                    });
+                    continue;
                 }
+
+                var entity = new Notification
+                {
+                    UserId = user.Id,
+                    Type = item.Type,
+                    Message = item.Message,
+                    MatchId = match.Id,
+                    IsRead = item.IsRead,
+                    CreatedOn = item.CreatedOn
+                };
+
+                if (!TryRegisterGuid(entity.Id, knownIds))
+                {
+                    existingKeys.Remove(key);
+                    continue;
+                }
+
+                toAdd.Add(entity);
             }
 
             if (toAdd.Count > 0)
@@ -906,15 +1050,20 @@ namespace PlayOn.Data.Seeding
             IReadOnlyList<SeedPlayerRatingDto> seedRatings,
             CancellationToken cancellationToken)
         {
-            var existingKeys = (await playerRatingRepository.Query()
-                .Select(x => new { x.MatchId, x.RaterId, x.RatedUserId })
-                .ToListAsync(cancellationToken))
+            var existingRows = await playerRatingRepository.Query()
+                .Select(x => new { x.Id, x.MatchId, x.RaterId, x.RatedUserId })
+                .ToListAsync(cancellationToken);
+
+            var knownIds = existingRows.Select(x => x.Id).Where(id => id != Guid.Empty).ToHashSet();
+            var existingKeys = existingRows
                 .Select(x => (x.MatchId, x.RaterId, x.RatedUserId))
                 .ToHashSet();
 
             var toAdd = new List<PlayerRating>();
             foreach (var item in seedRatings)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
                 if (!matchesByTitle.TryGetValue(item.MatchTitle, out var match) ||
                     !usersByEmail.TryGetValue(item.RaterEmail, out var rater) ||
                     !usersByEmail.TryGetValue(item.RatedEmail, out var ratedUser))
@@ -922,18 +1071,29 @@ namespace PlayOn.Data.Seeding
                     continue;
                 }
 
-                if (existingKeys.Add((match.Id, rater.Id, ratedUser.Id)))
+                var key = (match.Id, rater.Id, ratedUser.Id);
+                if (!existingKeys.Add(key))
                 {
-                    toAdd.Add(new PlayerRating
-                    {
-                        MatchId = match.Id,
-                        RaterId = rater.Id,
-                        RatedUserId = ratedUser.Id,
-                        Score = item.Score,
-                        Comment = item.Comment,
-                        IsHidden = false
-                    });
+                    continue;
                 }
+
+                var entity = new PlayerRating
+                {
+                    MatchId = match.Id,
+                    RaterId = rater.Id,
+                    RatedUserId = ratedUser.Id,
+                    Score = item.Score,
+                    Comment = item.Comment,
+                    IsHidden = false
+                };
+
+                if (!TryRegisterGuid(entity.Id, knownIds))
+                {
+                    existingKeys.Remove(key);
+                    continue;
+                }
+
+                toAdd.Add(entity);
             }
 
             if (toAdd.Count > 0)
@@ -944,3 +1104,5 @@ namespace PlayOn.Data.Seeding
         }
     }
 }
+
+
