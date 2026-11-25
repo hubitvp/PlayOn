@@ -43,7 +43,7 @@ namespace PlayOn.Services.Data.Match
         public int? Reliability { get; set; }
     }
 
-    internal sealed class EditRowDisplayData
+    public sealed class EditRowDisplayData
     {
         public string SportName { get; set; } = null!;
         public SportIcon SportIcon { get; set; }
@@ -59,7 +59,7 @@ namespace PlayOn.Services.Data.Match
     }
 
 
-    internal sealed class EditRow
+    public sealed class EditRow
     {
         public Guid Id { get; set; }
         public Guid OrganiserId { get; set; }
@@ -78,7 +78,7 @@ namespace PlayOn.Services.Data.Match
         public EditRowDisplayData EditRowDisplayData { get; set; } = null!;
     }
 
-    internal sealed class SlotRow
+    public sealed class SlotRow
     {
         public Guid Id { get; set; }
         public DateOnly Date { get; set; }

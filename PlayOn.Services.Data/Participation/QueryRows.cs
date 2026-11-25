@@ -2,7 +2,7 @@
 
 namespace PlayOn.Services.Data.Participation
 {
-    internal sealed class JoinInfoRow
+    public sealed class JoinInfoRow
     {
         public Guid Id { get; set; }
         public bool IsDeleted { get; set; }
@@ -20,7 +20,7 @@ namespace PlayOn.Services.Data.Participation
         public TimeOnly StartsAt { get; set; }
     }
 
-    internal sealed class BookingRow
+    public sealed class BookingRow
     {
         public TimeOnly StartsAt { get; set; }
         public int DurationMinutes { get; set; }

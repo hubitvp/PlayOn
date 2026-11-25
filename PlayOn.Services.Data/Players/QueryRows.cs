@@ -1,6 +1,6 @@
 ﻿namespace PlayOn.Services.Data.Players
 {
-    internal sealed class PlayerRow
+    public sealed class PlayerRow
     {
         public Guid Id { get; set; }
         public string DisplayName { get; set; } = null!;

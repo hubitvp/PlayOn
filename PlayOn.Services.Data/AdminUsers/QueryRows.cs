@@ -1,6 +1,6 @@
 ﻿namespace PlayOn.Services.Data.AdminUsers
 {
-    internal sealed class AdminUserRow
+    public sealed class AdminUserRow
     {
         public Guid Id { get; set; }
         public string DisplayName { get; set; } = null!;

@@ -2,7 +2,7 @@
 
 namespace PlayOn.Services.Data.AdminSports
 {
-    internal sealed class AdminSportRow
+    public sealed class AdminSportRow
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;

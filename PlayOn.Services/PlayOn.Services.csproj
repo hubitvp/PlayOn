@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PlayOn.Data\PlayOn.Data.csproj" />
+    <ProjectReference Include="..\PlayOn.Services.Data\PlayOn.Services.Data.csproj" />
   </ItemGroup>
 
 </Project>

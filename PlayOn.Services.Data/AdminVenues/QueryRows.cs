@@ -1,6 +1,6 @@
 ﻿namespace PlayOn.Services.Data.AdminVenues
 {
-    internal sealed class AdminVenueRow
+    public sealed class AdminVenueRow
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;

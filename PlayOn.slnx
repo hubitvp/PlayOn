@@ -2,6 +2,7 @@
   <Project Path="PlayOn.Common/PlayOn.Common.csproj" Id="4194d650-5260-483d-97e6-3cd7f194cf76" />
   <Project Path="PlayOn.Data.Models/PlayOn.Data.Models.csproj" Id="8ace5045-bf0f-4856-a2c3-636945f5e095" />
   <Project Path="PlayOn.Data/PlayOn.Data.csproj" Id="33ab9fca-54fb-46c9-bf17-7fbfaf25bca6" />
+  <Project Path="PlayOn.Services.Data/PlayOn.Services.Data.csproj" Id="a9ac45e7-2b25-47f2-b224-3987d4f75864" />
   <Project Path="PlayOn.Services/PlayOn.Services.csproj" Id="66401be6-ceb4-4a15-a366-8528647b4f9d" />
   <Project Path="PlayOn.Web.ViewModels/PlayOn.Web.ViewModels.csproj" />
   <Project Path="PlayOn.Web/PlayOn.Web.csproj" />

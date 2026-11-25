@@ -2,7 +2,7 @@
 
 namespace PlayOn.Services.Data.Attendance
 {
-    internal sealed class AttendanceInfoRow
+    public sealed class AttendanceInfoRow
     {
         public Guid Id { get; set; }
         public bool IsDeleted { get; set; }
