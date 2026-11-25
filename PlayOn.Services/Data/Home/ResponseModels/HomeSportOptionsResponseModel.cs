@@ -3,6 +3,6 @@
     public class HomeSportOptionsResponseModel
     {
         public required Guid Id { get; init; }
-        public required string Name { get; init; } = null!;
+        public required string Name { get; init; }
     }
 }

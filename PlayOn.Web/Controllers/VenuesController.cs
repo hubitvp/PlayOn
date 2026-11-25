@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
+using PlayOn.Services.Data;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.ViewModels;
+
 namespace PlayOn.Web.Controllers
 {
     [AllowAnonymous]
@@ -28,26 +30,49 @@ namespace PlayOn.Web.Controllers
         public async Task<IActionResult>
             Index([FromQuery] PageInputModel page)
         {
+            if (!ModelState.IsValid)
+            {
+                return await ReturnInvalidIndexViewAsync(page);
+            }
 
             var requestData = venueDataBuilder.PageInputToPageRequestData(page);
 
-            var response = await venueService
-                .GetSinglePageAsync(requestData);
+            var response = await venueService.GetSinglePageAsync(requestData);
 
-            if (!response.IsSuccess)
+            if (response.Status == ServiceStatus.InvalidInput)
             {
                 AddServiceErrors(response.Errors);
+                return await ReturnInvalidIndexViewAsync(page);
+            }
 
-                var errorViewModel = venueDataBuilder
-                    .VenueListToViewModel(null, requestData.Page);
-
-                return View(errorViewModel);
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = venueDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             var viewModel = venueDataBuilder
                 .VenueListToViewModel(response.ResponseData, requestData.Page);
 
             return View(viewModel);
+        }
+
+        private async Task<IActionResult> ReturnInvalidIndexViewAsync(PageInputModel page)
+        {
+            var requestData = venueDataBuilder.PageInputToPageRequestData(page);
+
+            var response = await venueService.GetSinglePageAsync(requestData);
+
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = venueDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
+            }
+
+            var viewModel = venueDataBuilder
+                .VenueListToViewModel(response.ResponseData, requestData.Page);
+
+            return View(nameof(Index), viewModel);
         }
     }
 }

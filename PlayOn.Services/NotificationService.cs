@@ -33,8 +33,7 @@ namespace PlayOn.Services
                     .Failure(pageResponse.Errors);
             }
 
-            var unreadCountResponse = await GetUnreadCountAsync(
-                userId);
+            var unreadCountResponse = await GetUnreadCountAsync(userId);
 
             if (!unreadCountResponse.IsSuccess)
             {
@@ -56,6 +55,7 @@ namespace PlayOn.Services
                 Guid userId,
                 PageRequestData pageRequestData)
         {
+            ArgumentNullException.ThrowIfNull(pageRequestData);
 
             var notificationQuery = BuildNotificationQuery(userId);
 
@@ -85,8 +85,7 @@ namespace PlayOn.Services
         {
             var notification = await notificationRepository
                 .Query(asNoTracking: false)
-                .SingleOrDefaultAsync(x =>
-                    x.Id == notificationId && x.UserId == userId);
+                .SingleOrDefaultAsync(x => x.Id == notificationId);
 
             if (notification == null)
             {
@@ -94,10 +93,15 @@ namespace PlayOn.Services
                     .NotFound();
             }
 
+            if (notification.UserId != userId)
+            {
+                return ServiceResponse<NotificationResponseModelData>
+                    .Forbidden();
+            }
+
             if (!notification.IsRead)
             {
                 notification.IsRead = true;
-
                 await notificationRepository.SaveChangesAsync();
             }
 

@@ -1,6 +1,8 @@
-﻿@model ErrorPageViewModel
+﻿@model ErrorViewModel
 @{
-    ViewData["Title"] = Model.Title;
+    var title = Model?.Title ?? "Error";
+    var message = Model?.Message ?? "An unexpected error occurred.";
+    ViewData["Title"] = title;
 }
 
 <div class="generic-error-board my-4 p-4 p-md-5 shadow-sm">
@@ -18,14 +20,14 @@
             <span class="badge rounded-pill text-bg-warning text-dark mb-3">
                 <i class="bi bi-clipboard2-pulse me-1"></i>Match official's note
             </span>
-            <h1 class="display-6 fw-bold">@Model.Title</h1>
-            <p class="lead text-white-50">@Model.Message</p>
+            <h1 class="display-6 fw-bold">@title</h1>
+            <p class="lead text-white-50">@message</p>
             <p class="mb-4">The play took an unexpected timeout. No points were lost, and you can get back in the game.</p>
             <div class="d-flex flex-wrap gap-2">
                 <button type="button" class="btn btn-light btn-lg" onclick="window.location.reload()">
                     <i class="bi bi-arrow-clockwise me-1"></i>Resume play
                 </button>
-                <a asp-controller="Home" asp-action="Index" class="btn btn-outline-light btn-lg">
+                <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-outline-light btn-lg">
                     <i class="bi bi-house-door me-1"></i>Go to home
                 </a>
             </div>

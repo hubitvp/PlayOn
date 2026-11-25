@@ -8,7 +8,6 @@ using PlayOn.Services.Data.Ratings.RequestData;
 using PlayOn.Services.Data.Ratings.ResponseModels;
 using PlayOn.Services.DataBuilders;
 using System.ComponentModel.DataAnnotations;
-using static PlayOn.Common.ApplicationConstants.ParticipationRules;
 using static PlayOn.Common.EntityConstants.PlayerRatingConstants;
 
 namespace PlayOn.Services
@@ -19,7 +18,6 @@ namespace PlayOn.Services
         private readonly IRepository<MatchParticipant> participantRepository;
         private readonly IRepository<PlayerRating> ratingRepository;
         private readonly IRepository<Notification> notificationRepository;
-
         private readonly TimeProvider timeProvider;
 
         public RatingService(
@@ -36,7 +34,6 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
-
         public async Task<ServiceResponse<RatingFormResponseModel>>
             GetFormAsync(
                 Guid matchId,
@@ -44,10 +41,7 @@ namespace PlayOn.Services
         {
             var info = await GetInfoAsync(matchId);
 
-            var failure = await CheckAccessAsync<RatingFormResponseModel>(
-                info,
-                raterId);
-
+            var failure = await CheckAccessAsync<RatingFormResponseModel>(info, raterId);
             if (failure != null)
             {
                 return failure;
@@ -60,22 +54,22 @@ namespace PlayOn.Services
                 info!.Title,
                 players);
 
-            return ServiceResponse<RatingFormResponseModel>
-                .Success(responseData);
+            return ServiceResponse<RatingFormResponseModel>.Success(responseData);
         }
-
 
         public async Task<ServiceResponse<int>>
             SubmitAsync(RatingRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request).ToList();
             if (errors.Any())
             {
                 return ServiceResponse<int>.Failure(errors);
             }
 
-            if (request.Entries.Count == 0)
+            var entries = request.Entries;
+            if (entries.Count == 0)
             {
                 return ServiceResponse<int>
                     .Failure("Rate at least one player.", "Players");
@@ -84,7 +78,6 @@ namespace PlayOn.Services
             var info = await GetInfoAsync(request.MatchId);
 
             var failure = await CheckAccessAsync<int>(info, request.RaterId);
-
             if (failure != null)
             {
                 return failure;
@@ -95,7 +88,7 @@ namespace PlayOn.Services
                 request.RaterId);
 
             var entryErrors = ValidateEntries(
-                request.Entries,
+                entries,
                 ratablePlayers.Select(x => x.UserId).ToHashSet());
 
             if (entryErrors.Any())
@@ -105,14 +98,14 @@ namespace PlayOn.Services
 
             var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
 
-            var ratings = request.Entries
+            var ratings = entries
                 .Select(x => RatingDataBuilder.RatingToEntity(
                     request.MatchId,
                     request.RaterId,
                     x))
                 .ToList();
 
-            var notifications = request.Entries
+            var notifications = entries
                 .Select(x => NotificationDataBuilder.NotificationToEntity(
                     x.RatedUserId,
                     NotificationType.RatingReceived,
@@ -127,7 +120,6 @@ namespace PlayOn.Services
 
             return ServiceResponse<int>.Success(ratings.Count);
         }
-
 
         private async Task<RatingInfoRow?> GetInfoAsync(Guid matchId)
         {

@@ -14,7 +14,7 @@ namespace PlayOn.Web.ViewModels.Admin
         [Required]
         [StringLength(NameMaxLength, MinimumLength = NameMinLength)]
         [Display(Name = "Name")]
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = null!;
 
         [EnumDataType(typeof(SportIcon))]
         [Display(Name = "Icon")]
@@ -30,6 +30,13 @@ namespace PlayOn.Web.ViewModels.Admin
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            if ((Name ?? string.Empty).Trim().Length < NameMinLength)
+            {
+                yield return new ValidationResult(
+                    $"Name must have at least {NameMinLength} characters, not counting spaces at the ends.",
+                    new[] { nameof(Name) });
+            }
+
             if (DefaultMinPlayers > DefaultMaxPlayers)
             {
                 yield return new ValidationResult(

@@ -7,23 +7,15 @@
     <div class="col-lg-8">
         <h1 class="h3 mb-1">Edit match</h1>
 
-        <div class="card bg-light border-0 mb-3">
-            <div class="card-body small">
-                <i class="@Model.SportIcon" aria-hidden="true"></i> <strong>@Model.SportName</strong> on @Model.CourtName<br />
-                <i class="bi bi-calendar-event"></i> @Model.StartsAt<br />
-                <i class="bi bi-geo-alt"></i> @Model.VenueName, @Model.City<br />
-                <span class="text-muted">
-                    The sport, court and time cannot be changed. Cancel the match and organise a new one for that.
-                    @Model.JoinedCount @(Model.JoinedCount == 1 ? "player has" : "players have") joined, so the maximum cannot be lower.
-                </span>
-            </div>
-        </div>
+        <partial name="_EditDisplayDataPartial" model="@Model.EditDisplayData" />
 
         <form asp-action="Edit" asp-route-id="@Model.MatchId" method="post" data-match-form novalidate>
+            
             <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+
             <input asp-for="MatchId" type="hidden" />
             <input asp-for="RowVersion" type="hidden" />
-
 
             <div class="mb-3">
                 <label asp-for="Title" class="form-label fw-bold">Title</label>

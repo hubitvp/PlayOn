@@ -1,7 +1,7 @@
 ﻿@model int
 
 <li class="nav-item me-lg-2">
-    <a class="nav-link position-relative" asp-controller="Notifications" asp-action="Index" aria-label="Notifications">
+    <a class="nav-link position-relative" asp-area="" asp-controller="Notifications" asp-action="Index" aria-label="Notifications">
         <i class="bi bi-bell-fill"></i>
         @if (Model > 0)
         {

@@ -4,7 +4,7 @@ using PlayOn.Web.ViewModels.Ratings;
 
 namespace PlayOn.Web.DataBuilders;
 
-public class RatingDataBuilder
+public class RatingDataBuilder : DataBuilder
 {
     public RatingFormViewModel
         RatingFormToViewModel(RatingFormResponseModel source)

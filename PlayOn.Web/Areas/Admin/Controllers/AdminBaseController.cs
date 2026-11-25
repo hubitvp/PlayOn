@@ -6,7 +6,6 @@ using System.Security.Claims;
 
 namespace PlayOn.Web.Areas.Admin.Controllers
 {
-
     [Area("Admin")]
     [Authorize(Roles = RoleNames.Administrator)]
     public abstract class AdminBaseController : Controller

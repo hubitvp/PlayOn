@@ -20,9 +20,9 @@ namespace PlayOn.Web.Controllers
             {
                 case 404:
                     {
-                        var model = new ErrorPageViewModel
+                        var model = new ErrorViewModel
                         {
-                            Code = 404,
+                            Code = StatusCodes.Status404NotFound,
                             Title = "The play has moved",
                             Message = "We searched the whole field, but the page you requested is not here."
                         };
@@ -32,9 +32,9 @@ namespace PlayOn.Web.Controllers
 
                 case 500:
                     {
-                        var model = new ErrorPageViewModel
+                        var model = new ErrorViewModel
                         {
-                            Code = 500,
+                            Code = StatusCodes.Status500InternalServerError,
                             Title = "The scoreboard is offline",
                             Message = "Something went wrong on our side. Please try again in a moment."
                         };
@@ -43,7 +43,7 @@ namespace PlayOn.Web.Controllers
                     }
 
                 default:
-                    return View("Error", new ErrorPageViewModel
+                    return View("Error", new ErrorViewModel
                     {
                         Code = statusCode,
                         Title = "Error",
@@ -62,7 +62,7 @@ namespace PlayOn.Web.Controllers
             Response.StatusCode = StatusCodes.Status500InternalServerError;
 
 
-            return View("Error", new ErrorPageViewModel
+            return View("Error", new ErrorViewModel
             {
                 Code = StatusCodes.Status500InternalServerError,
                 Title = "Game over",

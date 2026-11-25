@@ -35,14 +35,12 @@ namespace PlayOn.Services
             this.ratingRepository = ratingRepository;
         }
 
-
         public async Task<ServiceResponse<PlayerProfileResponseModel>>
             GetProfileAsync(
                 Guid userId,
                 Guid targetProfileId)
         {
             var player = await GetPlayerRowAsync(targetProfileId, onlyActive: true);
-
             if (player == null)
             {
                 return ServiceResponse<PlayerProfileResponseModel>.NotFound();
@@ -81,8 +79,7 @@ namespace PlayOn.Services
                 .Select(PlayerDataBuilder.PlayerRatingProjection())
                 .ToListAsync();
 
-            var isOwnProfile = userId != Guid.Empty
-                && targetProfileId == userId;
+            var isOwnProfile = userId != Guid.Empty && targetProfileId == userId;
 
             var responseData = PlayerDataBuilder.PlayerToProfileResponseModel(
                 player,
@@ -95,23 +92,19 @@ namespace PlayOn.Services
                 recentRatings,
                 isOwnProfile);
 
-            return ServiceResponse<PlayerProfileResponseModel>
-                .Success(responseData);
+            return ServiceResponse<PlayerProfileResponseModel>.Success(responseData);
         }
-
 
         public async Task<ServiceResponse<PlayerEditResponseModel>>
             GetForEditAsync(Guid userId)
         {
             var player = await GetPlayerRowAsync(userId, onlyActive: false);
-
             if (player == null)
             {
                 return ServiceResponse<PlayerEditResponseModel>.NotFound();
             }
 
             var skillOptionsResponse = await GetSkillOptionsAsync(userId);
-
             if (!skillOptionsResponse.IsSuccess)
             {
                 return ServiceResponse<PlayerEditResponseModel>
@@ -122,16 +115,15 @@ namespace PlayOn.Services
                 player,
                 skillOptionsResponse.ResponseData);
 
-            return ServiceResponse<PlayerEditResponseModel>
-                .Success(responseData);
+            return ServiceResponse<PlayerEditResponseModel>.Success(responseData);
         }
-
 
         public async Task<ServiceResponse<Guid>>
             UpdateAsync(PlayerUpdateRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request).ToList();
             if (errors.Any())
             {
                 return ServiceResponse<Guid>.Failure(errors);
@@ -146,8 +138,9 @@ namespace PlayOn.Services
                 return ServiceResponse<Guid>.NotFound();
             }
 
-            var skillErrors = await ValidateSkillsAsync(request.Skills);
+            var skills = request.Skills;
 
+            var skillErrors = await ValidateSkillsAsync(skills);
             if (skillErrors.Any())
             {
                 return ServiceResponse<Guid>.Failure(skillErrors);
@@ -156,13 +149,12 @@ namespace PlayOn.Services
             user.DisplayName = request.DisplayName.Trim();
             user.City = request.City.Trim();
 
-            await ApplySkillsAsync(request.UserId, request.Skills);
+            await ApplySkillsAsync(request.UserId, skills);
 
             await userRepository.SaveChangesAsync();
 
             return ServiceResponse<Guid>.Success(request.UserId);
         }
-
 
         private async Task<PlayerRow?> GetPlayerRowAsync(
             Guid userId,
@@ -228,11 +220,16 @@ namespace PlayOn.Services
                 var skill = skills[i];
                 var member = $"Skills[{i}].SkillLevel";
 
-                if (!validSportIds.Contains(skill.SportId)
-                    || !seenSportIds.Add(skill.SportId))
+                if (!validSportIds.Contains(skill.SportId))
                 {
                     errors.Add(new ValidationResult(
                         "Select a valid sport.",
+                        new[] { member }));
+                }
+                else if (!seenSportIds.Add(skill.SportId))
+                {
+                    errors.Add(new ValidationResult(
+                        "Duplicate sport selection is not allowed.",
                         new[] { member }));
                 }
                 else if (skill.SkillLevel.HasValue
@@ -274,7 +271,6 @@ namespace PlayOn.Services
                 if (current != null)
                 {
                     current.SkillLevel = skill.SkillLevel.Value;
-
                     continue;
                 }
 

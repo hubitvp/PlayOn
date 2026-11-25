@@ -41,9 +41,14 @@ namespace PlayOn.Web.Controllers
             {
                 var optionsResponse = await matchService.GetOptionsAsync(null);
 
-                var errorViewModel = matchDataBuilder.ToViewModel(model, null, optionsResponse.ResponseData);
+                if (optionsResponse.Status != ServiceStatus.Success)
+                {
+                    var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(optionsResponse.Status);
+                    return View("Error", errorViewModel);
+                }
 
-                return View(errorViewModel);
+                var invalidViewModel = matchDataBuilder.ToViewModel(model, null, optionsResponse.ResponseData);
+                return View(invalidViewModel);
             }
 
             var searchRequestData = matchDataBuilder
@@ -77,7 +82,8 @@ namespace PlayOn.Web.Controllers
 
             if (!response.IsSuccess)
             {
-                return GetFailStatusCode(response);
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             var canonicalSlug = Slug.Create(response.ResponseData.Title);
@@ -103,7 +109,8 @@ namespace PlayOn.Web.Controllers
 
             if (!response.IsSuccess)
             {
-                return GetFailStatusCode(response);
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             var viewModel = matchDataBuilder
@@ -120,7 +127,7 @@ namespace PlayOn.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return await ReturnInvalidEditViewAsync(model);
             }
 
             var requestData = matchDataBuilder
@@ -128,19 +135,23 @@ namespace PlayOn.Web.Controllers
 
             var serviceResponse = await matchService.UpdateAsync(requestData);
 
-
-            if (serviceResponse.IsSuccess)
+            if (serviceResponse.Status == ServiceStatus.InvalidInput)
             {
-                TempData["Success"] = "Match updated.";
-
-                return RedirectToAction(
-                    nameof(Details),
-                    new { id = model.MatchId, slug = Slug.Create(model.Title) });
+                AddServiceErrors(serviceResponse.Errors);
+                return await ReturnInvalidEditViewAsync(model);
             }
 
-            AddServiceErrors(serviceResponse.Errors);
-            return GetFailStatusCode(serviceResponse);
+            if (serviceResponse.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(serviceResponse.Status);
+                return View("Error", errorViewModel);
+            }
 
+            TempData["Success"] = "Match updated.";
+
+            return RedirectToAction(
+                nameof(Details),
+                new { id = model.MatchId, slug = Slug.Create(model.Title) });
         }
 
         [HttpGet]
@@ -150,7 +161,8 @@ namespace PlayOn.Web.Controllers
 
             if (!optionsResponse.IsSuccess)
             {
-                return GetFailStatusCode(optionsResponse);
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(optionsResponse.Status);
+                return View("Error", errorViewModel);
             }
 
             var viewModel = matchDataBuilder
@@ -163,14 +175,9 @@ namespace PlayOn.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(MatchCreateInputModel model)
         {
-
             if (!ModelState.IsValid)
             {
-                var optionsResponse = await matchService.GetOptionsAsync(null);
-
-                matchDataBuilder.EmbedOptionsToViewModel(model, optionsResponse.ResponseData);
-
-                return View(model);
+                return await ReturnInvalidCreateViewAsync(model);
             }
 
             var requestData = matchDataBuilder
@@ -178,11 +185,16 @@ namespace PlayOn.Web.Controllers
 
             var serviceResponse = await matchService.CreateAsync(requestData);
 
-            if (!serviceResponse.IsSuccess)
+            if (serviceResponse.Status == ServiceStatus.InvalidInput)
             {
                 AddServiceErrors(serviceResponse.Errors);
+                return await ReturnInvalidCreateViewAsync(model);
+            }
 
-                return GetFailStatusCode(serviceResponse);
+            if (serviceResponse.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(serviceResponse.Status);
+                return View("Error", errorViewModel);
             }
 
             TempData["Success"] = "Your match is open. Other players can join now.";
@@ -200,8 +212,8 @@ namespace PlayOn.Web.Controllers
 
             if (!serviceResponse.IsSuccess)
             {
-                AddServiceErrors(serviceResponse.Errors);
-                return GetFailStatusCode(serviceResponse);
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(serviceResponse.Status);
+                return View("Error", errorViewModel);
             }
 
             var viewModel = matchDataBuilder
@@ -219,39 +231,31 @@ namespace PlayOn.Web.Controllers
         {
             model.MatchId = id;
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var requestData = matchDataBuilder
-                    .MatchCancelToRequestData(model.MatchId, GetUserId(), IsAdmin(), model);
-
-                var response = await matchService.CancelAsync(requestData);
-
-                if (response.IsSuccess)
-                {
-                    TempData["Success"] = "The match was cancelled and the players were notified.";
-
-                    return RedirectToAction(nameof(Details), new { id = model.MatchId });
-                }
-
-                if (response.Status != ServiceStatus.Invalid)
-                {
-                    return GetFailStatusCode(response);
-                }
-
-                AddServiceErrors(response.Errors);
+                return await ReturnInvalidCancelViewAsync(model);
             }
 
-            var cancelData = await matchService
-                .GetForCancelAsync(model.MatchId, GetUserId(), IsAdmin());
+            var requestData = matchDataBuilder
+                .MatchCancelToRequestData(model.MatchId, GetUserId(), IsAdmin(), model);
 
-            if (!cancelData.IsSuccess)
+            var serviceResponse = await matchService.CancelAsync(requestData);
+
+            if (serviceResponse.Status == ServiceStatus.InvalidInput)
             {
-                return GetFailStatusCode(cancelData);
+                AddServiceErrors(serviceResponse.Errors);
+                return await ReturnInvalidCancelViewAsync(model);
             }
 
-            matchDataBuilder.MatchCancelApplyDisplayData(model, cancelData.ResponseData);
+            if (serviceResponse.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(serviceResponse.Status);
+                return View("Error", errorViewModel);
+            }
 
-            return View(model);
+            TempData["Success"] = "The match was cancelled and the players were notified.";
+
+            return RedirectToAction(nameof(Details), new { id = model.MatchId });
         }
 
         [HttpGet]
@@ -262,7 +266,8 @@ namespace PlayOn.Web.Controllers
 
             if (!response.IsSuccess)
             {
-                return AttendanceFailure(response, id);
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             var viewModel = matchDataBuilder
@@ -276,57 +281,95 @@ namespace PlayOn.Web.Controllers
         public async Task<IActionResult>
             Attendance(
                 Guid id,
-                AttendanceViewModel model)
+                MatchAttendanceViewModel model)
         {
             model.MatchId = id;
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var requestData = matchDataBuilder
-                    .AttendanceToRequestData(id, GetUserId(), IsAdmin(), model);
-
-                var response = await attendanceService.SubmitAsync(requestData);
-
-                if (response.IsSuccess)
-                {
-                    TempData["Success"] = "Attendance saved. Players can now rate each other.";
-
-                    return RedirectToAction(nameof(Details), new { id });
-                }
-
-                if (response.Status != ServiceStatus.Invalid)
-                {
-                    return AttendanceFailure(response, id);
-                }
-
-                AddServiceErrors(response.Errors);
+                return await ReturnInvalidAttendanceViewAsync(model);
             }
 
-            var attendanceData = await attendanceService
-                .GetAsync(id, GetUserId(), IsAdmin());
+            var requestData = matchDataBuilder
+                .AttendanceToRequestData(model.MatchId, GetUserId(), IsAdmin(), model);
 
-            if (!attendanceData.IsSuccess)
+            var serviceResponse = await attendanceService.SubmitAsync(requestData);
+
+            if (serviceResponse.Status == ServiceStatus.InvalidInput)
             {
-                return AttendanceFailure(attendanceData, id);
+                AddServiceErrors(serviceResponse.Errors);
+                return await ReturnInvalidAttendanceViewAsync(model);
+            }
+
+            if (serviceResponse.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(serviceResponse.Status);
+                return View("Error", errorViewModel);
+            }
+
+            TempData["Success"] = "Attendance saved. Players can now rate each other.";
+
+            return RedirectToAction(nameof(Details), new { id = model.MatchId });
+        }
+
+        private async Task<IActionResult> ReturnInvalidEditViewAsync(MatchEditViewModel model)
+        {
+            var displayData = await matchService.GetEditDisplayDataAsync(model.MatchId, GetUserId(), IsAdmin());
+
+            if (displayData.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(displayData.Status);
+                return View("Error", errorViewModel);
+            }
+
+            matchDataBuilder.MatchEditApplyDisplayData(model, displayData.ResponseData);
+
+            return View(model);
+        }
+
+        private async Task<IActionResult> ReturnInvalidCreateViewAsync(MatchCreateInputModel model)
+        {
+            var optionsResponse = await matchService.GetOptionsAsync(null);
+
+            if (optionsResponse.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(optionsResponse.Status);
+                return View("Error", errorViewModel);
+            }
+
+            matchDataBuilder.EmbedOptionsToViewModel(model, optionsResponse.ResponseData);
+
+            return View(model);
+        }
+
+        private async Task<IActionResult> ReturnInvalidCancelViewAsync(MatchCancelViewModel model)
+        {
+            var cancelData = await matchService.GetForCancelAsync(model.MatchId, GetUserId(), IsAdmin());
+
+            if (cancelData.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(cancelData.Status);
+                return View("Error", errorViewModel);
+            }
+
+            matchDataBuilder.MatchCancelApplyDisplayData(model, cancelData.ResponseData);
+
+            return View(model);
+        }
+
+        private async Task<IActionResult> ReturnInvalidAttendanceViewAsync(MatchAttendanceViewModel model)
+        {
+            var attendanceData = await attendanceService.GetAsync(model.MatchId, GetUserId(), IsAdmin());
+
+            if (attendanceData.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = matchDataBuilder.ServiceStatusToErrorViewModel(attendanceData.Status);
+                return View("Error", errorViewModel);
             }
 
             matchDataBuilder.AttendanceApplyDisplayData(model, attendanceData.ResponseData);
 
             return View(model);
         }
-
-
-        private IActionResult AttendanceFailure<T>(ServiceResponse<T> response, Guid matchId)
-        {
-            if (response.Status == ServiceStatus.Conflict)
-            {
-                TempData["Warning"] = "Warning: The action could not be completed due to a conflict.";
-
-                return RedirectToAction(nameof(Details), new { id = matchId });
-            }
-
-            return GetFailStatusCode(response);
-        }
-
     }
 }

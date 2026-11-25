@@ -10,13 +10,14 @@
         public required string StartsAt { get; init; }
         public required string OpensAt { get; init; }
         public required string ClosesAt { get; init; }
-        public required VenueCourtViewModel Court { get; init; }
-        public required Guid MatchId { get; init; }
-        public required string MatchTitle { get; init; }
-        public required string Slug { get; init; }
+        public VenueCourtViewModel? Court { get; init; }
+        public Guid? MatchId { get; init; }
+        public string? MatchTitle { get; init; }
+        public string? Slug { get; init; }
     }
+
     public class VenueViewModel : PageViewModel
     {
-        public required IEnumerable<VenueViewModelData> Venues { get; init; }
+        public required IReadOnlyList<VenueViewModelData> Venues { get; init; }
     }
 }

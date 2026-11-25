@@ -12,6 +12,6 @@
         public required int FreeVenuesCount { get; init; }
         public required int RatingsCount { get; init; }
 
-        public required IReadOnlyList<AdminUpcomingMatchViewModel> UpcomingMatches { get; init; }
+        public required IReadOnlyList<AdminUpcomingMatchViewModel> UpcomingMatches { get; init; } = [];
     }
 }

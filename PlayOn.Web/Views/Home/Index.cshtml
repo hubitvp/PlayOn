@@ -9,8 +9,6 @@
             <h1 class="display-5 fw-bold">Find a game tonight.</h1>
             <p class="lead">Join matches near you, fill your roster, and play with people you can rely on.</p>
 
-            <p>Selected SportId: @Model.SportId</p>
-
             <form asp-controller="Home"
                   asp-action="Index"
                   method="get"
@@ -24,7 +22,6 @@
                         <option value="">Any sport</option>
                     </select>
                     <span asp-validation-for="SportId" class="fs-4 text-warning"></span>
-
                 </div>
 
                 <div class="col-md-3">
@@ -33,7 +30,6 @@
                            class="form-control form-control-lg"
                            placeholder="City" />
                     <span asp-validation-for="City" class="fs-4 text-warning"></span>
-
                 </div>
 
                 <div class="col-md-3">
@@ -49,7 +45,6 @@
                         </button>
                     </div>
                     <span asp-validation-for="From" class="fs-4 text-warning"></span>
-
                 </div>
 
                 <div class="col-md-2 d-grid">
@@ -62,15 +57,7 @@
     </section>
 }
 
-
-
-@if (Model.Page == null)
-{
-    <div class="alert alert-info">
-        No upcoming matches
-    </div>
-}
-else if (Model.Page.PageItems.Count == 0)
+@if (Model.Page == null || Model.Page.PageItems.Count == 0)
 {
     <div class="alert alert-info">
         No upcoming matches
@@ -83,20 +70,23 @@ else
 
     <div id="matches" class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="h5 mb-0">Upcoming matches</h2>
-        <span class="text-muted small">Showing @first&ndash;@last of @Model.Page.TotalItemsCount</span>
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-muted small">Showing @first&ndash;@last of @Model.Page.TotalItemsCount</span>
+            <a asp-controller="Matches" asp-action="Index" class="small text-decoration-none">All matches &rarr;</a>
+        </div>
     </div>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
         @foreach (var match in Model.Page.PageItems)
         {
-            <div class="col"><partial name="_MatchCardPartial" model="match" /></div>
+            <div class="col"><partial name="_HomeMatchCardPartial" model="match" /></div>
         }
     </div>
 
     var pagination = new PaginationViewModel
     {
-        Page = Model.Page?.PageMark ?? 1,
-        TotalPages = Model.Page?.TotalPages ?? 1,
+        Page = Model.Page.PageMark,
+        TotalPages = Model.Page.TotalPages,
         PageUrl = page => Url.Action("Index", "Home", new
         {
             page,
@@ -110,7 +100,6 @@ else
         <partial name="_PaginationPartial" model="@pagination" />
     </div>
 }
-
 
 @section Styles {
     <link rel="stylesheet" href="~/lib/flatpickr/dist/flatpickr.min.css" />

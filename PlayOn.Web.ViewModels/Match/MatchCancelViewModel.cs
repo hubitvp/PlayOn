@@ -5,13 +5,11 @@ namespace PlayOn.Web.ViewModels.Match
 {
     public class MatchCancelViewModel : IValidatableObject
     {
-
         public Guid MatchId { get; set; }
 
         [Required]
         [StringLength(CancelReasonMaxLength, MinimumLength = CancelReasonMinLength)]
-        public string Reason { get; set; } = null!;
-
+        public string Reason { get; set; } = string.Empty;
 
         public string? Title { get; set; }
         public string? StartsAt { get; set; }
@@ -20,8 +18,9 @@ namespace PlayOn.Web.ViewModels.Match
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            var trimmedLength = (Reason ?? string.Empty).Trim().Length;
 
-            if (Reason.Trim().Length < CancelReasonMinLength)
+            if (trimmedLength < CancelReasonMinLength)
             {
                 yield return new ValidationResult(
                     $"Give a reason of at least {CancelReasonMinLength} characters, not counting spaces at the ends.",

@@ -25,7 +25,6 @@ namespace PlayOn.Services
         private readonly IRepository<MatchParticipant> participantRepository;
         private readonly IRepository<SportPreference> preferenceRepository;
         private readonly IRepository<Notification> notificationRepository;
-
         private readonly TimeProvider timeProvider;
 
         public ParticipationService(
@@ -42,19 +41,16 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
-
         public async Task<ServiceResponse<JoinMatchResponseModel>>
             JoinAsync(ParticipationRequestData request)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
-
             if (errors.Any())
             {
                 return ServiceResponse<JoinMatchResponseModel>.Failure(errors);
             }
 
             var info = await GetInfoAsync(request.MatchId);
-
             if (info == null || info.IsDeleted || info.IsHidden)
             {
                 return ServiceResponse<JoinMatchResponseModel>.NotFound();
@@ -75,16 +71,13 @@ namespace PlayOn.Services
             var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
 
             var ruleError = await CheckJoinRulesAsync(request.UserId, info, nowUtc);
-
             if (ruleError != null)
             {
                 return ServiceResponse<JoinMatchResponseModel>
                     .Failure(new[] { ruleError });
             }
 
-            var joinedCount = await CountByStatusAsync(
-                info.Id,
-                ParticipantStatus.Joined);
+            var joinedCount = await CountByStatusAsync(info.Id, ParticipantStatus.Joined);
 
             var status = joinedCount < info.MaxPlayers
                 ? ParticipantStatus.Joined
@@ -112,16 +105,8 @@ namespace PlayOn.Services
             if (isConfirmed)
             {
                 match.Status = MatchStatus.Confirmed;
-
-                await AddMatchConfirmedNotificationsAsync(
-                    info,
-                    request.UserId,
-                    nowUtc);
+                await AddMatchConfirmedNotificationsAsync(info, request.UserId, nowUtc);
             }
-
-
-
-            matchRepository.Update(match);
 
             if (!await TrySaveChangesAsync())
             {
@@ -134,23 +119,19 @@ namespace PlayOn.Services
                 waitlistPosition,
                 isConfirmed);
 
-            return ServiceResponse<JoinMatchResponseModel>
-                .Success(responseData);
+            return ServiceResponse<JoinMatchResponseModel>.Success(responseData);
         }
-
 
         public async Task<ServiceResponse<LeaveMatchResponseModel>>
             LeaveAsync(ParticipationRequestData request)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
-
             if (errors.Any())
             {
                 return ServiceResponse<LeaveMatchResponseModel>.Failure(errors);
             }
 
             var info = await GetInfoAsync(request.MatchId);
-
             if (info == null || info.IsDeleted)
             {
                 return ServiceResponse<LeaveMatchResponseModel>.NotFound();
@@ -224,7 +205,6 @@ namespace PlayOn.Services
                     if (promotion != null)
                     {
                         notifications.Add(promotion);
-
                         isPromoted = true;
                         joinedAfterLeave++;
                     }
@@ -237,8 +217,10 @@ namespace PlayOn.Services
                 }
             }
 
-            matchRepository.Update(match);
-            await notificationRepository.AddRangeAsync(notifications);
+            if (notifications.Count > 0)
+            {
+                await notificationRepository.AddRangeAsync(notifications);
+            }
 
             if (!await TrySaveChangesAsync())
             {
@@ -249,19 +231,18 @@ namespace PlayOn.Services
             var responseData = ParticipationDataBuilder
                 .LeaveToResponseModel(isLateCancel, isPromoted);
 
-            return ServiceResponse<LeaveMatchResponseModel>
-                .Success(responseData);
+            return ServiceResponse<LeaveMatchResponseModel>.Success(responseData);
         }
-
 
         public async Task<ServiceResponse<PageResult<MyMatchResponseModel>>>
             GetSinglePageAsync(
                 MyMatchesRequestData requestData,
                 PageRequestData pageRequestData)
         {
-            var validationErrors =
-                ServiceRequestDataValidator.Validate(requestData);
+            ArgumentNullException.ThrowIfNull(requestData);
+            ArgumentNullException.ThrowIfNull(pageRequestData);
 
+            var validationErrors = ServiceRequestDataValidator.Validate(requestData);
             if (validationErrors.Any())
             {
                 return ServiceResponse<PageResult<MyMatchResponseModel>>
@@ -270,14 +251,10 @@ namespace PlayOn.Services
 
             var participationQuery = BuildMyMatchesQuery(requestData);
 
-            var page = await GetSinglePageAsync(
-                participationQuery,
-                pageRequestData);
+            var page = await GetSinglePageAsync(participationQuery, pageRequestData);
 
-            return ServiceResponse<PageResult<MyMatchResponseModel>>
-                .Success(page);
+            return ServiceResponse<PageResult<MyMatchResponseModel>>.Success(page);
         }
-
 
         private IOrderedQueryable<MatchParticipant> BuildMyMatchesQuery(
             MyMatchesRequestData query)
@@ -365,15 +342,9 @@ namespace PlayOn.Services
         {
             var totalCount = await query.CountAsync();
 
-            var pageSize = Math.Clamp(
-                pageRequestData.PageSize, 1, 50);
-
-            var totalPages = Math.Max(
-                1,
-                (int)Math.Ceiling(totalCount / (double)pageSize));
-
-            var pageNumber = Math.Clamp(
-                pageRequestData.Page, 1, totalPages);
+            var pageSize = Math.Clamp(pageRequestData.PageSize, 1, 50);
+            var totalPages = Math.Max(1, (int)Math.Ceiling(totalCount / (double)pageSize));
+            var pageNumber = Math.Clamp(pageRequestData.Page, 1, totalPages);
 
             var items = await query
                 .ThenBy(x => x.Id)
@@ -388,7 +359,6 @@ namespace PlayOn.Services
                 pageSize,
                 totalCount);
         }
-
 
         private async Task<JoinInfoRow?> GetInfoAsync(Guid matchId)
         {
@@ -434,7 +404,6 @@ namespace PlayOn.Services
             try
             {
                 await matchRepository.SaveChangesAsync();
-
                 return true;
             }
             catch (DbUpdateConcurrencyException)
@@ -442,7 +411,6 @@ namespace PlayOn.Services
                 return false;
             }
         }
-
 
         private async Task AddMatchConfirmedNotificationsAsync(
             JoinInfoRow info,
@@ -469,7 +437,6 @@ namespace PlayOn.Services
 
             await notificationRepository.AddRangeAsync(notifications);
         }
-
 
         private async Task<Notification?> PromoteFromWaitlistAsync(
             JoinInfoRow info,
@@ -503,7 +470,6 @@ namespace PlayOn.Services
 
             return null;
         }
-
 
         private async Task<ValidationResult?> CheckJoinRulesAsync(
             Guid userId,

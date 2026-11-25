@@ -24,6 +24,12 @@ namespace PlayOn.Services.Contracts
             GetVenueOptionsAsync(
                 DateOnly? from);
 
+        Task<ServiceResponse<MatchEditDisplayDataResponseModel>>
+            GetEditDisplayDataAsync(
+                Guid matchId,
+                Guid userId,
+                bool userIsAdmin);
+
         Task<ServiceResponse<IReadOnlyList<CourtOptionResponseModel>>>
             GetCourtOptionsAsync();
 

@@ -3,20 +3,20 @@ using PlayOn.Common.Validation;
 
 namespace PlayOn.Web.ViewModels.Match
 {
-    public class AttendanceViewModel
+    public class MatchAttendanceViewModel
     {
         [NotEmptyGuid(ErrorMessage = "The match is not valid.")]
         public Guid MatchId { get; set; }
 
         [ValidateNever]
-        public string Title { get; set; } = string.Empty;
+        public string Title { get; set; } = null!;
 
         [ValidateNever]
-        public string StartsAt { get; set; } = string.Empty;
+        public string StartsAt { get; set; } = null!;
 
         [ValidateNever]
-        public string VenueName { get; set; } = string.Empty;
+        public string VenueName { get; set; } = null!;
 
-        public List<AttendancePlayerInputModel> Players { get; set; } = [];
+        public List<MatchAttendanceInputModel> Players { get; set; } = [];
     }
 }

@@ -5,60 +5,8 @@ using static PlayOn.Common.EntityConstants.MatchConstants;
 
 namespace PlayOn.Web.ViewModels.Match
 {
-    public class MatchEditViewModel : IValidatableObject
+    public class EditDisplayData
     {
-        [Required]
-        public Guid MatchId { get; set; }
-
-
-        [MinLength(1, ErrorMessage = "This page is out of date. Open the match again.")]
-        public byte[] RowVersion { get; set; } = [];
-
-
-        [Required]
-        [StringLength(
-            TitleMaxLength,
-            MinimumLength = TitleMinLength)]
-        public string Title { get; set; } = null!;
-
-        [StringLength(DescriptionMaxLength)]
-        public string? Description { get; set; }
-
-        [Range(
-            MatchRules.MinDurationInMinutes,
-            MatchRules.MaxDurationInMinutes)]
-        public int DurationMinutes { get; set; } = MatchRules.MinDurationInMinutes;
-
-        [Range(
-            MatchRules.PlayersMinLimit,
-            MatchRules.PlayersMaxLimit)]
-        public int MinPlayers { get; set; } = MatchRules.PlayersMinLimit;
-
-        [Range(
-            MatchRules.PlayersMinLimit,
-            MatchRules.PlayersMaxLimit)]
-        public int MaxPlayers { get; set; } = MatchRules.PlayersMaxLimit;
-
-        [EnumDataType(
-            typeof(SkillLevel),
-            ErrorMessage = "Select a valid skill level.")]
-        public SkillLevel MinSkill { get; set; } = SkillLevel.Beginner;
-
-        [EnumDataType(
-            typeof(SkillLevel),
-            ErrorMessage = "Select a valid skill level.")]
-        public SkillLevel MaxSkill { get; set; } = SkillLevel.Advanced;
-
-        [Range(
-            typeof(decimal),
-            MatchRules.MinPriceToDecimal,
-            MatchRules.MaxPriceToDecimal,
-            ParseLimitsInInvariantCulture = true,
-            ConvertValueInInvariantCulture = true)]
-        public decimal PricePerPlayer { get; set; }
-
-
-
         public string? SportName { get; set; }
         public string? SportIcon { get; set; }
         public string? CourtName { get; set; }
@@ -67,13 +15,48 @@ namespace PlayOn.Web.ViewModels.Match
         public string? City { get; set; }
         public string? StartsAt { get; set; }
         public int? JoinedCount { get; set; }
+    }
 
+    public class MatchEditViewModel : IValidatableObject
+    {
+        public Guid MatchId { get; set; }
 
+        [MinLength(1, ErrorMessage = "This page is out of date. Open the match again.")]
+        public byte[] RowVersion { get; set; } = [];
 
-        public IEnumerable<ValidationResult> Validate(
-            ValidationContext validationContext)
+        [Required]
+        [StringLength(TitleMaxLength, MinimumLength = TitleMinLength)]
+        public string Title { get; set; } = string.Empty;
+
+        [StringLength(DescriptionMaxLength)]
+        public string? Description { get; set; }
+
+        [Range(MatchRules.MinDurationInMinutes, MatchRules.MaxDurationInMinutes)]
+        public int DurationMinutes { get; set; } = MatchRules.MinDurationInMinutes;
+
+        [Range(MatchRules.PlayersMinLimit, MatchRules.PlayersMaxLimit)]
+        public int MinPlayers { get; set; } = MatchRules.PlayersMinLimit;
+
+        [Range(MatchRules.PlayersMinLimit, MatchRules.PlayersMaxLimit)]
+        public int MaxPlayers { get; set; } = MatchRules.PlayersMaxLimit;
+
+        [EnumDataType(typeof(SkillLevel), ErrorMessage = "Select a valid skill level.")]
+        public SkillLevel MinSkill { get; set; } = SkillLevel.Beginner;
+
+        [EnumDataType(typeof(SkillLevel), ErrorMessage = "Select a valid skill level.")]
+        public SkillLevel MaxSkill { get; set; } = SkillLevel.Advanced;
+
+        [Range(typeof(decimal), MatchRules.MinPriceToDecimal, MatchRules.MaxPriceToDecimal,
+            ParseLimitsInInvariantCulture = true, ConvertValueInInvariantCulture = true)]
+        public decimal PricePerPlayer { get; set; }
+
+        public EditDisplayData? EditDisplayData { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Title.Trim().Length < TitleMinLength)
+            var trimmedTitleLength = (Title ?? string.Empty).Trim().Length;
+
+            if (trimmedTitleLength < TitleMinLength)
             {
                 yield return new ValidationResult(
                     $"The title must have at least {TitleMinLength} characters, not counting spaces at the ends.",

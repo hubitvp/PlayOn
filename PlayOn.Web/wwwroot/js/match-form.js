@@ -4,26 +4,45 @@
 //  - max players: cannot exceed the capacity of the chosen court
 (function () {
     const $ = role => document.querySelector(`[data-role="${role}"]`);
-    const sport = $('sport'), court = $('court'), venue = $('venue'), duration = $('duration');
-    const maxPlayers = $('max-players'), info = document.getElementById('slot-info');
-    const minutes = hhmm => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
+    const sport = $('sport');
+    const court = $('court');
+    const venue = $('venue');
+    const duration = $('duration');
+    const maxPlayers = $('max-players');
+    const info = document.getElementById('slot-info');
+
+    if (!sport || !court || !venue || !duration || !maxPlayers) return;
+
+    const minutes = hhmm => {
+        if (!hhmm || !hhmm.includes(':')) return 0;
+        const [h, m] = hhmm.split(':').map(Number);
+        return (Number.isFinite(h) ? h : 0) * 60 + (Number.isFinite(m) ? m : 0);
+    };
 
     function filterCourts() {
         const id = sport.value;
         court.querySelectorAll('option[data-sports]').forEach(option => {
-            const ok = !id || option.dataset.sports.split(',').includes(id);
+            const sports = (option.dataset.sports || '').split(',').filter(Boolean);
+            const ok = !id || sports.includes(id);
             option.hidden = !ok;
             option.disabled = !ok;
         });
-        if (court.selectedOptions[0]?.disabled) court.value = '';
+
+        if (court.selectedOptions[0]?.disabled) {
+            court.value = '';
+        }
+
         limitPlayers();
     }
 
     function limitPlayers() {
         const capacity = court.selectedOptions[0]?.dataset.capacity;
         if (capacity) {
-            maxPlayers.max = capacity;
-            if (Number(maxPlayers.value) > Number(capacity)) maxPlayers.value = capacity;
+            const capNum = Number(capacity);
+            maxPlayers.max = String(capNum);
+            if (Number(maxPlayers.value) > capNum) {
+                maxPlayers.value = String(capNum);
+            }
         } else {
             maxPlayers.removeAttribute('max');
         }
@@ -31,21 +50,40 @@
 
     function updateSlot() {
         const option = venue.selectedOptions[0];
-        if (!option || !option.value) return;
+        if (!option || !option.value) {
+            [...duration.options].forEach(o => {
+                o.disabled = false;
+            });
+            if (info) info.textContent = '';
+            return;
+        }
+
         const available = minutes(option.dataset.closes) - minutes(option.dataset.starts);
         let best = null;
+
         [...duration.options].forEach(o => {
-            o.disabled = Number(o.value) > available;
-            if (!o.disabled) best = o;
+            const isTooLong = Number(o.value) > available;
+            o.disabled = isTooLong;
+            if (!isTooLong) {
+                best = o;
+            }
         });
-        if (duration.selectedOptions[0]?.disabled && best) duration.value = best.value;
-        info.textContent = `Starts at ${option.dataset.starts}. The venue is open ${option.dataset.opens} - ` +
-            `${option.dataset.closes}, so the match can last up to ${available} minutes.`;
+
+        if (duration.selectedOptions[0]?.disabled && best) {
+            duration.value = best.value;
+        }
+
+        if (info) {
+            info.textContent =
+                `Starts at ${option.dataset.starts}. The venue is open ${option.dataset.opens} - ` +
+                `${option.dataset.closes}, so the match can last up to ${Math.max(0, available)} minutes.`;
+        }
     }
 
     sport.addEventListener('change', filterCourts);
     court.addEventListener('change', limitPlayers);
     venue.addEventListener('change', updateSlot);
+
     filterCourts();
     updateSlot();
 })();

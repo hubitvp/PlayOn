@@ -8,6 +8,9 @@ namespace PlayOn.Services.DataBuilders;
 
 public static class NotificationDataBuilder
 {
+    private static readonly Lazy<Func<Notification, NotificationResponseModelData>> CompiledProjection =
+        new(() => NotificationProjection().Compile());
+
     public static Expression<Func<Notification, NotificationResponseModelData>>
         NotificationProjection()
     {
@@ -25,17 +28,8 @@ public static class NotificationDataBuilder
     public static NotificationResponseModelData
         NotificationToResponseModel(Notification source)
     {
-        var result = new NotificationResponseModelData
-        {
-            Id = source.Id,
-            Type = source.Type,
-            Message = source.Message,
-            MatchId = source.MatchId,
-            IsRead = source.IsRead,
-            CreatedOn = source.CreatedOn
-        };
-
-        return result;
+        ArgumentNullException.ThrowIfNull(source);
+        return CompiledProjection.Value(source);
     }
 
     public static NotificationResponseModel
@@ -43,13 +37,13 @@ public static class NotificationDataBuilder
             PageResult<NotificationResponseModelData> page,
             int unreadCount)
     {
-        var result = new NotificationResponseModel
+        ArgumentNullException.ThrowIfNull(page);
+
+        return new NotificationResponseModel
         {
             Page = page,
             UnreadCount = unreadCount
         };
-
-        return result;
     }
 
     public static Notification
@@ -60,7 +54,9 @@ public static class NotificationDataBuilder
             Guid? matchId,
             DateTime nowUtc)
     {
-        var result = new Notification
+        ArgumentException.ThrowIfNullOrWhiteSpace(message);
+
+        return new Notification
         {
             UserId = userId,
             Type = type,
@@ -69,7 +65,5 @@ public static class NotificationDataBuilder
             IsRead = false,
             CreatedOn = nowUtc
         };
-
-        return result;
     }
 }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
+using PlayOn.Services.Data;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.ViewModels;
 
@@ -22,24 +23,35 @@ namespace PlayOn.Web.Controllers
             this.notificationDataBuilder = notificationDataBuilder;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Index([FromQuery] PageInputModel page)
         {
+            if (!ModelState.IsValid)
+            {
+                return await ReturnInvalidIndexViewAsync(page);
+            }
+
             var userId = GetUserId();
-
             var pageRequestData = notificationDataBuilder.PageInputToPageRequestData(page);
-
             var serviceResponse = await notificationService.GetMainResponseModelAsync(userId, pageRequestData);
 
-            AddServiceErrors(serviceResponse.Errors);
+            if (serviceResponse.Status == ServiceStatus.InvalidInput)
+            {
+                AddServiceErrors(serviceResponse.Errors);
+                return await ReturnInvalidIndexViewAsync(page);
+            }
+
+            if (serviceResponse.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = notificationDataBuilder.ServiceStatusToErrorViewModel(serviceResponse.Status);
+                return View("Error", errorViewModel);
+            }
 
             var viewModel = notificationDataBuilder
                 .NotificationListToViewModel(serviceResponse.ResponseData);
 
             return View(viewModel);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -49,7 +61,8 @@ namespace PlayOn.Web.Controllers
 
             if (!response.IsSuccess)
             {
-                return NotFound();
+                var errorViewModel = notificationDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             if (response.ResponseData.MatchId is Guid matchId)
@@ -64,9 +77,33 @@ namespace PlayOn.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReadAll()
         {
-            await notificationService.MarkAllAsReadAsync(GetUserId());
+            var response = await notificationService.MarkAllAsReadAsync(GetUserId());
+
+            if (!response.IsSuccess)
+            {
+                var errorViewModel = notificationDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
+            }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<IActionResult> ReturnInvalidIndexViewAsync(PageInputModel page)
+        {
+            var userId = GetUserId();
+            var pageRequestData = notificationDataBuilder.PageInputToPageRequestData(page);
+            var serviceResponse = await notificationService.GetMainResponseModelAsync(userId, pageRequestData);
+
+            if (serviceResponse.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = notificationDataBuilder.ServiceStatusToErrorViewModel(serviceResponse.Status);
+                return View("Error", errorViewModel);
+            }
+
+            var viewModel = notificationDataBuilder
+                .NotificationListToViewModel(serviceResponse.ResponseData);
+
+            return View(viewModel);
         }
     }
 }

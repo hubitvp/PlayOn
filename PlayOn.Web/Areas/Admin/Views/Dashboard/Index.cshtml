@@ -2,6 +2,8 @@
 @{
     ViewData["Title"] = "Admin dashboard";
 
+    var upcomingMatches = Model.UpcomingMatches;
+
     var tiles = new (string Label, int Value, string Icon, string Action)[]
     {
         ("Users", Model.UsersCount, "bi-people", "Users"),
@@ -38,7 +40,7 @@
 
 <h2 class="h5">Next matches</h2>
 
-@if (Model.UpcomingMatches.Count == 0)
+@if (upcomingMatches.Count == 0)
 {
     <p class="text-muted">There are no upcoming matches.</p>
 }
@@ -57,7 +59,7 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var match in Model.UpcomingMatches)
+                @foreach (var match in upcomingMatches)
                 {
                     <tr>
                         <td><a asp-area="" asp-controller="Matches" asp-action="Details" asp-route-id="@match.Id">@match.Title</a></td>

@@ -8,7 +8,7 @@ namespace PlayOn.Services.Data.Notifications.ResponseModels
         public required Guid Id { get; init; }
         public required NotificationType Type { get; init; }
         public required string Message { get; init; }
-        public required Guid? MatchId { get; init; }
+        public Guid? MatchId { get; init; }
         public required bool IsRead { get; init; }
         public required DateTime CreatedOn { get; init; }
     }

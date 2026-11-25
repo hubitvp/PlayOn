@@ -24,17 +24,20 @@ namespace PlayOn.Web.Controllers
             this.participationDataBuilder = participationDataBuilder;
         }
 
-
         [HttpGet]
         public async Task<IActionResult>
             Mine(
                 [FromQuery] PageInputModel page,
                 MyMatchesTab tab = MyMatchesTab.Upcoming)
         {
-
             if (!Enum.IsDefined(tab))
             {
                 tab = MyMatchesTab.Upcoming;
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return await ReturnInvalidMineViewAsync(page, tab);
             }
 
             var matchesRequestData = participationDataBuilder
@@ -46,9 +49,16 @@ namespace PlayOn.Web.Controllers
             var response = await participationService
                 .GetSinglePageAsync(matchesRequestData, pageRequestData);
 
-            if (!response.IsSuccess)
+            if (response.Status == ServiceStatus.InvalidInput)
             {
                 AddServiceErrors(response.Errors);
+                return await ReturnInvalidMineViewAsync(page, tab);
+            }
+
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = participationDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             var viewModel = participationDataBuilder
@@ -56,7 +66,6 @@ namespace PlayOn.Web.Controllers
 
             return View(viewModel);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -70,23 +79,17 @@ namespace PlayOn.Web.Controllers
 
             var response = await participationService.JoinAsync(requestData);
 
-            if (response.IsSuccess)
+            if (response.Status != ServiceStatus.Success)
             {
-                TempData["Success"] = participationDataBuilder
-                    .JoinToMessage(response.ResponseData);
+                var errorViewModel = participationDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
-            else if (response.Status == ServiceStatus.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                TempData["Error"] = "Error: The action could not be completed due to a conflict.";
-            }
+
+            TempData["Success"] = participationDataBuilder
+                .JoinToMessage(response.ResponseData);
 
             return RedirectToAction("Details", "Matches", new { id, slug });
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -101,19 +104,14 @@ namespace PlayOn.Web.Controllers
 
             var response = await participationService.LeaveAsync(requestData);
 
-            if (response.IsSuccess)
+            if (response.Status != ServiceStatus.Success)
             {
-                TempData["Success"] = participationDataBuilder
-                    .LeaveToMessage(response.ResponseData);
+                var errorViewModel = participationDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
-            else if (response.Status == ServiceStatus.NotFound)
-            {
-                return NotFound();
-            }
-            else
-            {
-                TempData["Error"] = "Error: The action could not be completed due to a conflict.";
-            }
+
+            TempData["Success"] = participationDataBuilder
+                .LeaveToMessage(response.ResponseData);
 
             if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
             {
@@ -121,6 +119,31 @@ namespace PlayOn.Web.Controllers
             }
 
             return RedirectToAction("Details", "Matches", new { id, slug });
+        }
+
+        private async Task<IActionResult> ReturnInvalidMineViewAsync(
+            PageInputModel page,
+            MyMatchesTab tab)
+        {
+            var matchesRequestData = participationDataBuilder
+                .MyMatchesToRequestData(GetUserId(), tab);
+
+            var pageRequestData = participationDataBuilder
+                .PageInputToPageRequestData(page);
+
+            var response = await participationService
+                .GetSinglePageAsync(matchesRequestData, pageRequestData);
+
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = participationDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
+            }
+
+            var viewModel = participationDataBuilder
+                .MyMatchesToViewModel(tab, response.ResponseData, pageRequestData.Page);
+
+            return View(nameof(Mine), viewModel);
         }
     }
 }

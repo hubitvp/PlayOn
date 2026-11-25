@@ -9,6 +9,7 @@ namespace PlayOn.Web.ViewModels.Admin
         [Display(Name = "Search")]
         public string? Search { get; set; }
 
+        [Range(1, int.MaxValue)]
         public int Page { get; set; } = 1;
     }
 }

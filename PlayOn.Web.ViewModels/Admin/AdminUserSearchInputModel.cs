@@ -13,6 +13,7 @@ namespace PlayOn.Web.ViewModels.Admin
         [EnumDataType(typeof(UserStatusFilter))]
         public UserStatusFilter Status { get; set; } = UserStatusFilter.All;
 
+        [Range(1, int.MaxValue)]
         public int Page { get; set; } = 1;
     }
 }

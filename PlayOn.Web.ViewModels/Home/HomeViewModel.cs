@@ -25,7 +25,7 @@ namespace PlayOn.Web.ViewModels.Home
             if (SportId.HasValue && SportId.Value == Guid.Empty)
             {
                 yield return new ValidationResult(
-                    "Sport ID must be a not empty guid.",
+                    "Select a valid sport.",
                     new[] { nameof(SportId) });
             }
 
@@ -36,18 +36,16 @@ namespace PlayOn.Web.ViewModels.Home
                     new[] { nameof(City) });
             }
 
-            if (!string.IsNullOrWhiteSpace(From))
-            {
-                if (!DateOnly.TryParse(
+            if (!string.IsNullOrWhiteSpace(From) &&
+                !DateOnly.TryParse(
                     From,
                     CultureInfo.InvariantCulture,
                     DateTimeStyles.None,
-                    out var parsedFrom))
-                {
-                    yield return new ValidationResult(
-                        "Invalid date format.",
-                        new[] { nameof(From) });
-                }
+                    out _))
+            {
+                yield return new ValidationResult(
+                    "Invalid date format.",
+                    new[] { nameof(From) });
             }
         }
     }

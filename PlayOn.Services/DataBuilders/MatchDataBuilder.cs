@@ -152,6 +152,27 @@ internal static class MatchDataBuilder
         };
     }
 
+
+    internal static Expression<Func<Match, MatchEditDisplayDataResponseModel>> MatchEditDisplayDataProjection()
+    {
+        return source => new MatchEditDisplayDataResponseModel
+        {
+            SportName = source.Event!.Sport.Name,
+            SportIcon = source.Event.Sport.Icon,
+            CourtName = source.Event.Court.Name,
+            CourtCapacity = source.Event!.Court.Capacity,
+            VenueName = source.Event.Venue.Name,
+            City = source.Event.Venue.City,
+            Date = source.Event.Venue.Date,
+            StartsAt = source.Event.Venue.StartsAt,
+            ClosesAt = source.Event.Venue.ClosesAt,
+            JoinedCount = source.Participants.Count(x => x.Status == ParticipantStatus.Joined)
+        };
+
+    }
+
+
+
     internal static Expression<Func<Match, EditRow>> MatchEditRowProjection()
     {
         return source => new EditRow
@@ -169,19 +190,25 @@ internal static class MatchDataBuilder
             MaxSkill = source.MaxSkill,
             PricePerPlayer = source.PricePerPlayer,
             RowVersion = source.RowVersion,
-            SportName = source.Event!.Sport.Name,
-            SportIcon = source.Event.Sport.Icon,
-            CourtId = source.Event.CourtId,
-            CourtName = source.Event.Court.Name,
-            CourtCapacity = source.Event!.Court.Capacity,
-            VenueName = source.Event.Venue.Name,
-            City = source.Event.Venue.City,
-            Date = source.Event.Venue.Date,
-            StartsAt = source.Event.Venue.StartsAt,
-            ClosesAt = source.Event.Venue.ClosesAt,
-            JoinedCount = source.Participants.Count(x => x.Status == ParticipantStatus.Joined)
+
+            EditRowDisplayData = new EditRowDisplayData
+            {
+                SportName = source.Event!.Sport.Name,
+                SportIcon = source.Event.Sport.Icon,
+                CourtId = source.Event.CourtId,
+                CourtName = source.Event.Court.Name,
+                CourtCapacity = source.Event!.Court.Capacity,
+                VenueName = source.Event.Venue.Name,
+                City = source.Event.Venue.City,
+                Date = source.Event.Venue.Date,
+                StartsAt = source.Event.Venue.StartsAt,
+                ClosesAt = source.Event.Venue.ClosesAt,
+                JoinedCount = source.Participants.Count(x => x.Status == ParticipantStatus.Joined)
+            }
         };
     }
+
+
 
     internal static MatchEditResponseModel MatchEditRowToResponseModel(EditRow source)
     {
@@ -197,16 +224,20 @@ internal static class MatchDataBuilder
             MaxSkill = source.MaxSkill,
             PricePerPlayer = source.PricePerPlayer,
             RowVersion = source.RowVersion,
-            SportName = source.SportName,
-            SportIcon = source.SportIcon,
-            CourtName = source.CourtName,
-            CourtCapacity = source.CourtCapacity,
-            VenueName = source.VenueName,
-            City = source.City,
-            Date = source.Date,
-            StartsAt = source.StartsAt,
-            ClosesAt = source.ClosesAt,
-            JoinedCount = source.JoinedCount
+
+            EditDisplayDataResponseModel = new MatchEditDisplayDataResponseModel
+            {
+                SportName = source.EditRowDisplayData.SportName,
+                SportIcon = source.EditRowDisplayData.SportIcon,
+                CourtName = source.EditRowDisplayData.CourtName,
+                CourtCapacity = source.EditRowDisplayData.CourtCapacity,
+                VenueName = source.EditRowDisplayData.VenueName,
+                City = source.EditRowDisplayData.City,
+                Date = source.EditRowDisplayData.Date,
+                StartsAt = source.EditRowDisplayData.StartsAt,
+                ClosesAt = source.EditRowDisplayData.ClosesAt,
+                JoinedCount = source.EditRowDisplayData.JoinedCount
+            }
         };
 
         return result;

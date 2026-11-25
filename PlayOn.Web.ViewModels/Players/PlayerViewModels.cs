@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using PlayOn.Common.Enums;
+using PlayOn.Common.Validation;
 using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.EntityConstants.ApplicationUserConstants;
 
@@ -37,28 +38,46 @@ namespace PlayOn.Web.ViewModels.Players
         public required string MatchTitle { get; init; }
     }
 
-    public class ProfileEditViewModel
+    public class ProfileEditViewModel : IValidatableObject
     {
         [Required]
         [StringLength(DisplayNameMaxLength, MinimumLength = DisplayNameMinLength)]
         [Display(Name = "Display name")]
-        public string DisplayName { get; set; } = string.Empty;
+        public string DisplayName { get; set; } = null!;
 
         [Required]
         [StringLength(CityMaxLength, MinimumLength = CityMinLength)]
-        public string City { get; set; } = string.Empty;
+        public string City { get; set; } = null!;
 
         public List<PlayerSkillInputModel> Skills { get; set; } = [];
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if ((DisplayName ?? string.Empty).Trim().Length < DisplayNameMinLength)
+            {
+                yield return new ValidationResult(
+                    $"Display name must have at least {DisplayNameMinLength} characters, not counting spaces at the ends.",
+                    new[] { nameof(DisplayName) });
+            }
+
+            if ((City ?? string.Empty).Trim().Length < CityMinLength)
+            {
+                yield return new ValidationResult(
+                    $"City must have at least {CityMinLength} characters, not counting spaces at the ends.",
+                    new[] { nameof(City) });
+            }
+        }
     }
 
     public class PlayerSkillInputModel
     {
+        [NotEmptyGuid(ErrorMessage = "The sport is not valid.")]
         public Guid SportId { get; set; }
 
         [ValidateNever]
-        public string SportName { get; set; } = string.Empty;
+        public string SportName { get; set; } = null!;
 
-        [EnumDataType(typeof(SkillLevel))]
+        [EnumDataType(typeof(SkillLevel), ErrorMessage = "Select a valid skill level.")]
         public SkillLevel? SkillLevel { get; set; }
     }
 }

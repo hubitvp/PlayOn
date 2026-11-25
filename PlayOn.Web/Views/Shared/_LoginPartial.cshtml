@@ -4,7 +4,7 @@
 <ul class="navbar-nav align-items-lg-center">
     @if (SignInManager.IsSignedIn(User))
     {
-        @await Component.InvokeAsync("NotificationBell")
+        <vc:notification-bell />
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                 @User.Identity!.Name

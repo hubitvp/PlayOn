@@ -1,5 +1,4 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using PlayOn.Common.Enums;
 using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
@@ -32,14 +31,6 @@ namespace PlayOn.Services
             HomeSearchRequestData searchRequestData,
             PageRequestData pageRequestData)
         {
-            var sportsResponse = await GetSportOptionsAsync();
-
-            if (!sportsResponse.IsSuccess)
-            {
-                return ServiceResponse<HomeResponseModel>
-                    .Failure(sportsResponse.Errors);
-            }
-
             var pageResponse = await GetSinglePageAsync(
                 searchRequestData,
                 pageRequestData);
@@ -50,12 +41,18 @@ namespace PlayOn.Services
                     .Failure(pageResponse.Errors);
             }
 
+            var sportsResponse = await GetSportOptionsAsync();
+
+            if (!sportsResponse.IsSuccess)
+            {
+                return ServiceResponse<HomeResponseModel>
+                    .Failure(sportsResponse.Errors);
+            }
+
             var responseData = new HomeResponseModel
             {
                 SportOptions = sportsResponse.ResponseData,
-                Page = pageResponse.IsSuccess
-                    ? pageResponse.ResponseData
-                    : null
+                Page = pageResponse.ResponseData
             };
 
             return ServiceResponse<HomeResponseModel>
@@ -136,14 +133,7 @@ namespace PlayOn.Services
         private IQueryable<Match> BuildMatchQuery(
             HomeSearchRequestData query)
         {
-            IQueryable<Match> matchQuery = matchRepository
-                .Query()
-                .AsSplitQuery()
-                .Include(x => x.Event!)
-                    .ThenInclude(x => x.Sport)
-                .Include(x => x.Event!)
-                    .ThenInclude(x => x.Venue)
-                .Include(x => x.Participants);
+            IQueryable<Match> matchQuery = matchRepository.Query();
 
             matchQuery = ApplyBaseFilters(matchQuery);
             matchQuery = ApplySportFilter(matchQuery, query.SportId);
@@ -197,18 +187,11 @@ namespace PlayOn.Services
             IQueryable<Match> query,
             DateOnly? from)
         {
-            DateOnly startDate;
-
             DateOnly today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);
 
-            if (from.HasValue && from.Value > today)
-            {
-                startDate = from.Value;
-            }
-            else
-            {
-                startDate = today.AddDays(1);
-            }
+            DateOnly startDate = (from.HasValue && from.Value > today)
+                ? from.Value
+                : today.AddDays(1);
 
             return query.Where(x =>
                 x.Event!.Venue.Date >= startDate);

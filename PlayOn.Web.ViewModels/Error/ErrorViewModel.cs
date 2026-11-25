@@ -2,10 +2,8 @@
 {
     public class ErrorViewModel
     {
-
-        public int Code { get; init; }
-        public string Title { get; init; } = null!;
-        public string Message { get; init; } = null!;
-
+        public required int Code { get; init; }
+        public required string Title { get; init; }
+        public required string Message { get; init; }
     }
 }

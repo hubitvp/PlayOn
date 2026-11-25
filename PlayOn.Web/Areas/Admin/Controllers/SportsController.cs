@@ -24,18 +24,30 @@ namespace PlayOn.Web.Areas.Admin.Controllers
         {
             input.Page = Math.Max(1, input.Page);
 
+            if (!ModelState.IsValid)
+            {
+                return await ReturnInvalidIndexViewAsync(input);
+            }
+
             var requestData = sportDataBuilder.SportQueryToRequestData(input);
 
             var response = await sportService.GetSportsAsync(requestData);
 
-            if (!response.IsSuccess)
+            if (response.Status == ServiceStatus.InvalidInput)
             {
                 AddServiceErrors(response.Errors);
-
-                return View(sportDataBuilder.SportListToViewModel(null, input));
+                return await ReturnInvalidIndexViewAsync(input);
             }
 
-            return View(sportDataBuilder.SportListToViewModel(response.ResponseData, input));
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = sportDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
+            }
+
+            var viewModel = sportDataBuilder.SportListToViewModel(response.ResponseData, input);
+
+            return View(viewModel);
         }
 
         [HttpGet]
@@ -57,11 +69,16 @@ namespace PlayOn.Web.Areas.Admin.Controllers
 
             var response = await sportService.CreateAsync(requestData);
 
-            if (!response.IsSuccess)
+            if (response.Status == ServiceStatus.InvalidInput)
             {
                 AddServiceErrors(response.Errors);
-
                 return View(model);
+            }
+
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = sportDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             TempData["Success"] = "The sport was created.";
@@ -72,14 +89,23 @@ namespace PlayOn.Web.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var response = await sportService.GetForEditAsync(id);
-
-            if (response.Status == ServiceStatus.NotFound)
+            if (id == Guid.Empty)
             {
-                return NotFound();
+                var emptyIdError = sportDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
             }
 
-            return View(sportDataBuilder.SportToFormViewModel(response.ResponseData));
+            var response = await sportService.GetForEditAsync(id);
+
+            if (!response.IsSuccess)
+            {
+                var errorViewModel = sportDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
+            }
+
+            var viewModel = sportDataBuilder.SportToFormViewModel(response.ResponseData);
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -87,6 +113,12 @@ namespace PlayOn.Web.Areas.Admin.Controllers
         public async Task<IActionResult> Edit(Guid id, AdminSportFormViewModel model)
         {
             model.Id = id;
+
+            if (id == Guid.Empty)
+            {
+                var emptyIdError = sportDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
+            }
 
             if (!ModelState.IsValid)
             {
@@ -97,16 +129,16 @@ namespace PlayOn.Web.Areas.Admin.Controllers
 
             var response = await sportService.UpdateAsync(requestData);
 
-            if (response.Status == ServiceStatus.NotFound)
-            {
-                return NotFound();
-            }
-
-            if (!response.IsSuccess)
+            if (response.Status == ServiceStatus.InvalidInput)
             {
                 AddServiceErrors(response.Errors);
-
                 return View(model);
+            }
+
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = sportDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             TempData["Success"] = "The sport was updated.";
@@ -118,23 +150,41 @@ namespace PlayOn.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                var emptyIdError = sportDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
+            }
+
             var response = await sportService.DeleteAsync(id);
 
-            if (response.Status == ServiceStatus.NotFound)
+            if (!response.IsSuccess)
             {
-                return NotFound();
+                var errorViewModel = sportDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
-            if (response.IsSuccess)
-            {
-                TempData["Success"] = "The sport was deleted.";
-            }
-            else
-            {
-                TempData["Error"] = "";// response.FirstErrorMessage();
-            }
+            TempData["Success"] = "The sport was deleted.";
 
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task<IActionResult> ReturnInvalidIndexViewAsync(AdminSportSearchInputModel input)
+        {
+            var defaultInput = new AdminSportSearchInputModel { Page = 1 };
+            var requestData = sportDataBuilder.SportQueryToRequestData(defaultInput);
+
+            var response = await sportService.GetSportsAsync(requestData);
+
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = sportDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
+            }
+
+            var viewModel = sportDataBuilder.SportListToViewModel(response.ResponseData, defaultInput);
+
+            return View(nameof(Index), viewModel);
         }
     }
 }

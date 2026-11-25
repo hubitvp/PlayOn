@@ -1,6 +1,9 @@
-@model ErrorPageViewModel
+@model ErrorViewModel
 @{
-    ViewData["Title"] = Model.Title;
+    var title = Model?.Title ?? "Not Found";
+    var code = Model?.Code ?? 404;
+    var message = Model?.Message ?? "We couldn't find what you were looking for.";
+    ViewData["Title"] = title;
 }
 
 <div class="not-found-scene my-4 p-4 p-md-5 shadow-sm">
@@ -10,14 +13,14 @@
         <span class="badge rounded-pill text-bg-warning text-dark mb-3">
             <i class="bi bi-signpost-2 me-1"></i>Wrong field
         </span>
-        <p class="display-1 fw-bold mb-0">@Model.Code</p>
+        <p class="display-1 fw-bold mb-0">@code</p>
         <h1 class="display-6 fw-bold">The page went for a run.</h1>
-        <p class="lead mb-4">@Model.Message Try heading back to the clubhouse and starting again.</p>
+        <p class="lead mb-4">@message Try heading back to the clubhouse and starting again.</p>
         <div class="d-flex flex-wrap gap-2">
-            <a asp-controller="Home" asp-action="Index" class="btn btn-light btn-lg">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light btn-lg">
                 <i class="bi bi-house-door me-1"></i>Back to home
             </a>
-            <a asp-controller="Venues" asp-action="Index" class="btn btn-outline-light btn-lg">
+            <a asp-area="" asp-controller="Venues" asp-action="Index" class="btn btn-outline-light btn-lg">
                 <i class="bi bi-geo-alt me-1"></i>Find a venue
             </a>
         </div>

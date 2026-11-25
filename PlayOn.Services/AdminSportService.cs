@@ -21,8 +21,9 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<PageResult<AdminSportResponseModel>>>
             GetSportsAsync(AdminSportQueryRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<PageResult<AdminSportResponseModel>>.Failure(errors);
@@ -31,7 +32,6 @@ namespace PlayOn.Services
             var query = sportRepository.Query();
 
             var term = request.Search?.Trim();
-
             if (!string.IsNullOrWhiteSpace(term))
             {
                 query = query.Where(x => x.Name.Contains(term));
@@ -63,6 +63,11 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<AdminSportEditResponseModel>>
             GetForEditAsync(Guid sportId)
         {
+            if (sportId == Guid.Empty)
+            {
+                return ServiceResponse<AdminSportEditResponseModel>.NotFound();
+            }
+
             var sport = await sportRepository
                 .Query()
                 .SingleOrDefaultAsync(x => x.Id == sportId);
@@ -80,8 +85,9 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<Guid>>
             CreateAsync(AdminSportCreateRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<Guid>.Failure(errors);
@@ -111,11 +117,17 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<Guid>>
             UpdateAsync(AdminSportUpdateRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<Guid>.Failure(errors);
+            }
+
+            if (request.SportId == Guid.Empty)
+            {
+                return ServiceResponse<Guid>.NotFound();
             }
 
             var sport = await sportRepository
@@ -150,6 +162,11 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<Guid>>
             DeleteAsync(Guid sportId)
         {
+            if (sportId == Guid.Empty)
+            {
+                return ServiceResponse<Guid>.NotFound();
+            }
+
             var sport = await sportRepository
                 .Query(asNoTracking: false)
                 .SingleOrDefaultAsync(x => x.Id == sportId);

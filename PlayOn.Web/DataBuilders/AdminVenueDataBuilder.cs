@@ -7,7 +7,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.DataBuilders;
 
-public class AdminVenueDataBuilder
+public class AdminVenueDataBuilder : DataBuilder
 {
     private readonly IDisplayFormatter displayFormatter;
     private readonly TimeProvider timeProvider;

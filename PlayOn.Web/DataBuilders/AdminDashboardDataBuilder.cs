@@ -4,7 +4,7 @@ using PlayOn.Web.ViewModels.Admin;
 
 namespace PlayOn.Web.DataBuilders;
 
-public class AdminDashboardDataBuilder
+public class AdminDashboardDataBuilder : DataBuilder
 {
     private readonly IDisplayFormatter displayFormatter;
 

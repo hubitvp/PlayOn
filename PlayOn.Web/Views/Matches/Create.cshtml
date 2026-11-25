@@ -15,14 +15,14 @@
                 <div class="col-md-6">
                     <label asp-for="SportId" class="form-label fw-bold">Sport</label>
                     <select asp-for="SportId" asp-items="Model.SportOptions" class="form-select" data-role="sport">
-                        <option value="0">Select a sport</option>
+                        <option value="">Select a sport</option>
                     </select>
                     <span asp-validation-for="SportId" class="text-danger"></span>
                 </div>
                 <div class="col-md-6">
                     <label asp-for="CourtId" class="form-label fw-bold">Court</label>
                     <select asp-for="CourtId" class="form-select" data-role="court">
-                        <option value="0">Select a court</option>
+                        <option value="">Select a court</option>
                         @foreach (var court in Model.CourtOptions)
                         {
                             <option value="@court.CourtId"
@@ -40,7 +40,7 @@
             <div class="mb-3">
                 <label asp-for="VenueId" class="form-label fw-bold">Venue</label>
                 <select asp-for="VenueId" class="form-select" data-role="slot">
-                    <option value="0">Select a free slot</option>
+                    <option value="">Select a free slot</option>
                     @foreach (var slot in Model.VenueOptions)
                     {
                         <option value="@slot.Id"
@@ -57,7 +57,6 @@
                     <div class="form-text text-warning-emphasis">There are no free slots right now.</div>
                 }
             </div>
-
 
             <div class="mb-3">
                 <label asp-for="Title" class="form-label fw-bold">Title</label>
@@ -93,7 +92,7 @@
 
             <div class="row g-3 mb-3">
                 <div class="col-md-4">
-                    <label asp-for="MinSkill" class="form-label fw-bold"> Minimum Skill</label>
+                    <label asp-for="MinSkill" class="form-label fw-bold">Minimum Skill</label>
                     <select asp-for="MinSkill" asp-items="Html.GetEnumSelectList<SkillLevel>()" class="form-select"></select>
                     <span asp-validation-for="MinSkill" class="text-danger"></span>
                 </div>

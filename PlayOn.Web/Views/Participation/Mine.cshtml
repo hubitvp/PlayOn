@@ -27,7 +27,7 @@
 
 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-@if (!Model.Matches.Any())
+@if (Model.Matches == null || Model.Matches.Count == 0)
 {
     <div class="text-center text-muted py-5">
         <p class="mb-2">Nothing here yet.</p>

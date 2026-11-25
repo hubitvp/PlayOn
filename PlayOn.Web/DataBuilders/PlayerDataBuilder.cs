@@ -6,7 +6,7 @@ using System.Globalization;
 
 namespace PlayOn.Web.DataBuilders;
 
-public class PlayerDataBuilder
+public class PlayerDataBuilder : DataBuilder
 {
     public PlayerProfileViewModel
         PlayerProfileToViewModel(

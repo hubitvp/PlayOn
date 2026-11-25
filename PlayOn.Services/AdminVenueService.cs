@@ -26,17 +26,24 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<PageResult<AdminVenueResponseModel>>>
             GetVenuesAsync(AdminVenueQueryRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<PageResult<AdminVenueResponseModel>>.Failure(errors);
             }
 
+            if (!Enum.IsDefined(request.Status))
+            {
+                return ServiceResponse<PageResult<AdminVenueResponseModel>>.Failure(
+                    "Select a valid status filter.",
+                    nameof(request.Status));
+            }
+
             var query = venueRepository.Query();
 
             var term = request.Search?.Trim();
-
             if (!string.IsNullOrWhiteSpace(term))
             {
                 query = query.Where(x =>
@@ -81,6 +88,11 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<AdminVenueEditResponseModel>>
             GetForEditAsync(Guid venueId)
         {
+            if (venueId == Guid.Empty)
+            {
+                return ServiceResponse<AdminVenueEditResponseModel>.NotFound();
+            }
+
             var venue = await venueRepository
                 .Query()
                 .SingleOrDefaultAsync(x => x.Id == venueId);
@@ -100,8 +112,9 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<Guid>>
             CreateAsync(AdminVenueCreateRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<Guid>.Failure(errors);
@@ -132,11 +145,17 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<Guid>>
             UpdateAsync(AdminVenueUpdateRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<Guid>.Failure(errors);
+            }
+
+            if (request.VenueId == Guid.Empty)
+            {
+                return ServiceResponse<Guid>.NotFound();
             }
 
             var venue = await venueRepository
@@ -186,6 +205,11 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<Guid>>
             DeleteAsync(Guid venueId)
         {
+            if (venueId == Guid.Empty)
+            {
+                return ServiceResponse<Guid>.NotFound();
+            }
+
             var venue = await venueRepository
                 .Query(asNoTracking: false)
                 .SingleOrDefaultAsync(x => x.Id == venueId);
@@ -216,6 +240,11 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<Guid>>
             RestoreAsync(Guid venueId)
         {
+            if (venueId == Guid.Empty)
+            {
+                return ServiceResponse<Guid>.NotFound();
+            }
+
             var venue = await venueRepository
                 .Query(asNoTracking: false)
                 .SingleOrDefaultAsync(x => x.Id == venueId);

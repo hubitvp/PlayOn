@@ -37,7 +37,7 @@
                             <option value="">Not set</option>
                             @foreach (var level in Enum.GetValues<SkillLevel>())
                             {
-                                <option value="@level" selected="@(Model.Skills[i].SkillLevel == level)">@level</option>
+                                <option value="@level">@level</option>
                             }
                         </select>
                         <span asp-validation-for="Skills[i].SkillLevel" class="text-danger"></span>

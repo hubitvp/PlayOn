@@ -98,7 +98,7 @@ else
         TotalPages = Model.Page.TotalPages,
         PageUrl = pageNumber => Url.Action("Index", "Matches", new
         {
-            pageNumber,
+            page = pageNumber,
             term = Model.SearchTerm,
             sport = Model.SportId,
             city = Model.City,

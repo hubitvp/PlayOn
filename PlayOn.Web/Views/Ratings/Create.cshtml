@@ -37,7 +37,7 @@
                                         <option value="">Skip</option>
                                         @for (var score = 1; score <= 5; score++)
                                         {
-                                            <option value="@score" selected="@(Model.Players[i].Score == score)">@score</option>
+                                            <option value="@score">@score</option>
                                         }
                                     </select>
                                     <span asp-validation-for="Players[i].Score" class="text-danger"></span>

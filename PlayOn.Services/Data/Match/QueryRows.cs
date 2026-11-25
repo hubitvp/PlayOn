@@ -43,6 +43,22 @@ namespace PlayOn.Services.Data.Match
         public int? Reliability { get; set; }
     }
 
+    internal sealed class EditRowDisplayData
+    {
+        public string SportName { get; set; } = null!;
+        public SportIcon SportIcon { get; set; }
+        public Guid CourtId { get; set; }
+        public string CourtName { get; set; } = null!;
+        public int CourtCapacity { get; set; }
+        public string VenueName { get; set; } = null!;
+        public string City { get; set; } = null!;
+        public DateOnly Date { get; set; }
+        public TimeOnly StartsAt { get; set; }
+        public TimeOnly ClosesAt { get; set; }
+        public int JoinedCount { get; set; }
+    }
+
+
     internal sealed class EditRow
     {
         public Guid Id { get; set; }
@@ -58,17 +74,8 @@ namespace PlayOn.Services.Data.Match
         public SkillLevel MaxSkill { get; set; }
         public decimal PricePerPlayer { get; set; }
         public byte[] RowVersion { get; set; } = null!;
-        public string SportName { get; set; } = null!;
-        public SportIcon SportIcon { get; set; }
-        public Guid CourtId { get; set; }
-        public string CourtName { get; set; } = null!;
-        public int CourtCapacity { get; set; }
-        public string VenueName { get; set; } = null!;
-        public string City { get; set; } = null!;
-        public DateOnly Date { get; set; }
-        public TimeOnly StartsAt { get; set; }
-        public TimeOnly ClosesAt { get; set; }
-        public int JoinedCount { get; set; }
+
+        public EditRowDisplayData EditRowDisplayData { get; set; } = null!;
     }
 
     internal sealed class SlotRow

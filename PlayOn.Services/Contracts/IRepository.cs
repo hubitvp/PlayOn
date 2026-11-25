@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace PlayOn.Services.Contracts
 {
     public interface IRepository<TEntity>
@@ -22,6 +24,12 @@ namespace PlayOn.Services.Contracts
 
         Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default);
+
+        void SetOriginalPropertyValue<TProperty>(
+            TEntity entity,
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            TProperty value);
+
     }
 }
 

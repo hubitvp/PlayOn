@@ -16,7 +16,6 @@ namespace PlayOn.Services
         private readonly IRepository<MatchParticipant> participantRepository;
         private readonly IRepository<ApplicationUser> userRepository;
         private readonly IRepository<Notification> notificationRepository;
-
         private readonly TimeProvider timeProvider;
 
         public AttendanceService(
@@ -33,17 +32,20 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
-
         public async Task<ServiceResponse<AttendanceResponseModel>>
             GetAsync(
                 Guid matchId,
                 Guid actorId,
                 bool actorIsAdmin)
         {
+            if (matchId == Guid.Empty)
+            {
+                return ServiceResponse<AttendanceResponseModel>.NotFound();
+            }
+
             var info = await GetInfoAsync(matchId);
 
             var failure = CheckAccess<AttendanceResponseModel>(info, actorId, actorIsAdmin);
-
             if (failure != null)
             {
                 return failure;
@@ -61,21 +63,25 @@ namespace PlayOn.Services
                 .Success(AttendanceDataBuilder.AttendanceToResponseModel(info!, players));
         }
 
-
         public async Task<ServiceResponse<Guid>>
             SubmitAsync(AttendanceRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<Guid>.Failure(errors);
             }
 
+            if (request.MatchId == Guid.Empty)
+            {
+                return ServiceResponse<Guid>.NotFound();
+            }
+
             var info = await GetInfoAsync(request.MatchId);
 
             var failure = CheckAccess<Guid>(info, request.ActorId, request.ActorIsAdmin);
-
             if (failure != null)
             {
                 return failure;
@@ -86,7 +92,9 @@ namespace PlayOn.Services
                 .Where(x => x.MatchId == request.MatchId && x.Status == ParticipantStatus.Joined)
                 .ToListAsync();
 
-            var entries = request.Entries
+            var requestEntries = request.Entries;
+
+            var entries = requestEntries
                 .GroupBy(x => x.UserId)
                 .ToDictionary(x => x.Key, x => x.Last().Attended);
 
@@ -106,7 +114,12 @@ namespace PlayOn.Services
 
             var match = await matchRepository
                 .Query(asNoTracking: false)
-                .SingleAsync(x => x.Id == request.MatchId);
+                .SingleOrDefaultAsync(x => x.Id == request.MatchId);
+
+            if (match == null)
+            {
+                return ServiceResponse<Guid>.NotFound();
+            }
 
             match.Status = MatchStatus.Completed;
 
@@ -122,7 +135,6 @@ namespace PlayOn.Services
 
             return ServiceResponse<Guid>.Success(request.MatchId);
         }
-
 
         private static List<Notification> ApplyAttendance(
             IEnumerable<MatchParticipant> participants,

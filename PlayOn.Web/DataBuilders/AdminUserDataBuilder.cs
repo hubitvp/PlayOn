@@ -6,7 +6,7 @@ using static PlayOn.Common.ApplicationConstants.PaginationConstants;
 
 namespace PlayOn.Web.DataBuilders;
 
-public class AdminUserDataBuilder
+public class AdminUserDataBuilder : DataBuilder
 {
     public AdminUserQueryRequestData
         UserQueryToRequestData(AdminUserSearchInputModel input)

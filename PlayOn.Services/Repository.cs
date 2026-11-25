@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using PlayOn.Data;
 using PlayOn.Services.Contracts;
+using System.Linq.Expressions;
 
 namespace PlayOn.Services
 {
@@ -54,6 +55,17 @@ namespace PlayOn.Services
             CancellationToken cancellationToken = default)
         {
             return context.SaveChangesAsync(cancellationToken);
+        }
+
+
+        public void SetOriginalPropertyValue<TProperty>(
+            TEntity entity,
+            Expression<Func<TEntity, TProperty>> propertyExpression,
+            TProperty value)
+        {
+            context.Entry(entity)
+                .Property(propertyExpression)
+                .OriginalValue = value;
         }
     }
 }

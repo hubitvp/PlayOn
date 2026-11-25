@@ -24,15 +24,25 @@ namespace PlayOn.Web.Areas.Admin.Controllers
         {
             input.Page = Math.Max(1, input.Page);
 
+            if (!ModelState.IsValid)
+            {
+                return await ReturnInvalidIndexViewAsync(input);
+            }
+
             var requestData = venueDataBuilder.VenueQueryToRequestData(input);
 
             var response = await venueService.GetVenuesAsync(requestData);
 
-            if (!response.IsSuccess)
+            if (response.Status == ServiceStatus.InvalidInput)
             {
                 AddServiceErrors(response.Errors);
+                return await ReturnInvalidIndexViewAsync(input);
+            }
 
-                return View(venueDataBuilder.VenueListToViewModel(null, input));
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = venueDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             return View(venueDataBuilder.VenueListToViewModel(response.ResponseData, input));
@@ -57,11 +67,16 @@ namespace PlayOn.Web.Areas.Admin.Controllers
 
             var response = await venueService.CreateAsync(requestData);
 
-            if (!response.IsSuccess)
+            if (response.Status == ServiceStatus.InvalidInput)
             {
                 AddServiceErrors(response.Errors);
-
                 return View(model);
+            }
+
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = venueDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             TempData["Success"] = "The venue slot was created.";
@@ -72,11 +87,18 @@ namespace PlayOn.Web.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                var emptyIdError = venueDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
+            }
+
             var response = await venueService.GetForEditAsync(id);
 
-            if (response.Status == ServiceStatus.NotFound)
+            if (!response.IsSuccess)
             {
-                return NotFound();
+                var errorViewModel = venueDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             return View(venueDataBuilder.VenueToFormViewModel(response.ResponseData));
@@ -88,6 +110,12 @@ namespace PlayOn.Web.Areas.Admin.Controllers
         {
             model.Id = id;
 
+            if (id == Guid.Empty)
+            {
+                var emptyIdError = venueDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
+            }
+
             if (!ModelState.IsValid)
             {
                 return View(model);
@@ -97,16 +125,16 @@ namespace PlayOn.Web.Areas.Admin.Controllers
 
             var response = await venueService.UpdateAsync(requestData);
 
-            if (response.Status == ServiceStatus.NotFound)
-            {
-                return NotFound();
-            }
-
-            if (!response.IsSuccess)
+            if (response.Status == ServiceStatus.InvalidInput)
             {
                 AddServiceErrors(response.Errors);
-
                 return View(model);
+            }
+
+            if (response.Status != ServiceStatus.Success)
+            {
+                var errorViewModel = venueDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             TempData["Success"] = "The venue slot was updated.";
@@ -118,6 +146,12 @@ namespace PlayOn.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                var emptyIdError = venueDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
+            }
+
             var response = await venueService.DeleteAsync(id);
 
             return HandleToggle(response, "The venue slot was deleted.");
@@ -127,26 +161,44 @@ namespace PlayOn.Web.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Restore(Guid id)
         {
+            if (id == Guid.Empty)
+            {
+                var emptyIdError = venueDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
+            }
+
             var response = await venueService.RestoreAsync(id);
 
             return HandleToggle(response, "The venue slot was restored.");
         }
 
-        private IActionResult HandleToggle(ServiceResponse<Guid> response, string successMessage)
+        private async Task<IActionResult> ReturnInvalidIndexViewAsync(AdminVenueSearchInputModel input)
         {
-            if (response.Status == ServiceStatus.NotFound)
+            var defaultInput = new AdminVenueSearchInputModel { Page = 1 };
+            var requestData = venueDataBuilder.VenueQueryToRequestData(defaultInput);
+
+            var response = await venueService.GetVenuesAsync(requestData);
+
+            if (response.Status != ServiceStatus.Success)
             {
-                return NotFound();
+                var errorViewModel = venueDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
-            if (response.IsSuccess)
+            var viewModel = venueDataBuilder.VenueListToViewModel(response.ResponseData, defaultInput);
+
+            return View(nameof(Index), viewModel);
+        }
+
+        private IActionResult HandleToggle(ServiceResponse<Guid> response, string successMessage)
+        {
+            if (!response.IsSuccess)
             {
-                TempData["Success"] = successMessage;
+                var errorViewModel = venueDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
-            else
-            {
-                TempData["Error"] = "";// response.FirstErrorMessage();
-            }
+
+            TempData["Success"] = successMessage;
 
             return RedirectToAction(nameof(Index));
         }

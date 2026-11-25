@@ -204,6 +204,31 @@ public class MatchDataBuilder : DataBuilder
             MinSkill = source.MinSkill,
             MaxSkill = source.MaxSkill,
             PricePerPlayer = source.PricePerPlayer,
+        };
+
+        result.EditDisplayData = new EditDisplayData
+        {
+            SportName = source.EditDisplayDataResponseModel.SportName,
+            SportIcon = source.EditDisplayDataResponseModel.SportIcon.ToCssClass(),
+            CourtName = source.EditDisplayDataResponseModel.CourtName,
+            CourtCapacity = source.EditDisplayDataResponseModel.CourtCapacity,
+            VenueName = source.EditDisplayDataResponseModel.VenueName,
+            City = source.EditDisplayDataResponseModel.City,
+            StartsAt = displayFormatter.DateTime(source.EditDisplayDataResponseModel.Date.ToDateTime(source.EditDisplayDataResponseModel.StartsAt)),
+            JoinedCount = source.EditDisplayDataResponseModel.JoinedCount
+        };
+
+        return result;
+    }
+
+
+    public MatchEditViewModel
+        MatchEditApplyDisplayData(
+            MatchEditViewModel target,
+            MatchEditDisplayDataResponseModel source)
+    {
+        target.EditDisplayData = new EditDisplayData
+        {
             SportName = source.SportName,
             SportIcon = source.SportIcon.ToCssClass(),
             CourtName = source.CourtName,
@@ -211,26 +236,30 @@ public class MatchDataBuilder : DataBuilder
             VenueName = source.VenueName,
             City = source.City,
             StartsAt = displayFormatter.DateTime(source.Date.ToDateTime(source.StartsAt)),
-            JoinedCount = source.JoinedCount
+            JoinedCount = source.JoinedCount,
         };
 
-        return result;
+        return target;
     }
+
+
 
     public MatchEditViewModel
         MatchEditApplyDisplayData(
             MatchEditViewModel target,
             MatchEditResponseModel source)
     {
-
-        target.SportName = source.SportName;
-        target.SportIcon = source.SportIcon.ToCssClass();
-        target.CourtName = source.CourtName;
-        target.CourtCapacity = source.CourtCapacity;
-        target.VenueName = source.VenueName;
-        target.City = source.City;
-        target.StartsAt = displayFormatter.DateTime(source.Date.ToDateTime(source.StartsAt));
-        target.JoinedCount = source.JoinedCount;
+        target.EditDisplayData = new EditDisplayData
+        {
+            SportName = source.EditDisplayDataResponseModel.SportName,
+            SportIcon = source.EditDisplayDataResponseModel.SportIcon.ToCssClass(),
+            CourtName = source.EditDisplayDataResponseModel.CourtName,
+            CourtCapacity = source.EditDisplayDataResponseModel.CourtCapacity,
+            VenueName = source.EditDisplayDataResponseModel.VenueName,
+            City = source.EditDisplayDataResponseModel.City,
+            StartsAt = displayFormatter.DateTime(source.EditDisplayDataResponseModel.Date.ToDateTime(source.EditDisplayDataResponseModel.StartsAt)),
+            JoinedCount = source.EditDisplayDataResponseModel.JoinedCount,
+        };
 
         return target;
     }
@@ -348,10 +377,10 @@ public class MatchDataBuilder : DataBuilder
         return result;
     }
 
-    public AttendanceViewModel
+    public MatchAttendanceViewModel
         AttendanceToViewModel(AttendanceResponseModel source)
     {
-        var result = new AttendanceViewModel
+        var result = new MatchAttendanceViewModel
         {
             MatchId = source.MatchId,
             Players = source.Players
@@ -362,10 +391,10 @@ public class MatchDataBuilder : DataBuilder
         return AttendanceApplyDisplayData(result, source);
     }
 
-    public AttendancePlayerInputModel
+    public MatchAttendanceInputModel
         AttendancePlayerToViewModel(AttendancePlayerResponseModel source)
     {
-        var result = new AttendancePlayerInputModel
+        var result = new MatchAttendanceInputModel
         {
             UserId = source.UserId,
             DisplayName = source.DisplayName,
@@ -376,9 +405,9 @@ public class MatchDataBuilder : DataBuilder
         return result;
     }
 
-    public AttendanceViewModel
+    public MatchAttendanceViewModel
         AttendanceApplyDisplayData(
-            AttendanceViewModel target,
+            MatchAttendanceViewModel target,
             AttendanceResponseModel source)
     {
         target.Title = source.Title;
@@ -404,7 +433,7 @@ public class MatchDataBuilder : DataBuilder
             Guid matchId,
             Guid actorId,
             bool actorIsAdmin,
-            AttendanceViewModel source)
+            MatchAttendanceViewModel source)
     {
         var result = new AttendanceRequestData
         {

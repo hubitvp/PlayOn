@@ -23,15 +23,21 @@ namespace PlayOn.Web.Controllers
             this.ratingDataBuilder = ratingDataBuilder;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Create(Guid matchId)
         {
+            if (matchId == Guid.Empty)
+            {
+                var emptyIdError = ratingDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
+            }
+
             var response = await ratingService.GetFormAsync(matchId, GetUserId());
 
             if (!response.IsSuccess)
             {
-                return FromFailure(response, matchId);
+                var errorViewModel = ratingDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             var viewModel = ratingDataBuilder.RatingFormToViewModel(response.ResponseData);
@@ -45,7 +51,7 @@ namespace PlayOn.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await ShowFormAgainAsync(model);
+                return await ReturnInvalidCreateViewAsync(model);
             }
 
             var requestData = ratingDataBuilder
@@ -53,53 +59,42 @@ namespace PlayOn.Web.Controllers
 
             var response = await ratingService.SubmitAsync(requestData);
 
-            if (response.IsSuccess)
+            if (response.Status == ServiceStatus.InvalidInput)
             {
-                TempData["Success"] = "Thank you, your ratings were saved.";
-
-                return RedirectToAction("Details", "Matches", new { id = model.MatchId });
+                AddServiceErrors(response.Errors);
+                return await ReturnInvalidCreateViewAsync(model);
             }
 
-            if (response.Status != ServiceStatus.Invalid)
+            if (response.Status != ServiceStatus.Success)
             {
-                return FromFailure(response, model.MatchId);
+                var errorViewModel = ratingDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
-            AddServiceErrors(response.Errors);
+            TempData["Success"] = "Thank you, your ratings were saved.";
 
-            return await ShowFormAgainAsync(model);
+            return RedirectToAction("Details", "Matches", new { id = model.MatchId });
         }
 
-
-        private async Task<IActionResult> ShowFormAgainAsync(RatingFormViewModel model)
+        private async Task<IActionResult> ReturnInvalidCreateViewAsync(RatingFormViewModel model)
         {
+            if (model.MatchId == Guid.Empty)
+            {
+                var emptyIdError = ratingDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
+            }
+
             var response = await ratingService.GetFormAsync(model.MatchId, GetUserId());
 
             if (!response.IsSuccess)
             {
-                return FromFailure(response, model.MatchId);
+                var errorViewModel = ratingDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             ratingDataBuilder.RatingFormApplyDisplayData(model, response.ResponseData);
 
-            return View(model);
-        }
-
-        private IActionResult FromFailure<T>(ServiceResponse<T> response, Guid matchId)
-        {
-            switch (response.Status)
-            {
-                case ServiceStatus.NotFound:
-                    return NotFound();
-
-                case ServiceStatus.Forbidden:
-                    return Forbid();
-
-                default:
-                    TempData["Warning"] = "Error: The action could not be completed due to a conflict.";
-
-                    return RedirectToAction("Details", "Matches", new { id = matchId });
-            }
+            return View(nameof(Create), model);
         }
     }
 }

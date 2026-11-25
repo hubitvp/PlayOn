@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PlayOn.Common.ApplicationConstants;
 using PlayOn.Data.Models;
-using PlayOn.Services.Data;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlayOn.Web.Controllers
@@ -49,43 +48,6 @@ namespace PlayOn.Web.Controllers
                 {
                     ModelState.AddModelError(member, message);
                 }
-            }
-        }
-
-
-        protected virtual IActionResult GetFailStatusCode<T>(ServiceResponse<T> response)
-        {
-            switch (response.Status)
-            {
-                case ServiceStatus.NotFound:
-                    {
-                        return NotFound();
-                    }
-                case ServiceStatus.Forbidden:
-                    {
-                        return Forbid();
-                    }
-                case ServiceStatus.Conflict:
-                    {
-                        var message = response.Errors
-                                .FirstOrDefault()?
-                                .ErrorMessage
-                                ?? "This action is not possible right now.";
-
-                        var problemDetails = new ProblemDetails
-                        {
-                            Title = "Operation conflict",
-                            Detail = message,
-                            Status = StatusCodes.Status409Conflict,
-                            Instance = HttpContext.Request.Path
-                        };
-
-                        return Conflict(problemDetails);
-                    }
-                default:
-                    {
-                        return BadRequest();
-                    }
             }
         }
     }

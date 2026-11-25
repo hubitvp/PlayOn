@@ -6,10 +6,13 @@ namespace PlayOn.Services.Data
     {
         Success,
 
-        Invalid,
+        InvalidInput,
+
         NotFound,
 
         Forbidden,
+
+        TimeLocked,
 
         Conflict
     }
@@ -38,7 +41,7 @@ namespace PlayOn.Services.Data
             return new ServiceResponse<TData>
             {
                 IsSuccess = false,
-                Status = ServiceStatus.Invalid,
+                Status = ServiceStatus.InvalidInput,
                 Errors = errors,
             };
         }
@@ -60,12 +63,31 @@ namespace PlayOn.Services.Data
             return new ServiceResponse<TData> { Status = ServiceStatus.Forbidden };
         }
 
+
+        public static ServiceResponse<TData> TimeLocked(TData responseData)
+        {
+            return new ServiceResponse<TData>
+            {
+                Status = ServiceStatus.TimeLocked,
+                ResponseData = responseData,
+            };
+        }
+
+
         public static ServiceResponse<TData> Conflict(string message)
         {
             return new ServiceResponse<TData>
             {
                 Status = ServiceStatus.Conflict,
                 Errors = new[] { new ValidationResult(message) }
+            };
+        }
+
+        public static ServiceResponse<TData> Conflict()
+        {
+            return new ServiceResponse<TData>
+            {
+                Status = ServiceStatus.Conflict,
             };
         }
     }

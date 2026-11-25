@@ -1,6 +1,7 @@
 ﻿@model AdminVenueListViewModel
 @{
     ViewData["Title"] = "Venues";
+    var venues = Model.Venues;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -36,7 +37,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var venue in Model.Venues)
+            @foreach (var venue in venues)
             {
                 <tr class="@(venue.IsDeleted ? "text-muted" : "")">
                     <td>@venue.Name<div class="small text-muted">@venue.Address</div></td>
@@ -45,9 +46,20 @@
                     <td>@venue.StartsAt</td>
                     <td>@venue.OpeningHours</td>
                     <td>
-                        @if (venue.IsDeleted) { <span class="badge bg-secondary">Deleted</span> }
-                        else if (venue.IsBooked) { <span class="badge bg-primary">Booked</span> <span class="small">@venue.MatchTitle</span> }
-                        else { <span class="badge bg-success">Free</span> }
+                        @if (venue.IsDeleted)
+                        {
+                            <span class="badge bg-secondary">Deleted</span>
+                        }
+                        else if (venue.IsBooked)
+                        {
+
+                            <span class="badge bg-primary">Booked</span> <span class="small">@venue.MatchTitle</span>
+                        }
+                        else
+                        {
+
+                            <span class="badge bg-success">Free</span>
+                        }
                     </td>
                     <td class="text-end text-nowrap">
                         @if (venue.IsDeleted)
@@ -70,7 +82,7 @@
                     </td>
                 </tr>
             }
-            @if (Model.Venues.Count == 0)
+            @if (venues.Count == 0)
             {
                 <tr><td colspan="7" class="text-center text-muted py-4">No venue slots found.</td></tr>
             }

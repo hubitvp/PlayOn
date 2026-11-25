@@ -12,7 +12,6 @@ namespace PlayOn.Services
     public class VenueService : IVenueService
     {
         private readonly IRepository<Venue> venueRepository;
-
         private readonly TimeProvider timeProvider;
 
         public VenueService(
@@ -26,6 +25,15 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<PageResult<VenueResponseModel>>>
             GetSinglePageAsync(PageRequestData pageRequestData)
         {
+            ArgumentNullException.ThrowIfNull(pageRequestData);
+
+            var errors = ServiceRequestDataValidator.Validate(pageRequestData);
+            if (errors.Any())
+            {
+                return ServiceResponse<PageResult<VenueResponseModel>>
+                    .Failure(errors);
+            }
+
             var venueQuery = BuildVenueQuery();
 
             var page = await GetSinglePageAsync(
@@ -43,12 +51,13 @@ namespace PlayOn.Services
 
             return venueRepository
                 .Query()
-                .Where(x => !x.IsDeleted)
-                .Where(x => x.Event != null)
-                .Where(x =>
-                    x.Event!.Match.Status == MatchStatus.Open
-                    || x.Event!.Match.Status == MatchStatus.Confirmed)
-                .Where(x => x.Date >= today)
+                .Where(x => !x.IsDeleted
+                    && x.Event != null
+                    && !x.Event.Match.IsDeleted
+                    && !x.Event.Match.IsHidden
+                    && (x.Event.Match.Status == MatchStatus.Open
+                        || x.Event.Match.Status == MatchStatus.Confirmed)
+                    && x.Date >= today)
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.OpensAt)
                 .ThenBy(x => x.StartsAt)

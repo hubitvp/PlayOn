@@ -4,7 +4,7 @@ namespace PlayOn.Services.Data
 {
     public static class ServiceRequestDataValidator
     {
-        public static IEnumerable<ValidationResult> Validate(object instance)
+        public static ICollection<ValidationResult> Validate(object instance)
         {
             ArgumentNullException.ThrowIfNull(instance);
 

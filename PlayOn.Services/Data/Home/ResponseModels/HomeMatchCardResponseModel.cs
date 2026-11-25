@@ -9,7 +9,7 @@ namespace PlayOn.Services.Data.Home.ResponseModels
         public required string SportName { get; init; }
         public required SportIcon SportIcon { get; init; }
         public required string VenueName { get; init; }
-        public required string City { get; init; } = null!;
+        public required string City { get; init; }
         public required DateOnly Date { get; init; }
         public required TimeOnly StartsAt { get; init; }
         public required int DurationMinutes { get; init; }

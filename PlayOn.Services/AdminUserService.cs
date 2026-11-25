@@ -34,17 +34,24 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<PageResult<AdminUserResponseModel>>>
             GetUsersAsync(AdminUserQueryRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<PageResult<AdminUserResponseModel>>.Failure(errors);
             }
 
+            if (!Enum.IsDefined(request.Status))
+            {
+                return ServiceResponse<PageResult<AdminUserResponseModel>>.Failure(
+                    "Select a valid status filter.",
+                    nameof(request.Status));
+            }
+
             var query = userRepository.Query();
 
             var term = request.Search?.Trim();
-
             if (!string.IsNullOrWhiteSpace(term))
             {
                 query = query.Where(x =>
@@ -88,11 +95,17 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<Guid>>
             SetActiveAsync(AdminUserStatusRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<Guid>.Failure(errors);
+            }
+
+            if (request.UserId == Guid.Empty)
+            {
+                return ServiceResponse<Guid>.NotFound();
             }
 
             if (!request.IsActive && request.UserId == request.ActorId)
@@ -130,11 +143,17 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<Guid>>
             SetAdministratorAsync(AdminUserRoleRequestData request)
         {
-            var errors = ServiceRequestDataValidator.Validate(request);
+            ArgumentNullException.ThrowIfNull(request);
 
+            var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
             {
                 return ServiceResponse<Guid>.Failure(errors);
+            }
+
+            if (request.UserId == Guid.Empty)
+            {
+                return ServiceResponse<Guid>.NotFound();
             }
 
             if (!request.IsAdministrator && request.UserId == request.ActorId)
@@ -164,7 +183,7 @@ namespace PlayOn.Services
             {
                 var message = string.Join(" ", result.Errors.Select(x => x.Description));
 
-                return ServiceResponse<Guid>.Failure(message, "Role");
+                return ServiceResponse<Guid>.Conflict(message);
             }
 
             return ServiceResponse<Guid>.Success(user.Id);

@@ -17,7 +17,6 @@ namespace PlayOn.Services
         private readonly IRepository<Sport> sportRepository;
         private readonly IRepository<Venue> venueRepository;
         private readonly IRepository<PlayerRating> ratingRepository;
-
         private readonly TimeProvider timeProvider;
 
         public AdminDashboardService(

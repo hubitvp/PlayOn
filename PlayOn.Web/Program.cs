@@ -133,7 +133,7 @@ namespace PlayOn.Web
             app.UseHttpsRedirection();
             app.UseRouting();
 
-            //app.UseStatusCodePagesWithRedirects("/Error/Index?statusCode={0}");
+            app.UseStatusCodePagesWithRedirects("/Error/Index?statusCode={0}");
 
             app.UseAuthentication();
             app.UseAuthorization();

@@ -52,7 +52,7 @@
 
     <div class="col-lg-8">
         <h2 class="h5">Skill levels</h2>
-        @if (Model.Skills.Count == 0)
+        @if (Model.Skills == null || Model.Skills.Count == 0)
         {
             <p class="text-muted">No skill levels set yet.</p>
         }
@@ -70,7 +70,7 @@
         }
 
         <h2 class="h5">What teammates say</h2>
-        @if (Model.RecentRatings.Count == 0)
+        @if (Model.RecentRatings == null || Model.RecentRatings.Count == 0)
         {
             <p class="text-muted">No comments yet.</p>
         }

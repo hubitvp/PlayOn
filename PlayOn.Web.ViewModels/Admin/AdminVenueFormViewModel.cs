@@ -9,7 +9,6 @@ namespace PlayOn.Web.ViewModels.Admin
         [ValidateNever]
         public Guid? Id { get; set; }
 
-        /// <summary>Shown on the edit page; a booked slot keeps its date and start time.</summary>
         [ValidateNever]
         public bool IsBooked { get; set; }
 
@@ -58,6 +57,27 @@ namespace PlayOn.Web.ViewModels.Admin
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            if ((Name ?? string.Empty).Trim().Length < NameMinLength)
+            {
+                yield return new ValidationResult(
+                    $"Name must have at least {NameMinLength} characters, not counting spaces at the ends.",
+                    new[] { nameof(Name) });
+            }
+
+            if ((Address ?? string.Empty).Trim().Length < AddressMinLength)
+            {
+                yield return new ValidationResult(
+                    $"Address must have at least {AddressMinLength} characters, not counting spaces at the ends.",
+                    new[] { nameof(Address) });
+            }
+
+            if ((City ?? string.Empty).Trim().Length < CityMinLength)
+            {
+                yield return new ValidationResult(
+                    $"City must have at least {CityMinLength} characters, not counting spaces at the ends.",
+                    new[] { nameof(City) });
+            }
+
             if (OpensAt >= ClosesAt)
             {
                 yield return new ValidationResult(

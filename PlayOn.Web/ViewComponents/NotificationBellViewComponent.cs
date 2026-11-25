@@ -19,9 +19,13 @@ namespace PlayOn.Web.ViewComponents
                 UserClaimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier),
                 out var userId);
 
-            int unreadCount = hasUserId
-                ? (await notificationService.GetUnreadCountAsync(userId)).ResponseData
-                : 0;
+            if (!hasUserId)
+            {
+                return View(0);
+            }
+
+            var response = await notificationService.GetUnreadCountAsync(userId);
+            var unreadCount = response.IsSuccess ? response.ResponseData : 0;
 
             return View(unreadCount);
         }

@@ -23,13 +23,13 @@ namespace PlayOn.Web.Controllers
             this.playerDataBuilder = playerDataBuilder;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> Details(Guid id)
         {
             if (id == Guid.Empty)
             {
-                return BadRequest();
+                var emptyIdError = playerDataBuilder.ServiceStatusToErrorViewModel(ServiceStatus.NotFound);
+                return View("Error", emptyIdError);
             }
 
             var userId = GetUserId();
@@ -38,17 +38,15 @@ namespace PlayOn.Web.Controllers
 
             if (!response.IsSuccess)
             {
-                return NotFound();
+                var errorViewModel = playerDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
-
-            var isOwnProfile = IsUserAuthenticated() && GetUserId() == id;
 
             var viewModel = playerDataBuilder
                 .PlayerProfileToViewModel(response.ResponseData);
 
             return View(viewModel);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Edit()
@@ -57,9 +55,10 @@ namespace PlayOn.Web.Controllers
 
             var serviceResponse = await playerService.GetForEditAsync(userId);
 
-            if (false == serviceResponse.IsSuccess)
+            if (!serviceResponse.IsSuccess)
             {
-                return NotFound();
+                var errorViewModel = playerDataBuilder.ServiceStatusToErrorViewModel(serviceResponse.Status);
+                return View("Error", errorViewModel);
             }
 
             var viewModel = playerDataBuilder.PlayerEditToViewModel(serviceResponse.ResponseData);
@@ -73,44 +72,44 @@ namespace PlayOn.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return await ShowFormAgainAsync(model);
+                return await ReturnInvalidEditViewAsync(model);
             }
 
             var requestData = playerDataBuilder
                 .PlayerEditToRequestData(GetUserId(), model);
 
-            var response = await playerService.UpdateAsync(requestData);
+            var serviceResponse = await playerService.UpdateAsync(requestData);
 
-            if (response.IsSuccess)
+            if (serviceResponse.Status == ServiceStatus.InvalidInput)
             {
-                TempData["Success"] = "Your profile was saved.";
-
-                return RedirectToAction(nameof(Details), new { id = GetUserId() });
+                AddServiceErrors(serviceResponse.Errors);
+                return await ReturnInvalidEditViewAsync(model);
             }
 
-            if (response.Status != ServiceStatus.Invalid)
+            if (serviceResponse.Status != ServiceStatus.Success)
             {
-                return NotFound();
+                var errorViewModel = playerDataBuilder.ServiceStatusToErrorViewModel(serviceResponse.Status);
+                return View("Error", errorViewModel);
             }
 
-            AddServiceErrors(response.Errors);
+            TempData["Success"] = "Your profile was saved.";
 
-            return await ShowFormAgainAsync(model);
+            return RedirectToAction(nameof(Details), new { id = GetUserId() });
         }
 
-
-        private async Task<IActionResult> ShowFormAgainAsync(ProfileEditViewModel model)
+        private async Task<IActionResult> ReturnInvalidEditViewAsync(ProfileEditViewModel model)
         {
             var response = await playerService.GetForEditAsync(GetUserId());
 
             if (!response.IsSuccess)
             {
-                return NotFound();
+                var errorViewModel = playerDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             playerDataBuilder.PlayerEditApplyDisplayData(model, response.ResponseData);
 
-            return View(model);
+            return View(nameof(Edit), model);
         }
     }
 }

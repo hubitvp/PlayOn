@@ -1,34 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>aspnet-PlayOn-484d4bb3-f9da-430a-8a61-c84d154fcb57</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>aspnet-PlayOn-484d4bb3-f9da-430a-8a61-c84d154fcb57</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.14" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.15" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.15" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.15" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.15" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.15">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="11.0.0" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\PlayOn.Common\PlayOn.Common.csproj" />
-    <ProjectReference Include="..\PlayOn.Services\PlayOn.Services.csproj" />
-    <ProjectReference Include="..\PlayOn.Web.ViewModels\PlayOn.Web.ViewModels.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="10.0.14" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.15" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="10.0.15" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.15" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.15" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.15">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="11.0.0" />
+		<PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.14" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="SeedData\" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\PlayOn.Common\PlayOn.Common.csproj" />
+		<ProjectReference Include="..\PlayOn.Services\PlayOn.Services.csproj" />
+		<ProjectReference Include="..\PlayOn.Web.ViewModels\PlayOn.Web.ViewModels.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="SeedData\" />
+	</ItemGroup>
 
 </Project>

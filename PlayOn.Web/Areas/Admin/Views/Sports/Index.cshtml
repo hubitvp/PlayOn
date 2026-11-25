@@ -1,6 +1,7 @@
 ﻿@model AdminSportListViewModel
 @{
     ViewData["Title"] = "Sports";
+    var sports = Model.Sports;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -33,7 +34,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var sport in Model.Sports)
+            @foreach (var sport in sports)
             {
                 <tr>
                     <td><i class="@sport.IconCss"></i></td>
@@ -54,12 +55,14 @@
                         else
                         {
                             <button type="button" class="btn btn-sm btn-outline-danger" disabled
-                                    title="Used by courts, matches or preferences">Delete</button>
+                                    title="Used by courts, matches or preferences">
+                                Delete
+                            </button>
                         }
                     </td>
                 </tr>
             }
-            @if (Model.Sports.Count == 0)
+            @if (sports.Count == 0)
             {
                 <tr><td colspan="7" class="text-center text-muted py-4">No sports found.</td></tr>
             }

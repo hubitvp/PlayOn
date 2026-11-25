@@ -24,7 +24,8 @@ namespace PlayOn.Web.Areas.Admin.Controllers
 
             if (!response.IsSuccess)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                var errorViewModel = dashboardDataBuilder.ServiceStatusToErrorViewModel(response.Status);
+                return View("Error", errorViewModel);
             }
 
             var viewModel = dashboardDataBuilder.DashboardToViewModel(response.ResponseData);
