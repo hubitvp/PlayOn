@@ -4,6 +4,7 @@ using PlayOn.Common.ApplicationConstants;
 using PlayOn.Common.Enums;
 using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
+using PlayOn.Data.RepositoryContract;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.AdminUsers.RequestData;

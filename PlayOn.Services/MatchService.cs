@@ -2,6 +2,7 @@
 using PlayOn.Common.Enums;
 using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
+using PlayOn.Data.RepositoryContract;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.Match.RequestData;
@@ -301,29 +302,30 @@ namespace PlayOn.Services
         }
 
         public async Task<ServiceResponse<MatchEditDisplayDataResponseModel>>
-            GetEditDisplayDataAsync(Guid matchId, Guid userId, bool userIsAdmin)
+            GetEditDisplayDataAsync(
+                Guid matchId,
+                Guid userId,
+                bool userIsAdmin)
         {
-            var record = await matchRepository
+            var row = await matchRepository
                 .Query()
                 .Where(x => x.Id == matchId && x.Event != null && !x.IsDeleted)
-                .Select(x => new
-                {
-                    x.OrganiserId,
-                    DisplayData = MatchDataBuilder.MatchEditDisplayDataProjection().Compile()(x)
-                })
+                .Select(MatchDataBuilder.MatchEditRowProjection())
                 .SingleOrDefaultAsync();
 
-            if (record == null)
+            if (row == null)
             {
                 return ServiceResponse<MatchEditDisplayDataResponseModel>.NotFound();
             }
 
-            if (record.OrganiserId != userId && !userIsAdmin)
+            if (row.OrganiserId != userId && !userIsAdmin)
             {
                 return ServiceResponse<MatchEditDisplayDataResponseModel>.Forbidden();
             }
 
-            return ServiceResponse<MatchEditDisplayDataResponseModel>.Success(record.DisplayData);
+            var displayData = MatchDataBuilder.MatchEditRowToDisplayDataResponseModel(row);
+
+            return ServiceResponse<MatchEditDisplayDataResponseModel>.Success(displayData);
         }
 
         public async Task<ServiceResponse<Guid>>

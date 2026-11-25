@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PlayOn.Common.Enums;
 using PlayOn.Data.Models;
+using PlayOn.Data.RepositoryContract;
 using PlayOn.Services.Contracts;
 using PlayOn.Services.Data;
 using PlayOn.Services.Data.AdminDashboard.ResponseModels;

@@ -1,4 +1,6 @@
-﻿using PlayOn.Services;
+﻿using PlayOn.Data.RepositoryContract;
+using PlayOn.Data.RepositoryImplementation;
+using PlayOn.Services;
 using PlayOn.Services.Contracts;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.DataBuilders.Formatting;

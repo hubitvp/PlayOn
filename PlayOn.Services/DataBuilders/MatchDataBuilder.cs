@@ -208,7 +208,23 @@ internal static class MatchDataBuilder
         };
     }
 
-
+    internal static MatchEditDisplayDataResponseModel
+        MatchEditRowToDisplayDataResponseModel(EditRow source)
+    {
+        return new MatchEditDisplayDataResponseModel
+        {
+            SportName = source.EditRowDisplayData.SportName,
+            SportIcon = source.EditRowDisplayData.SportIcon,
+            CourtName = source.EditRowDisplayData.CourtName,
+            CourtCapacity = source.EditRowDisplayData.CourtCapacity,
+            VenueName = source.EditRowDisplayData.VenueName,
+            City = source.EditRowDisplayData.City,
+            Date = source.EditRowDisplayData.Date,
+            StartsAt = source.EditRowDisplayData.StartsAt,
+            ClosesAt = source.EditRowDisplayData.ClosesAt,
+            JoinedCount = source.EditRowDisplayData.JoinedCount
+        };
+    }
 
     internal static MatchEditResponseModel MatchEditRowToResponseModel(EditRow source)
     {
@@ -225,19 +241,7 @@ internal static class MatchDataBuilder
             PricePerPlayer = source.PricePerPlayer,
             RowVersion = source.RowVersion,
 
-            EditDisplayDataResponseModel = new MatchEditDisplayDataResponseModel
-            {
-                SportName = source.EditRowDisplayData.SportName,
-                SportIcon = source.EditRowDisplayData.SportIcon,
-                CourtName = source.EditRowDisplayData.CourtName,
-                CourtCapacity = source.EditRowDisplayData.CourtCapacity,
-                VenueName = source.EditRowDisplayData.VenueName,
-                City = source.EditRowDisplayData.City,
-                Date = source.EditRowDisplayData.Date,
-                StartsAt = source.EditRowDisplayData.StartsAt,
-                ClosesAt = source.EditRowDisplayData.ClosesAt,
-                JoinedCount = source.EditRowDisplayData.JoinedCount
-            }
+            EditDisplayDataResponseModel = MatchEditRowToDisplayDataResponseModel(source),
         };
 
         return result;
