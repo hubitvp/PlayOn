@@ -7,10 +7,6 @@ namespace PlayOn.Data.Models
 {
     public class PlayerRating
     {
-        [Key]
-        public Guid Id { get; set; } = Guid.NewGuid();
-
-
         [Required]
         public Guid MatchId { get; set; }
 

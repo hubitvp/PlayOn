@@ -75,7 +75,9 @@ namespace PlayOn.Services
 
             var recentRatings = await visibleRatings
                 .Where(x => x.Comment != null && x.Comment != "")
-                .OrderByDescending(x => x.Id)
+                .OrderBy(x => x.MatchId)
+                .ThenBy(x => x.RaterId)
+                .ThenBy(x => x.RatedUserId)
                 .Take(RecentRatingsCount)
                 .Select(PlayerDataBuilder.PlayerRatingProjection())
                 .ToListAsync();

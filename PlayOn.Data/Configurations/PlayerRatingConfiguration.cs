@@ -8,6 +8,14 @@ namespace PlayOn.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<PlayerRating> builder)
         {
+
+            builder.HasKey(x => new
+            {
+                x.MatchId,
+                x.RaterId,
+                x.RatedUserId
+            });
+
             builder.HasOne(x => x.Match)
                 .WithMany(x => x.Ratings)
                 .HasForeignKey(x => x.MatchId)
@@ -22,7 +30,6 @@ namespace PlayOn.Data.Configurations
                 .WithMany()
                 .HasForeignKey(x => x.RatedUserId)
                 .OnDelete(DeleteBehavior.Restrict);
-
         }
     }
 }

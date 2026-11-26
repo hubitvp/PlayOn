@@ -131,6 +131,16 @@ namespace PlayOn.Data.Seeding
             await SeedPlayerRatingsAsync(playerRatingRepository, matchesByTitle, usersByEmail, bundle.PlayerRatings, cancellationToken);
         }
 
+        private static bool TryRegisterGuid(Guid matchId, Guid userId, HashSet<(Guid, Guid)> knownIds)
+        {
+            if (matchId == Guid.Empty || userId == Guid.Empty)
+            {
+                return false;
+            }
+
+            return knownIds.Add((matchId, userId));
+        }
+
         private static bool TryRegisterGuid(Guid id, HashSet<Guid> knownIds)
         {
             if (id == Guid.Empty)
@@ -140,6 +150,19 @@ namespace PlayOn.Data.Seeding
 
             return knownIds.Add(id);
         }
+
+
+        private static bool TryRegisterGuid(Guid matchId, Guid raterId, Guid ratedUserId, HashSet<(Guid, Guid, Guid)> knownIds)
+        {
+            if (matchId == Guid.Empty || raterId == Guid.Empty || ratedUserId == Guid.Empty)
+            {
+                return false;
+            }
+
+            return knownIds.Add((matchId, raterId, ratedUserId));
+        }
+
+
 
         private static async Task<SeedDataBundle> LoadOrCreateSeedBundleAsync(
             string filePath,
@@ -228,28 +251,28 @@ namespace PlayOn.Data.Seeding
             ],
             Venues =
             [
-                new(new DateOnly(2026, 10, 13), new TimeOnly(18, 0), "Central Sports Park", "1 Main Street", "Sofia", 42.697700m, 23.321900m, null, new TimeOnly(7, 0), new TimeOnly(23, 0), false),
-                new(new DateOnly(2026, 10, 14), new TimeOnly(19, 0), "Eastside Arena", "12 East Boulevard", "Plovdiv", 42.135400m, 24.745300m, null, new TimeOnly(8, 0), new TimeOnly(22, 0), false),
-                new(new DateOnly(2026, 10, 17), new TimeOnly(10, 0), "Riverside Courts", "8 River Road", "Varna", 43.214100m, 27.914700m, null, new TimeOnly(6, 30), new TimeOnly(22, 30), false),
-                new(new DateOnly(2026, 10, 18), new TimeOnly(9, 0), "South Field Complex", "24 South Park", "Burgas", 42.504800m, 27.462600m, null, new TimeOnly(7, 30), new TimeOnly(21, 30), false),
-                new(new DateOnly(2026, 11, 9), new TimeOnly(18, 30), "Mountain Sports Hall", "5 Vitosha Avenue", "Sofia", 42.650700m, 23.347000m, null, new TimeOnly(8, 0), new TimeOnly(23, 0), false),
-                new(new DateOnly(2026, 11, 10), new TimeOnly(17, 0), "West End Club", "44 West Street", "Sofia", 42.705000m, 23.270000m, null, new TimeOnly(9, 0), new TimeOnly(22, 0), false),
-                new(new DateOnly(2026, 11, 11), new TimeOnly(19, 30), "Black Sea Sports", "19 Coast Lane", "Varna", 43.207000m, 27.922000m, null, new TimeOnly(7, 0), new TimeOnly(21, 0), false),
-                new(new DateOnly(2026, 11, 14), new TimeOnly(11, 0), "Maritsa Activity Center", "31 Maritsa Road", "Plovdiv", 42.145000m, 24.760000m, null, new TimeOnly(8, 0), new TimeOnly(22, 0), false),
-                new(new DateOnly(2026, 10, 25), new TimeOnly(14, 0), "Green Court Club", "7 Garden Street", "Ruse", 43.835000m, 25.965000m, null, new TimeOnly(7, 30), new TimeOnly(21, 30), false),
-                new(new DateOnly(2026, 11, 15), new TimeOnly(15, 0), "Danube Sports Hub", "16 Harbor Avenue", "Ruse", 43.848000m, 25.960000m, null, new TimeOnly(8, 30), new TimeOnly(22, 30), false),
-                new(new DateOnly(2026, 11, 7), new TimeOnly(10, 0), "Central Sports Park", "1 Main Street", "Sofia", 42.697700m, 23.321900m, null, new TimeOnly(7, 0), new TimeOnly(23, 0), false),
-                new(new DateOnly(2026, 11, 13), new TimeOnly(20, 0), "Eastside Arena", "12 East Boulevard", "Plovdiv", 42.135400m, 24.745300m, null, new TimeOnly(8, 0), new TimeOnly(22, 0), false),
-                new(new DateOnly(2026, 11, 16), new TimeOnly(18, 30), "Eastside Arena", "12 East Boulevard", "Plovdiv", 42.135400m, 24.745300m, null, new TimeOnly(8, 0), new TimeOnly(22, 0), false),
-                new(new DateOnly(2026, 11, 18), new TimeOnly(19, 0), "Mountain Sports Hall", "5 Vitosha Avenue", "Sofia", 42.650700m, 23.347000m, null, new TimeOnly(8, 0), new TimeOnly(23, 0), false),
-                new(new DateOnly(2026, 11, 22), new TimeOnly(9, 30), "Riverside Courts", "8 River Road", "Varna", 43.214100m, 27.914700m, null, new TimeOnly(6, 30), new TimeOnly(22, 30), false),
-                new(new DateOnly(2026, 11, 20), new TimeOnly(18, 0), "Central Sports Park", "1 Main Street", "Sofia", 42.697700m, 23.321900m, null, new TimeOnly(7, 0), new TimeOnly(23, 0), false),
-                new(new DateOnly(2026, 11, 21), new TimeOnly(10, 0), "Eastside Arena", "12 East Boulevard", "Plovdiv", 42.135400m, 24.745300m, null, new TimeOnly(8, 0), new TimeOnly(22, 0), false),
-                new(new DateOnly(2026, 11, 24), new TimeOnly(19, 0), "Riverside Courts", "8 River Road", "Varna", 43.214100m, 27.914700m, null, new TimeOnly(6, 30), new TimeOnly(22, 30), false),
-                new(new DateOnly(2026, 11, 27), new TimeOnly(17, 30), "South Field Complex", "24 South Park", "Burgas", 42.504800m, 27.462600m, null, new TimeOnly(7, 30), new TimeOnly(21, 30), false),
-                new(new DateOnly(2026, 11, 28), new TimeOnly(11, 0), "Mountain Sports Hall", "5 Vitosha Avenue", "Sofia", 42.650700m, 23.347000m, null, new TimeOnly(8, 0), new TimeOnly(23, 0), false),
-                new(new DateOnly(2026, 12, 3), new TimeOnly(18, 0), "Danube Sports Hub", "16 Harbor Avenue", "Ruse", 43.848000m, 25.960000m, null, new TimeOnly(8, 30), new TimeOnly(22, 30), false),
-                new(new DateOnly(2026, 12, 5), new TimeOnly(15, 0), "West End Club", "44 West Street", "Sofia", 42.705000m, 23.270000m, null, new TimeOnly(9, 0), new TimeOnly(22, 0), false)
+                new(new DateOnly(2026, 10, 13), new TimeOnly(18, 0), "Central Sports Park", "1 Main Street", "Sofia", 42.697700m, 23.321900m,  new TimeOnly(7, 0), new TimeOnly(23, 0), false),
+                new(new DateOnly(2026, 10, 14), new TimeOnly(19, 0), "Eastside Arena", "12 East Boulevard", "Plovdiv", 42.135400m, 24.745300m,  new TimeOnly(8, 0), new TimeOnly(22, 0), false),
+                new(new DateOnly(2026, 10, 17), new TimeOnly(10, 0), "Riverside Courts", "8 River Road", "Varna", 43.214100m, 27.914700m,  new TimeOnly(6, 30), new TimeOnly(22, 30), false),
+                new(new DateOnly(2026, 10, 18), new TimeOnly(9, 0), "South Field Complex", "24 South Park", "Burgas", 42.504800m, 27.462600m, new TimeOnly(7, 30), new TimeOnly(21, 30), false),
+                new(new DateOnly(2026, 11, 9), new TimeOnly(18, 30), "Mountain Sports Hall", "5 Vitosha Avenue", "Sofia", 42.650700m, 23.347000m,  new TimeOnly(8, 0), new TimeOnly(23, 0), false),
+                new(new DateOnly(2026, 11, 10), new TimeOnly(17, 0), "West End Club", "44 West Street", "Sofia", 42.705000m, 23.270000m,  new TimeOnly(9, 0), new TimeOnly(22, 0), false),
+                new(new DateOnly(2026, 11, 11), new TimeOnly(19, 30), "Black Sea Sports", "19 Coast Lane", "Varna", 43.207000m, 27.922000m,  new TimeOnly(7, 0), new TimeOnly(21, 0), false),
+                new(new DateOnly(2026, 11, 14), new TimeOnly(11, 0), "Maritsa Activity Center", "31 Maritsa Road", "Plovdiv", 42.145000m, 24.760000m, new TimeOnly(8, 0), new TimeOnly(22, 0), false),
+                new(new DateOnly(2026, 10, 25), new TimeOnly(14, 0), "Green Court Club", "7 Garden Street", "Ruse", 43.835000m, 25.965000m, new TimeOnly(7, 30), new TimeOnly(21, 30), false),
+                new(new DateOnly(2026, 11, 15), new TimeOnly(15, 0), "Danube Sports Hub", "16 Harbor Avenue", "Ruse", 43.848000m, 25.960000m, new TimeOnly(8, 30), new TimeOnly(22, 30), false),
+                new(new DateOnly(2026, 11, 7), new TimeOnly(10, 0), "Central Sports Park", "1 Main Street", "Sofia", 42.697700m, 23.321900m, new TimeOnly(7, 0), new TimeOnly(23, 0), false),
+                new(new DateOnly(2026, 11, 13), new TimeOnly(20, 0), "Eastside Arena", "12 East Boulevard", "Plovdiv", 42.135400m, 24.745300m, new TimeOnly(8, 0), new TimeOnly(22, 0), false),
+                new(new DateOnly(2026, 11, 16), new TimeOnly(18, 30), "Eastside Arena", "12 East Boulevard", "Plovdiv", 42.135400m, 24.745300m, new TimeOnly(8, 0), new TimeOnly(22, 0), false),
+                new(new DateOnly(2026, 11, 18), new TimeOnly(19, 0), "Mountain Sports Hall", "5 Vitosha Avenue", "Sofia", 42.650700m, 23.347000m, new TimeOnly(8, 0), new TimeOnly(23, 0), false),
+                new(new DateOnly(2026, 11, 22), new TimeOnly(9, 30), "Riverside Courts", "8 River Road", "Varna", 43.214100m, 27.914700m, new TimeOnly(6, 30), new TimeOnly(22, 30), false),
+                new(new DateOnly(2026, 11, 20), new TimeOnly(18, 0), "Central Sports Park", "1 Main Street", "Sofia", 42.697700m, 23.321900m, new TimeOnly(7, 0), new TimeOnly(23, 0), false),
+                new(new DateOnly(2026, 11, 21), new TimeOnly(10, 0), "Eastside Arena", "12 East Boulevard", "Plovdiv", 42.135400m, 24.745300m, new TimeOnly(8, 0), new TimeOnly(22, 0), false),
+                new(new DateOnly(2026, 11, 24), new TimeOnly(19, 0), "Riverside Courts", "8 River Road", "Varna", 43.214100m, 27.914700m, new TimeOnly(6, 30), new TimeOnly(22, 30), false),
+                new(new DateOnly(2026, 11, 27), new TimeOnly(17, 30), "South Field Complex", "24 South Park", "Burgas", 42.504800m, 27.462600m, new TimeOnly(7, 30), new TimeOnly(21, 30), false),
+                new(new DateOnly(2026, 11, 28), new TimeOnly(11, 0), "Mountain Sports Hall", "5 Vitosha Avenue", "Sofia", 42.650700m, 23.347000m, new TimeOnly(8, 0), new TimeOnly(23, 0), false),
+                new(new DateOnly(2026, 12, 3), new TimeOnly(18, 0), "Danube Sports Hub", "16 Harbor Avenue", "Ruse", 43.848000m, 25.960000m, new TimeOnly(8, 30), new TimeOnly(22, 30), false),
+                new(new DateOnly(2026, 12, 5), new TimeOnly(15, 0), "West End Club", "44 West Street", "Sofia", 42.705000m, 23.270000m, new TimeOnly(9, 0), new TimeOnly(22, 0), false)
             ],
             SportPreferences =
             [
@@ -933,10 +956,13 @@ namespace PlayOn.Data.Seeding
             CancellationToken cancellationToken)
         {
             var existingRows = await matchParticipantRepository.Query()
-                .Select(x => new { x.Id, x.MatchId, x.UserId })
+                .Select(x => new { x.MatchId, x.UserId })
                 .ToListAsync(cancellationToken);
 
-            var knownIds = existingRows.Select(x => x.Id).Where(id => id != Guid.Empty).ToHashSet();
+            var knownIds = existingRows
+                .Where(x => x.MatchId != Guid.Empty && x.UserId != Guid.Empty)
+                .Select(x => (x.MatchId, x.UserId))
+                .ToHashSet();
             var existingPairs = existingRows.Select(x => (x.MatchId, x.UserId)).ToHashSet();
 
             var toAdd = new List<MatchParticipant>();
@@ -966,7 +992,7 @@ namespace PlayOn.Data.Seeding
                     IsLateCancel = item.IsLateCancel
                 };
 
-                if (!TryRegisterGuid(entity.Id, knownIds))
+                if (!TryRegisterGuid(matchId: entity.MatchId, userId: entity.UserId, knownIds))
                 {
                     existingPairs.Remove(pair);
                     continue;
@@ -1049,10 +1075,13 @@ namespace PlayOn.Data.Seeding
             CancellationToken cancellationToken)
         {
             var existingRows = await playerRatingRepository.Query()
-                .Select(x => new { x.Id, x.MatchId, x.RaterId, x.RatedUserId })
+                .Select(x => new { x.MatchId, x.RaterId, x.RatedUserId })
                 .ToListAsync(cancellationToken);
 
-            var knownIds = existingRows.Select(x => x.Id).Where(id => id != Guid.Empty).ToHashSet();
+            var knownIds = existingRows
+                .Where(x => x.MatchId != Guid.Empty && x.RaterId != Guid.Empty && x.RatedUserId != Guid.Empty)
+                .Select(x => (x.MatchId, x.RaterId, x.RatedUserId))
+                .ToHashSet();
             var existingKeys = existingRows
                 .Select(x => (x.MatchId, x.RaterId, x.RatedUserId))
                 .ToHashSet();
@@ -1085,7 +1114,11 @@ namespace PlayOn.Data.Seeding
                     IsHidden = false
                 };
 
-                if (!TryRegisterGuid(entity.Id, knownIds))
+                if (!TryRegisterGuid(
+                    matchId: entity.MatchId,
+                    raterId: entity.RaterId,
+                    ratedUserId: entity.RatedUserId,
+                    knownIds))
                 {
                     existingKeys.Remove(key);
                     continue;

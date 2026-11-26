@@ -42,7 +42,8 @@ internal static class MatchDataBuilder
             Participants = match.Participants
                 .Where(participant => participant.Status != ParticipantStatus.Cancelled)
                 .OrderBy(participant => participant.JoinedOn)
-                .ThenBy(participant => participant.Id)
+                .ThenBy(participant => participant.MatchId)
+                .ThenBy(participant => participant.UserId)
                 .Select(participant => new ParticipantRow
                 {
                     UserId = participant.UserId,

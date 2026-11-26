@@ -43,7 +43,8 @@ namespace PlayOn.Services
         }
 
         public async Task<ServiceResponse<JoinMatchResponseModel>>
-            JoinAsync(ParticipationRequestData request)
+            JoinAsync(
+                ParticipationRequestData request)
         {
             var errors = ServiceRequestDataValidator.Validate(request);
             if (errors.Any())
@@ -63,41 +64,72 @@ namespace PlayOn.Services
                     .Conflict(MatchClosedMessage);
             }
 
-            if (await FindActiveParticipantAsync(info.Id, request.UserId) != null)
+            var participant = await participantRepository
+                .Query(asNoTracking: false)
+                .SingleOrDefaultAsync(x =>
+                    x.MatchId == info.Id &&
+                    x.UserId == request.UserId);
+
+            if (participant != null
+                && participant.Status != ParticipantStatus.Cancelled)
             {
+                var message = participant.Status == ParticipantStatus.Joined
+                    || participant.Status == ParticipantStatus.Waitlisted
+                        ? "You are already part of this match."
+                        : "You cannot join this match again.";
+
                 return ServiceResponse<JoinMatchResponseModel>
-                    .Conflict("You are already part of this match.");
+                    .Conflict(message);
             }
 
             var localDateTime = timeProvider.GetLocalNow().LocalDateTime;
 
-            var ruleError = await CheckJoinRulesAsync(request.UserId, info, localDateTime);
+            var ruleError = await CheckJoinRulesAsync(
+                request.UserId,
+                info,
+                localDateTime);
+
             if (ruleError != null)
             {
                 return ServiceResponse<JoinMatchResponseModel>
                     .Failure(new[] { ruleError });
             }
 
-            var joinedCount = await CountByStatusAsync(info.Id, ParticipantStatus.Joined);
+            var joinedCount = await CountByStatusAsync(
+                info.Id,
+                ParticipantStatus.Joined);
 
             var status = joinedCount < info.MaxPlayers
                 ? ParticipantStatus.Joined
                 : ParticipantStatus.Waitlisted;
 
             var waitlistPosition = status == ParticipantStatus.Waitlisted
-                ? await CountByStatusAsync(info.Id, ParticipantStatus.Waitlisted) + 1
+                ? await CountByStatusAsync(
+                    info.Id,
+                    ParticipantStatus.Waitlisted) + 1
                 : 0;
 
             var match = await matchRepository
                 .Query(asNoTracking: false)
                 .SingleAsync(x => x.Id == info.Id);
 
-            await participantRepository.AddAsync(
-                ParticipationDataBuilder.ParticipantToEntity(
-                    info.Id,
-                    request.UserId,
-                    status,
-                    localDateTime));
+            if (participant == null)
+            {
+                await participantRepository.AddAsync(
+                    ParticipationDataBuilder.ParticipantToEntity(
+                        info.Id,
+                        request.UserId,
+                        status,
+                        localDateTime));
+            }
+            else
+            {
+                // Reactivate the previously cancelled participation.
+                participant.Status = status;
+                participant.JoinedOn = localDateTime;
+                participant.StatusChangedOn = localDateTime;
+                participant.IsLateCancel = false;
+            }
 
             var isConfirmed = status == ParticipantStatus.Joined
                 && match.Status == MatchStatus.Open
@@ -106,7 +138,11 @@ namespace PlayOn.Services
             if (isConfirmed)
             {
                 match.Status = MatchStatus.Confirmed;
-                await AddMatchConfirmedNotificationsAsync(info, request.UserId, localDateTime);
+
+                await AddMatchConfirmedNotificationsAsync(
+                    info,
+                    request.UserId,
+                    localDateTime);
             }
 
             if (!await TrySaveChangesAsync())
@@ -120,7 +156,8 @@ namespace PlayOn.Services
                 waitlistPosition,
                 isConfirmed);
 
-            return ServiceResponse<JoinMatchResponseModel>.Success(responseData);
+            return ServiceResponse<JoinMatchResponseModel>
+                .Success(responseData);
         }
 
         public async Task<ServiceResponse<LeaveMatchResponseModel>>
@@ -347,7 +384,8 @@ namespace PlayOn.Services
             var pageNumber = Math.Clamp(pageRequestData.Page, 1, totalPages);
 
             var items = await query
-                .ThenBy(x => x.Id)
+                .ThenBy(x => x.MatchId)
+                .ThenBy(x => x.UserId)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Select(ParticipationDataBuilder.MyMatchProjection())
@@ -448,7 +486,8 @@ namespace PlayOn.Services
                 .Where(x => x.MatchId == info.Id
                     && x.Status == ParticipantStatus.Waitlisted)
                 .OrderBy(x => x.JoinedOn)
-                .ThenBy(x => x.Id)
+                .ThenBy(x => x.MatchId)
+                .ThenBy(x => x.UserId)
                 .ToListAsync();
 
             foreach (var candidate in waitingPlayers)

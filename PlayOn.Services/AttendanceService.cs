@@ -56,7 +56,8 @@ namespace PlayOn.Services
                 .Query()
                 .Where(x => x.MatchId == matchId && x.Status == ParticipantStatus.Joined)
                 .OrderBy(x => x.JoinedOn)
-                .ThenBy(x => x.Id)
+                .ThenBy(x => x.MatchId)
+                .ThenBy(x => x.UserId)
                 .Select(AttendanceDataBuilder.AttendancePlayerProjection())
                 .ToListAsync();
 

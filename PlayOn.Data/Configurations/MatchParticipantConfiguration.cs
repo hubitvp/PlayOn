@@ -8,6 +8,14 @@ namespace PlayOn.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<MatchParticipant> builder)
         {
+
+            builder.HasKey(x => new
+            {
+                x.MatchId,
+                x.UserId
+            });
+
+
             builder.HasOne(x => x.Match)
                 .WithMany(x => x.Participants)
                 .HasForeignKey(x => x.MatchId)
