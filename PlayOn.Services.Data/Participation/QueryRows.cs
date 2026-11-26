@@ -6,7 +6,6 @@ namespace PlayOn.Services.Data.Participation
     {
         public Guid Id { get; set; }
         public bool IsDeleted { get; set; }
-        public bool IsHidden { get; set; }
         public MatchStatus Status { get; set; }
         public string Title { get; set; } = null!;
         public Guid OrganiserId { get; set; }

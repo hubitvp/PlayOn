@@ -10,7 +10,6 @@ namespace PlayOn.Web.ViewModels.Match
         public required string? Description { get; init; }
         public required MatchStatus Status { get; init; }
         public required string? CancelReason { get; init; }
-        public required bool IsHidden { get; init; }
 
         public required string SportName { get; init; }
         public required string SportIcon { get; init; }

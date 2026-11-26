@@ -52,7 +52,7 @@ namespace PlayOn.Services
             }
 
             var info = await GetInfoAsync(request.MatchId);
-            if (info == null || info.IsDeleted || info.IsHidden)
+            if (info == null || info.IsDeleted)
             {
                 return ServiceResponse<JoinMatchResponseModel>.NotFound();
             }
@@ -69,9 +69,9 @@ namespace PlayOn.Services
                     .Conflict("You are already part of this match.");
             }
 
-            var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+            var localDateTime = timeProvider.GetLocalNow().LocalDateTime;
 
-            var ruleError = await CheckJoinRulesAsync(request.UserId, info, nowUtc);
+            var ruleError = await CheckJoinRulesAsync(request.UserId, info, localDateTime);
             if (ruleError != null)
             {
                 return ServiceResponse<JoinMatchResponseModel>
@@ -97,7 +97,7 @@ namespace PlayOn.Services
                     info.Id,
                     request.UserId,
                     status,
-                    nowUtc));
+                    localDateTime));
 
             var isConfirmed = status == ParticipantStatus.Joined
                 && match.Status == MatchStatus.Open
@@ -106,7 +106,7 @@ namespace PlayOn.Services
             if (isConfirmed)
             {
                 match.Status = MatchStatus.Confirmed;
-                await AddMatchConfirmedNotificationsAsync(info, request.UserId, nowUtc);
+                await AddMatchConfirmedNotificationsAsync(info, request.UserId, localDateTime);
             }
 
             if (!await TrySaveChangesAsync())
@@ -161,7 +161,6 @@ namespace PlayOn.Services
                     .Conflict("You are not part of this match.");
             }
 
-            var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
             var nowLocal = timeProvider.GetLocalNow().DateTime;
 
             var wasJoined = participant.Status == ParticipantStatus.Joined;
@@ -171,7 +170,7 @@ namespace PlayOn.Services
                     < TimeSpan.FromHours(LateCancelHours);
 
             participant.Status = ParticipantStatus.Cancelled;
-            participant.StatusChangedOn = nowUtc;
+            participant.StatusChangedOn = nowLocal;
             participant.IsLateCancel = isLateCancel;
 
             var match = await matchRepository
@@ -188,7 +187,7 @@ namespace PlayOn.Services
                     $"You left \"{info.Title}\" less than {LateCancelHours} hours before it started. "
                         + $"This counts as a strike for {StrikeWindowDays} days.",
                     info.Id,
-                    nowUtc));
+                    nowLocal));
             }
 
             var isPromoted = false;
@@ -201,7 +200,7 @@ namespace PlayOn.Services
 
                 if (joinedAfterLeave < info.MaxPlayers)
                 {
-                    var promotion = await PromoteFromWaitlistAsync(info, nowUtc);
+                    var promotion = await PromoteFromWaitlistAsync(info, nowLocal);
 
                     if (promotion != null)
                     {
@@ -428,6 +427,7 @@ namespace PlayOn.Services
             userIds.Add(joiningUserId);
 
             var notifications = userIds
+                .Distinct()
                 .Select(userId => NotificationDataBuilder.NotificationToEntity(
                     userId,
                     NotificationType.MatchConfirmed,

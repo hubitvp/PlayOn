@@ -105,13 +105,13 @@ namespace PlayOn.Services
                     .Failure("Mark attendance for every player.", "Players");
             }
 
-            var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+            var localDateTime = timeProvider.GetLocalNow().LocalDateTime;
 
             var notifications = ApplyAttendance(
                 participants,
                 entries,
                 info!,
-                nowUtc);
+                localDateTime);
 
             var match = await matchRepository
                 .Query(asNoTracking: false)

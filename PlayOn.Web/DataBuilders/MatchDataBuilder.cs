@@ -137,7 +137,6 @@ public class MatchDataBuilder : DataBuilder
             Description = source.Description,
             Status = source.Status,
             CancelReason = source.CancelReason,
-            IsHidden = source.IsHidden,
             SportName = source.SportName,
             SportIcon = source.SportIcon.ToCssClass(),
             StartsAt = displayFormatter.DateTime(start),
@@ -206,19 +205,7 @@ public class MatchDataBuilder : DataBuilder
             PricePerPlayer = source.PricePerPlayer,
         };
 
-        result.EditDisplayData = new EditDisplayData
-        {
-            SportName = source.EditDisplayDataResponseModel.SportName,
-            SportIcon = source.EditDisplayDataResponseModel.SportIcon.ToCssClass(),
-            CourtName = source.EditDisplayDataResponseModel.CourtName,
-            CourtCapacity = source.EditDisplayDataResponseModel.CourtCapacity,
-            VenueName = source.EditDisplayDataResponseModel.VenueName,
-            City = source.EditDisplayDataResponseModel.City,
-            StartsAt = displayFormatter.DateTime(source.EditDisplayDataResponseModel.Date.ToDateTime(source.EditDisplayDataResponseModel.StartsAt)),
-            JoinedCount = source.EditDisplayDataResponseModel.JoinedCount
-        };
-
-        return result;
+        return MatchEditApplyDisplayData(result, source.EditDisplayDataResponseModel);
     }
 
 
@@ -249,19 +236,7 @@ public class MatchDataBuilder : DataBuilder
             MatchEditViewModel target,
             MatchEditResponseModel source)
     {
-        target.EditDisplayData = new EditDisplayData
-        {
-            SportName = source.EditDisplayDataResponseModel.SportName,
-            SportIcon = source.EditDisplayDataResponseModel.SportIcon.ToCssClass(),
-            CourtName = source.EditDisplayDataResponseModel.CourtName,
-            CourtCapacity = source.EditDisplayDataResponseModel.CourtCapacity,
-            VenueName = source.EditDisplayDataResponseModel.VenueName,
-            City = source.EditDisplayDataResponseModel.City,
-            StartsAt = displayFormatter.DateTime(source.EditDisplayDataResponseModel.Date.ToDateTime(source.EditDisplayDataResponseModel.StartsAt)),
-            JoinedCount = source.EditDisplayDataResponseModel.JoinedCount,
-        };
-
-        return target;
+        return MatchEditApplyDisplayData(target, source.EditDisplayDataResponseModel);
     }
 
     public MatchUpdateRequestData

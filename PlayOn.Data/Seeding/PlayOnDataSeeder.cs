@@ -823,7 +823,6 @@ namespace PlayOn.Data.Seeding
                     PricePerPlayer = item.PricePerPlayer,
                     Status = item.Status,
                     CancelReason = item.CancelReason,
-                    IsHidden = false,
                     IsDeleted = false
                 };
 

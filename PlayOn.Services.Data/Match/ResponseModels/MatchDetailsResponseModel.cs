@@ -12,6 +12,7 @@ namespace PlayOn.Services.Data.Match.ResponseModels
         public required bool IsOrganiser { get; init; }
         public required int? Reliability { get; init; }
     }
+
     public class MatchDetailsResponseModel
     {
         public required Guid Id { get; init; }
@@ -19,7 +20,6 @@ namespace PlayOn.Services.Data.Match.ResponseModels
         public required string? Description { get; init; }
         public required MatchStatus Status { get; init; }
         public required string? CancelReason { get; init; }
-        public required bool IsHidden { get; init; }
 
         public required int DurationMinutes { get; init; }
         public required int MinPlayers { get; init; }

@@ -55,7 +55,6 @@ namespace PlayOn.Services
                 .Where(x => !x.IsDeleted
                     && x.Event != null
                     && !x.Event.Match.IsDeleted
-                    && !x.Event.Match.IsHidden
                     && (x.Event.Match.Status == MatchStatus.Open
                         || x.Event.Match.Status == MatchStatus.Confirmed)
                     && x.Date >= today)

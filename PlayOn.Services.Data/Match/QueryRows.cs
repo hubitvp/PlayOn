@@ -10,7 +10,6 @@ namespace PlayOn.Services.Data.Match
         public string? Description { get; set; }
         public MatchStatus Status { get; set; }
         public string? CancelReason { get; set; }
-        public bool IsHidden { get; set; }
         public int DurationMinutes { get; set; }
         public int MinPlayers { get; set; }
         public int MaxPlayers { get; set; }

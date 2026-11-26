@@ -57,9 +57,6 @@ namespace PlayOn.Data.Models
         public string? CancelReason { get; set; }
 
         [Required]
-        public bool IsHidden { get; set; }
-
-        [Required]
         public bool IsDeleted { get; set; }
 
 

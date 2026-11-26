@@ -148,7 +148,7 @@ namespace PlayOn.Services
             IQueryable<Match> query)
         {
             return query
-                .Where(x => !x.IsDeleted && !x.IsHidden)
+                .Where(x => !x.IsDeleted)
                 .Where(x => x.Status == MatchStatus.Open ||
                             x.Status == MatchStatus.Confirmed)
                 .Where(x => x.Event != null)

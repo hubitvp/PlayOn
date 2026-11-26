@@ -15,7 +15,6 @@ public static class ParticipationDataBuilder
         {
             Id = source.Id,
             IsDeleted = source.IsDeleted,
-            IsHidden = source.IsHidden,
             Status = source.Status,
             Title = source.Title,
             OrganiserId = source.OrganiserId,

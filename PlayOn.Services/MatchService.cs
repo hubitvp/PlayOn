@@ -17,6 +17,8 @@ namespace PlayOn.Services
         private readonly IRepository<Sport> sportRepository;
         private readonly IRepository<Court> courtRepository;
         private readonly IRepository<Venue> venueRepository;
+        private readonly IRepository<MatchParticipant> participantRepository;
+        private readonly IRepository<Notification> notificationRepository;
         private readonly TimeProvider timeProvider;
 
         public MatchService(
@@ -24,12 +26,16 @@ namespace PlayOn.Services
             IRepository<Sport> sportRepository,
             IRepository<Court> courtRepository,
             IRepository<Venue> venueRepository,
+            IRepository<MatchParticipant> participantRepository,
+            IRepository<Notification> notificationRepository,
             TimeProvider timeProvider)
         {
             this.matchRepository = matchRepository;
             this.sportRepository = sportRepository;
             this.courtRepository = courtRepository;
             this.venueRepository = venueRepository;
+            this.participantRepository = participantRepository;
+            this.notificationRepository = notificationRepository;
             this.timeProvider = timeProvider;
         }
 
@@ -85,7 +91,7 @@ namespace PlayOn.Services
             var query = matchRepository
                 .Query()
                 .AsSplitQuery()
-                .Where(x => !x.IsDeleted && !x.IsHidden)
+                .Where(x => !x.IsDeleted)
                 .Where(x => x.Status == MatchStatus.Open || x.Status == MatchStatus.Confirmed)
                 .Where(x => x.Event != null && !x.Event.Venue.IsDeleted)
                 .Where(x => x.Event!.Venue.Date >= from);
@@ -253,7 +259,7 @@ namespace PlayOn.Services
 
             var isOrganiser = userId != null && row.OrganiserId == userId;
 
-            if (row.IsHidden && !isOrganiser && !isAdmin)
+            if (!isOrganiser && !isAdmin)
             {
                 return ServiceResponse<MatchDetailsResponseModel>.NotFound();
             }
@@ -462,7 +468,7 @@ namespace PlayOn.Services
 
             var match = MatchDataBuilder.MatchCreateToEntity(
                 request,
-                timeProvider.GetUtcNow().UtcDateTime);
+                timeProvider.GetLocalNow().LocalDateTime);
 
             await matchRepository.AddAsync(match);
 
@@ -570,6 +576,32 @@ namespace PlayOn.Services
                 .SingleAsync(x => x.Id == row.Id);
 
             MatchDataBuilder.MatchCancelApplyToEntity(match, request);
+
+            var localDateTime = timeProvider.GetLocalNow().LocalDateTime;
+            var reason = request.Reason.Trim();
+
+            var recipientIds = await participantRepository
+                .Query()
+                .Where(x => x.MatchId == match.Id
+                    && x.UserId != request.UserId
+                    && (x.Status == ParticipantStatus.Joined
+                        || x.Status == ParticipantStatus.Waitlisted))
+                .Select(x => x.UserId)
+                .ToListAsync();
+
+            if (recipientIds.Count > 0)
+            {
+                var notifications = recipientIds
+                    .Select(userId => NotificationDataBuilder.NotificationToEntity(
+                        userId,
+                        NotificationType.MatchCancelled,
+                        $"\"{match.Title}\" was cancelled: {reason}",
+                        match.Id,
+                        localDateTime))
+                    .ToList();
+
+                await notificationRepository.AddRangeAsync(notifications);
+            }
 
             try
             {

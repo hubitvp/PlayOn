@@ -97,7 +97,7 @@ namespace PlayOn.Services
                 return ServiceResponse<int>.Failure(entryErrors);
             }
 
-            var nowUtc = timeProvider.GetUtcNow().UtcDateTime;
+            var nowUtc = timeProvider.GetLocalNow().LocalDateTime;
 
             var ratings = entries
                 .Select(x => RatingDataBuilder.RatingToEntity(

@@ -19,7 +19,6 @@ internal static class MatchDataBuilder
             Description = match.Description,
             Status = match.Status,
             CancelReason = match.CancelReason,
-            IsHidden = match.IsHidden,
             DurationMinutes = match.DurationMinutes,
             MinPlayers = match.MinPlayers,
             MaxPlayers = match.MaxPlayers,
@@ -104,7 +103,6 @@ internal static class MatchDataBuilder
             Description = source.Description,
             Status = source.Status,
             CancelReason = source.CancelReason,
-            IsHidden = source.IsHidden,
             DurationMinutes = source.DurationMinutes,
             MinPlayers = source.MinPlayers,
             MaxPlayers = source.MaxPlayers,
@@ -348,7 +346,6 @@ internal static class MatchDataBuilder
             MaxSkill = source.MaxSkill,
             PricePerPlayer = source.PricePerPlayer,
             Status = MatchStatus.Open,
-            IsHidden = false,
             IsDeleted = false,
             Event = new Event
             {
