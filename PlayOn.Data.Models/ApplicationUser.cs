@@ -9,6 +9,11 @@ namespace PlayOn.Data.Models
     {
 
         [Required]
+        [PersonalData]
+        public override Guid Id { get; set; } = Guid.NewGuid();
+
+
+        [Required]
         [StringLength(FullNameMaxLength)]
         [Comment("Full name of the member")]
         public string FullName { get; set; } = null!;
