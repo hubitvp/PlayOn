@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlayOn.Common.Helpers;
 using PlayOn.Data.Models;
 using PlayOn.Services.Contracts;
+using PlayOn.Services.Data;
 
 namespace PlayOn.Web.Controllers
 {
@@ -29,7 +30,7 @@ namespace PlayOn.Web.Controllers
 
             var response = await notificationService.GetMainResponseModelAsync(
                 userId,
-                new PageRequestData { Page = 1, PageSize = 5 });
+                new PageRequestData());
 
             if (!response.IsSuccess)
             {
