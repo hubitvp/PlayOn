@@ -349,9 +349,6 @@ namespace PlayOn.Data.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsHidden")
-                        .HasColumnType("bit");
-
                     b.Property<int>("MaxPlayers")
                         .HasColumnType("int");
 
@@ -394,8 +391,10 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("PlayOn.Data.Models.MatchParticipant", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsLateCancel")
@@ -404,21 +403,13 @@ namespace PlayOn.Data.Migrations
                     b.Property<DateTime>("JoinedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("MatchId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StatusChangedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MatchId");
+                    b.HasKey("MatchId", "UserId");
 
                     b.HasIndex("UserId");
 
@@ -462,8 +453,13 @@ namespace PlayOn.Data.Migrations
 
             modelBuilder.Entity("PlayOn.Data.Models.PlayerRating", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("MatchId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RaterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RatedUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Comment")
@@ -473,21 +469,10 @@ namespace PlayOn.Data.Migrations
                     b.Property<bool>("IsHidden")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("MatchId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RatedUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("RaterId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int>("Score")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("MatchId");
+                    b.HasKey("MatchId", "RaterId", "RatedUserId");
 
                     b.HasIndex("RatedUserId");
 
@@ -582,10 +567,6 @@ namespace PlayOn.Data.Migrations
 
                     b.Property<TimeOnly>("OpensAt")
                         .HasColumnType("time");
-
-                    b.Property<string>("PhotoUrl")
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
 
                     b.Property<TimeOnly>("StartsAt")
                         .HasColumnType("time");
