@@ -133,6 +133,7 @@ namespace PlayOn.Web
             app.UseHttpsRedirection();
             app.UseRouting();
 
+			//app.UseStatusCodePagesWithReExecute("/Error/Index", "?statusCode={0}");
             app.UseStatusCodePagesWithRedirects("/Error/Index?statusCode={0}");
 
             app.UseAuthentication();
@@ -148,7 +149,7 @@ namespace PlayOn.Web
 
             app.MapControllerRoute(
                 name: "with-slug",
-                pattern: "{controller}/{action}/{id:guid}/{slug:regex(^[a-z-]+$)}")
+                pattern: "{controller}/{action}/{id:guid}/{slug:regex(^[a-z0-9-]+$)}")
                 .WithStaticAssets();
 
             app.MapControllerRoute(
