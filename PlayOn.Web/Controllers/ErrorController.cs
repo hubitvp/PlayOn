@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlayOn.Web.ViewModels.Error;
 
@@ -12,44 +13,18 @@ namespace PlayOn.Web.Controllers
             Duration = 0,
             Location = ResponseCacheLocation.None,
             NoStore = true)]
-        public IActionResult Index(int statusCode)
+        public IActionResult Index(int statusCode = StatusCodes.Status500InternalServerError)
         {
-            Response.StatusCode = statusCode;
-
-            switch (statusCode)
+            return statusCode switch
             {
-                case 404:
-                    {
-                        var model = new ErrorViewModel
-                        {
-                            Code = StatusCodes.Status404NotFound,
-                            Title = "The play has moved",
-                            Message = "We searched the whole field, but the page you requested is not here."
-                        };
+                StatusCodes.Status404NotFound =>
+                    NotFoundError(),
 
-                        return View("NotFoundError404", model);
-                    }
+                StatusCodes.Status500InternalServerError =>
+                    InternalServerError(),
 
-                case 500:
-                    {
-                        var model = new ErrorViewModel
-                        {
-                            Code = StatusCodes.Status500InternalServerError,
-                            Title = "The scoreboard is offline",
-                            Message = "Something went wrong on our side. Please try again in a moment."
-                        };
-
-                        return View("InternalError500", model);
-                    }
-
-                default:
-                    return View("Error", new ErrorViewModel
-                    {
-                        Code = statusCode,
-                        Title = "Error",
-                        Message = "An error occurred while processing your request."
-                    });
-            }
+                _ => OtherError(statusCode)
+            };
         }
 
         [HttpGet]
@@ -59,15 +34,50 @@ namespace PlayOn.Web.Controllers
             NoStore = true)]
         public IActionResult Default()
         {
-            Response.StatusCode = StatusCodes.Status500InternalServerError;
+            return InternalServerError();
+        }
 
+        private IActionResult NotFoundError()
+        {
+            Response.StatusCode = StatusCodes.Status404NotFound;
 
-            return View("Error", new ErrorViewModel
+            var model = new ErrorViewModel
+            {
+                Code = StatusCodes.Status404NotFound,
+                Title = "The play has moved",
+                Message = "We searched the whole field, but the page you requested is not here."
+            };
+
+            return View("NotFoundError404", model);
+        }
+
+        private IActionResult InternalServerError()
+        {
+            Response.StatusCode =
+                StatusCodes.Status500InternalServerError;
+
+            var model = new ErrorViewModel
             {
                 Code = StatusCodes.Status500InternalServerError,
-                Title = "Game over",
-                Message = "The play could not be completed. Please try again or return to the home page."
-            });
+                Title = "The scoreboard is offline",
+                Message = "Something went wrong on our side. Please try again in a moment."
+            };
+
+            return View("InternalError500", model);
+        }
+
+        private IActionResult OtherError(int statusCode)
+        {
+            Response.StatusCode = statusCode;
+
+            var model = new ErrorViewModel
+            {
+                Code = statusCode,
+                Title = "Error",
+                Message = "An error occurred while processing your request."
+            };
+
+            return View("Error", model);
         }
     }
 }
