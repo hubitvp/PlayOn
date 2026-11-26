@@ -106,8 +106,7 @@ public class AdminVenueDataBuilder : DataBuilder
             Date = source.Date,
             StartsAt = source.StartsAt,
             OpensAt = source.OpensAt,
-            ClosesAt = source.ClosesAt,
-            PhotoUrl = source.PhotoUrl
+            ClosesAt = source.ClosesAt
         };
 
         return result;
@@ -147,6 +146,5 @@ public class AdminVenueDataBuilder : DataBuilder
         target.StartsAt = source.StartsAt;
         target.OpensAt = source.OpensAt;
         target.ClosesAt = source.ClosesAt;
-        target.PhotoUrl = source.PhotoUrl;
     }
 }

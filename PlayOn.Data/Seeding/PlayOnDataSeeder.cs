@@ -617,7 +617,6 @@ namespace PlayOn.Data.Seeding
                         City = dto.City,
                         Latitude = dto.Latitude,
                         Longitude = dto.Longitude,
-                        PhotoUrl = dto.PhotoUrl,
                         OpensAt = dto.OpensAt,
                         ClosesAt = dto.ClosesAt,
                         IsDeleted = dto.IsDeleted

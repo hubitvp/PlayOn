@@ -63,7 +63,6 @@ public static class AdminVenueDataBuilder
             StartsAt = source.StartsAt,
             OpensAt = source.OpensAt,
             ClosesAt = source.ClosesAt,
-            PhotoUrl = source.PhotoUrl,
             IsDeleted = source.IsDeleted,
             IsBooked = isBooked
         };
@@ -91,6 +90,5 @@ public static class AdminVenueDataBuilder
         target.StartsAt = source.StartsAt;
         target.OpensAt = source.OpensAt;
         target.ClosesAt = source.ClosesAt;
-        target.PhotoUrl = string.IsNullOrWhiteSpace(source.PhotoUrl) ? null : source.PhotoUrl.Trim();
     }
 }

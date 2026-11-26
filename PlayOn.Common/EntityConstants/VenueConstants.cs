@@ -16,6 +16,5 @@
         public const int DecimalPrecision = 9;
         public const int DecimalScale = 6;
 
-        public const int PhotoUrlMaxLength = 2048;
     }
 }

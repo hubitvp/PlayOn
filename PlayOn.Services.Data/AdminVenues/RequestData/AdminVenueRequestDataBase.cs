@@ -31,9 +31,6 @@ namespace PlayOn.Services.Data.AdminVenues.RequestData
 
         public TimeOnly ClosesAt { get; set; }
 
-        [StringLength(PhotoUrlMaxLength)]
-        public string? PhotoUrl { get; set; }
-
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Name.Trim().Length < NameMinLength)
@@ -69,15 +66,6 @@ namespace PlayOn.Services.Data.AdminVenues.RequestData
                 yield return new ValidationResult(
                     "The slot must start within the opening hours.",
                     new[] { nameof(StartsAt) });
-            }
-
-            if (!string.IsNullOrWhiteSpace(PhotoUrl)
-                && !(Uri.TryCreate(PhotoUrl.Trim(), UriKind.Absolute, out var uri)
-                     && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps)))
-            {
-                yield return new ValidationResult(
-                    "The photo must be a valid http or https address.",
-                    new[] { nameof(PhotoUrl) });
             }
         }
     }
