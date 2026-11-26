@@ -1,7 +1,9 @@
-﻿using PlayOn.Data.RepositoryContract;
+﻿using Microsoft.AspNetCore.Mvc.DataAnnotations;
+using PlayOn.Data.RepositoryContract;
 using PlayOn.Data.RepositoryImplementation;
 using PlayOn.Services;
 using PlayOn.Services.Contracts;
+using PlayOn.Validation;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.DataBuilders.Formatting;
 
@@ -17,6 +19,9 @@ namespace PlayOn.Web.Extensions
             services.AddSingleton<IDisplayFormatter, DisplayFormatter>();
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+
+
+            services.AddSingleton<IValidationAttributeAdapterProvider, DurationStepAttributeAdapterProvider>();
 
             services.AddScoped<IHomeService, HomeService>();
 

@@ -1,5 +1,6 @@
 ﻿using PlayOn.Common.ApplicationConstants;
 using PlayOn.Common.Enums;
+using PlayOn.Common.Validation;
 using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.EntityConstants.MatchConstants;
 
@@ -32,6 +33,7 @@ namespace PlayOn.Web.ViewModels.Match
         public string? Description { get; set; }
 
         [Range(MatchRules.MinDurationInMinutes, MatchRules.MaxDurationInMinutes)]
+        [DurationStep]
         public int DurationMinutes { get; set; } = MatchRules.MinDurationInMinutes;
 
         [Range(MatchRules.PlayersMinLimit, MatchRules.PlayersMaxLimit)]
@@ -68,13 +70,6 @@ namespace PlayOn.Web.ViewModels.Match
                 yield return new ValidationResult(
                     "Minimum players cannot be more than maximum players.",
                     new[] { nameof(MinPlayers) });
-            }
-
-            if (DurationMinutes % MatchRules.DurationStepInMinutes != 0)
-            {
-                yield return new ValidationResult(
-                    $"Duration must be a multiple of {MatchRules.DurationStepInMinutes} minutes.",
-                    new[] { nameof(DurationMinutes) });
             }
 
             if (MinSkill > MaxSkill)

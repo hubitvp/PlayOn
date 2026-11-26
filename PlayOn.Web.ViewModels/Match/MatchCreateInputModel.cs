@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
 using PlayOn.Common.ApplicationConstants;
 using PlayOn.Common.Enums;
+using PlayOn.Common.Validation;
 using System.ComponentModel.DataAnnotations;
 using static PlayOn.Common.EntityConstants.MatchConstants;
 
@@ -27,6 +28,7 @@ namespace PlayOn.Web.ViewModels.Match
 
         [Required]
         [Range(MatchRules.MinDurationInMinutes, MatchRules.MaxDurationInMinutes)]
+        [DurationStep]
         public int DurationMinutes { get; set; } = MatchRules.MinDurationInMinutes;
 
         [Required]
@@ -73,12 +75,6 @@ namespace PlayOn.Web.ViewModels.Match
                     new[] { nameof(MinSkill) });
             }
 
-            if (DurationMinutes % MatchRules.DurationStepInMinutes != 0)
-            {
-                yield return new ValidationResult(
-                    $"Duration must be a multiple of {MatchRules.DurationStepInMinutes} minutes.",
-                    new[] { nameof(DurationMinutes) });
-            }
         }
     }
 }
