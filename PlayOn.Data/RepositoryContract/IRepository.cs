@@ -30,6 +30,12 @@ namespace PlayOn.Data.RepositoryContract
             Expression<Func<TEntity, TProperty>> propertyExpression,
             TProperty value);
 
+        public void ClearChangeTracker();
+
+        Task<TResult> ExecuteInTransactionAsync<TResult>(
+            System.Data.IsolationLevel isolationLevel,
+            Func<CancellationToken, Task<TResult>> operation,
+            CancellationToken cancellationToken = default);
     }
 }
 

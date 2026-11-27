@@ -48,7 +48,8 @@ public static class ParticipationDataBuilder
             WaitlistPosition = source.Status == ParticipantStatus.Waitlisted
                 ? source.Match.Participants.Count(p =>
                     p.Status == ParticipantStatus.Waitlisted
-                    && p.JoinedOn <= source.JoinedOn)
+                    && (p.JoinedOn < source.JoinedOn
+                        || (p.JoinedOn == source.JoinedOn && p.UserId <= source.UserId)))
                 : 0,
             IsOrganiser = source.Match.OrganiserId == source.UserId,
             CanRate = source.Match.Status == MatchStatus.Completed
@@ -61,15 +62,15 @@ public static class ParticipationDataBuilder
             Guid matchId,
             Guid userId,
             ParticipantStatus status,
-            DateTime nowUtc)
+            DateTime nowLocal)
     {
         var result = new MatchParticipant
         {
             MatchId = matchId,
             UserId = userId,
             Status = status,
-            JoinedOn = nowUtc,
-            StatusChangedOn = nowUtc,
+            JoinedOn = nowLocal,
+            StatusChangedOn = nowLocal,
             IsLateCancel = false
         };
 

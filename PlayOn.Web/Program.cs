@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Time.Testing;
 using PlayOn.Data;
 using PlayOn.Data.Models;
 using PlayOn.Data.Seeding;
@@ -122,7 +120,7 @@ namespace PlayOn.Web
             //    "?statusCode={0}");
 
             app.UseRouting();
-            
+
             app.UseStatusCodePagesWithRedirects("/Error/Index?statusCode={0}");
 
             app.UseAuthentication();

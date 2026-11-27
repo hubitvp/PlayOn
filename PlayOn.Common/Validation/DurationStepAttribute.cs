@@ -1,6 +1,6 @@
 ﻿
-using System.ComponentModel.DataAnnotations;
 using PlayOn.Common.ApplicationConstants;
+using System.ComponentModel.DataAnnotations;
 
 namespace PlayOn.Common.Validation
 {

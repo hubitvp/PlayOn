@@ -3,10 +3,10 @@ using PlayOn.Data.RepositoryContract;
 using PlayOn.Data.RepositoryImplementation;
 using PlayOn.Services;
 using PlayOn.Services.Contracts;
-using PlayOn.Validation;
 using PlayOn.Web.Clock;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.DataBuilders.Formatting;
+using PlayOn.Web.Validation;
 
 namespace PlayOn.Web.Extensions
 {

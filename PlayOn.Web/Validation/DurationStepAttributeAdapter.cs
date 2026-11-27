@@ -1,11 +1,11 @@
 ﻿
-using System.Globalization;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.Extensions.Localization;
 using PlayOn.Common.Validation;
+using System.Globalization;
 
-namespace PlayOn.Validation
+namespace PlayOn.Web.Validation
 {
     public sealed class DurationStepAttributeAdapter
         : AttributeAdapterBase<DurationStepAttribute>

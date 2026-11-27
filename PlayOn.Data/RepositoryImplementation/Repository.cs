@@ -20,7 +20,6 @@ namespace PlayOn.Data.RepositoryImplementation
             return query;
         }
 
-
         public ValueTask<TEntity?> FindAsync(params object[] keyValues)
         {
             return context.Set<TEntity>().FindAsync(keyValues);
@@ -56,7 +55,6 @@ namespace PlayOn.Data.RepositoryImplementation
             return context.SaveChangesAsync(cancellationToken);
         }
 
-
         public void SetOriginalPropertyValue<TProperty>(
             TEntity entity,
             Expression<Func<TEntity, TProperty>> propertyExpression,
@@ -66,6 +64,33 @@ namespace PlayOn.Data.RepositoryImplementation
                 .Property(propertyExpression)
                 .OriginalValue = value;
         }
+
+        public void ClearChangeTracker()
+        {
+            context.ChangeTracker.Clear();
+        }
+
+        public async Task<TResult> ExecuteInTransactionAsync<TResult>(
+            System.Data.IsolationLevel isolationLevel,
+            Func<CancellationToken, Task<TResult>> operation,
+            CancellationToken cancellationToken = default)
+        {
+            var strategy = context.Database.CreateExecutionStrategy();
+
+            return await strategy.ExecuteAsync(async ct =>
+            {
+                await using var transaction = await context.Database
+                    .BeginTransactionAsync(isolationLevel, ct);
+
+                var result = await operation(ct);
+
+                await transaction.CommitAsync(ct);
+
+                return result;
+            },
+            cancellationToken);
+        }
+
+
     }
 }
-

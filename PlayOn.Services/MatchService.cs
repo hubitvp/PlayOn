@@ -245,6 +245,8 @@ namespace PlayOn.Services
         public async Task<ServiceResponse<MatchDetailsResponseModel>>
             GetDetailsAsync(Guid matchId, Guid? userId, bool isAdmin)
         {
+
+
             var row = await matchRepository
                 .Query()
                 .AsSplitQuery()
@@ -258,11 +260,6 @@ namespace PlayOn.Services
             }
 
             var isOrganiser = userId != null && row.OrganiserId == userId;
-
-            if (!isOrganiser && !isAdmin)
-            {
-                return ServiceResponse<MatchDetailsResponseModel>.NotFound();
-            }
 
             var hasEnded = row.Date
                 .ToDateTime(row.StartsAt)

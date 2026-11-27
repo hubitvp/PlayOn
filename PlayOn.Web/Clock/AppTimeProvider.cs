@@ -1,8 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using PlayOn.Common.ApplicationConstants;
 
 namespace PlayOn.Web.Clock
 {
