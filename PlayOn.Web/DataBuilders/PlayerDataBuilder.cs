@@ -101,7 +101,7 @@ public class PlayerDataBuilder : DataBuilder
     {
         foreach (var skill in target.Skills)
         {
-            var match = source.Skills.FirstOrDefault(x => x.SportId == skill.SportId);
+            var match = source.Skills.SingleOrDefault(x => x.SportId == skill.SportId);
 
             if (match != null)
             {

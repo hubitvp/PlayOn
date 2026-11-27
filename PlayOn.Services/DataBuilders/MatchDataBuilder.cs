@@ -90,7 +90,7 @@ internal static class MatchDataBuilder
             : source.Participants
                 .Where(x => x.UserId == userId)
                 .Select(x => (ParticipantStatus?)x.Status)
-                .FirstOrDefault();
+                .SingleOrDefault();
 
         var isOrganiser = userId != null && userId == source.OrganiserId;
 

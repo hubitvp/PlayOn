@@ -211,7 +211,7 @@ namespace PlayOn.Services
 
             foreach (var user in users)
             {
-                var past = history.FirstOrDefault(x => x.UserId == user.Id);
+                var past = history.SingleOrDefault(x => x.UserId == user.Id);
                 var current = participants.First(x => x.UserId == user.Id);
 
                 var attended = (past?.Attended ?? 0)

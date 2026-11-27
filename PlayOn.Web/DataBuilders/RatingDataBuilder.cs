@@ -46,7 +46,7 @@ public class RatingDataBuilder : DataBuilder
 
         foreach (var player in target.Players)
         {
-            var match = source.Players.FirstOrDefault(x => x.UserId == player.UserId);
+            var match = source.Players.SingleOrDefault(x => x.UserId == player.UserId);
 
             if (match != null)
             {
