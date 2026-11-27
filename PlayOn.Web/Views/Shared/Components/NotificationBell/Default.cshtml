@@ -1,32 +1,15 @@
 @model int
+<a id="bell"
+   asp-controller="Notifications"
+   asp-action="Index"
+   data-url="@Url.Action("GetLatest", "NotificationsApi")"
+   class="nav-link position-relative"
+   aria-label="Notifications">
 
-<li class="nav-item dropdown me-lg-2">
-    <a id="bell"
-       class="nav-link dropdown-toggle position-relative"
-       href="#"
-       role="button"
-       data-bs-toggle="dropdown"
-       data-url="/api/notifications"
-       aria-expanded="false"
-       aria-label="Notifications">
-        <i class="bi bi-bell-fill"></i>
-        <span id="bell-count"
-              class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle @(Model == 0 ? "d-none" : "")">
-            @(Model > 99 ? "99+" : Model.ToString())
-        </span>
-    </a>
-    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width: 18rem; max-width: 24rem;">
-        <li><h6 class="dropdown-header">Notifications</h6></li>
-        <li>
-            <ul id="bell-list" class="list-unstyled mb-0">
-                <li><span class="dropdown-item-text text-muted small">Loading...</span></li>
-            </ul>
-        </li>
-        <li><hr class="dropdown-divider" /></li>
-        <li>
-            <a class="dropdown-item text-center small" asp-area="" asp-controller="Notifications" asp-action="Index">
-                See all notifications
-            </a>
-        </li>
-    </ul>
-</li>
+    <i class="bi bi-bell"></i>
+
+    <span id="bell-count"
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none">
+        0
+    </span>
+</a>
