@@ -5,8 +5,15 @@ using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
+/// <summary>
+/// Builds user projections and response models for administration.
+/// </summary>
 public static class AdminUserDataBuilder
 {
+    /// <summary>
+    /// Creates a query projection from a user to an admin user row.
+    /// </summary>
+    /// <returns>An expression that projects a user to an admin user row.</returns>
     internal static Expression<Func<ApplicationUser, AdminUserRow>>
         UserProjection()
     {
@@ -22,6 +29,12 @@ public static class AdminUserDataBuilder
         };
     }
 
+    /// <summary>
+    /// Maps a user row and its administrator flag to a response model.
+    /// </summary>
+    /// <param name="source">The user row.</param>
+    /// <param name="isAdministrator">Whether the user holds the administrator role.</param>
+    /// <returns>The user response model.</returns>
     internal static AdminUserResponseModel
         UserToResponseModel(
             AdminUserRow source,

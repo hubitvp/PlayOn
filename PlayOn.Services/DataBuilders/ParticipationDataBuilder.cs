@@ -6,8 +6,15 @@ using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
+/// <summary>
+/// Builds projections, entities and response models for participation.
+/// </summary>
 public static class ParticipationDataBuilder
 {
+    /// <summary>
+    /// Creates a projection from a match to the join information used by participation rules.
+    /// </summary>
+    /// <returns>The projection expression.</returns>
     internal static Expression<Func<Match, JoinInfoRow>>
         JoinInfoProjection()
     {
@@ -29,6 +36,10 @@ public static class ParticipationDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a projection from a participation to a "my matches" list item, including waitlist position and rating eligibility.
+    /// </summary>
+    /// <returns>The projection expression.</returns>
     public static Expression<Func<MatchParticipant, MyMatchResponseModel>>
         MyMatchProjection()
     {
@@ -57,6 +68,14 @@ public static class ParticipationDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a participant entity with the given status, using the current time for join and status-change times.
+    /// </summary>
+    /// <param name="matchId">The identifier of the match.</param>
+    /// <param name="userId">The identifier of the user.</param>
+    /// <param name="status">The initial participant status.</param>
+    /// <param name="nowLocal">The current local time.</param>
+    /// <returns>The new participant entity.</returns>
     public static MatchParticipant
         ParticipantToEntity(
             Guid matchId,
@@ -77,6 +96,13 @@ public static class ParticipationDataBuilder
         return result;
     }
 
+    /// <summary>
+    /// Creates the response model for a join operation.
+    /// </summary>
+    /// <param name="status">The resulting participant status.</param>
+    /// <param name="waitlistPosition">The waitlist position, or 0 if not waitlisted.</param>
+    /// <param name="matchConfirmed">Whether the join confirmed the match.</param>
+    /// <returns>The join response model.</returns>
     public static JoinMatchResponseModel
         JoinToResponseModel(
             ParticipantStatus status,
@@ -93,6 +119,12 @@ public static class ParticipationDataBuilder
         return result;
     }
 
+    /// <summary>
+    /// Creates the response model for a leave operation.
+    /// </summary>
+    /// <param name="isLateCancel">Whether the leave counted as a late cancel.</param>
+    /// <param name="promotedAnotherPlayer">Whether a waitlisted player was promoted.</param>
+    /// <returns>The leave response model.</returns>
     public static LeaveMatchResponseModel
         LeaveToResponseModel(
             bool isLateCancel,

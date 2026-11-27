@@ -11,6 +11,9 @@ using PlayOn.Services.DataBuilders;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Records attendance for finished matches, marking players as attended or no-show and updating their reliability statistics.
+    /// </summary>
     public class AttendanceService : IAttendanceService
     {
         private readonly IRepository<Match> matchRepository;
@@ -19,6 +22,14 @@ namespace PlayOn.Services
         private readonly IRepository<Notification> notificationRepository;
         private readonly TimeProvider timeProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AttendanceService"/> class.
+        /// </summary>
+        /// <param name="matchRepository">Repository for matches.</param>
+        /// <param name="participantRepository">Repository for match participants.</param>
+        /// <param name="userRepository">Repository for users.</param>
+        /// <param name="notificationRepository">Repository for notifications.</param>
+        /// <param name="timeProvider">Provider of the current time.</param>
         public AttendanceService(
             IRepository<Match> matchRepository,
             IRepository<MatchParticipant> participantRepository,
@@ -33,6 +44,13 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
+        /// <summary>
+        /// Gets the attendance sheet for a match: its details and the players currently joined, in join order.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="actorId">The identifier of the user making the request.</param>
+        /// <param name="actorIsAdmin">Whether the requesting user is an administrator.</param>
+        /// <returns>A response with the attendance sheet; not-found for an empty, unknown or deleted match, forbidden if the actor is neither organiser nor admin, or conflict if the match is cancelled, already completed or not yet ended.</returns>
         public async Task<ServiceResponse<AttendanceResponseModel>>
             GetAsync(
                 Guid matchId,
@@ -65,6 +83,11 @@ namespace PlayOn.Services
                 .Success(AttendanceDataBuilder.AttendanceToResponseModel(info!, players));
         }
 
+        /// <summary>
+        /// Records attendance for all joined players of a match. Every joined player must have an entry; players are marked attended or no-show, no-shows are notified, the match is completed and player statistics are updated.
+        /// </summary>
+        /// <param name="request">The attendance submission data with one entry per player.</param>
+        /// <returns>A response with the match identifier on success; a validation failure (including missing entries), not-found, forbidden or conflict result otherwise, with conflict also returned on a concurrent modification.</returns>
         public async Task<ServiceResponse<Guid>>
             SubmitAsync(AttendanceRequestData request)
         {
@@ -138,6 +161,14 @@ namespace PlayOn.Services
             return ServiceResponse<Guid>.Success(request.MatchId);
         }
 
+        /// <summary>
+        /// Sets each participant's status to attended or no-show and builds a strike notification for every no-show.
+        /// </summary>
+        /// <param name="participants">The joined participants to update.</param>
+        /// <param name="entries">The attended flag for each user, keyed by user identifier.</param>
+        /// <param name="info">The match information used in notification text.</param>
+        /// <param name="nowUtc">The timestamp to record as the status change time.</param>
+        /// <returns>The notifications to be saved for participants marked as no-show.</returns>
         private static List<Notification> ApplyAttendance(
             IEnumerable<MatchParticipant> participants,
             IReadOnlyDictionary<Guid, bool> entries,
@@ -169,6 +200,10 @@ namespace PlayOn.Services
             return notifications;
         }
 
+        /// <summary>
+        /// Saves pending changes, treating a concurrency conflict as a normal outcome.
+        /// </summary>
+        /// <returns>True if the changes were saved; false if a concurrency conflict occurred.</returns>
         private async Task<bool> TrySaveChangesAsync()
         {
             try
@@ -183,6 +218,12 @@ namespace PlayOn.Services
             }
         }
 
+        /// <summary>
+        /// Recalculates matches played and reliability score for each participant from their past records plus the current match.
+        /// </summary>
+        /// <param name="matchId">The identifier of the current match, excluded from the stored history.</param>
+        /// <param name="participants">The participants whose new statuses have been applied.</param>
+        /// <returns>A task that completes when the user entities have been updated.</returns>
         private async Task UpdateUserStatsAsync(
             Guid matchId,
             IReadOnlyCollection<MatchParticipant> participants)
@@ -226,6 +267,11 @@ namespace PlayOn.Services
             }
         }
 
+        /// <summary>
+        /// Loads the attendance information of a match that has an event.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <returns>The match information row, or null if no such match with an event exists.</returns>
         private async Task<AttendanceInfoRow?> GetInfoAsync(Guid matchId)
         {
             return await matchRepository
@@ -235,6 +281,14 @@ namespace PlayOn.Services
                 .SingleOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Checks whether the actor may record or view attendance for the match and whether the match is in a valid state and has ended.
+        /// </summary>
+        /// <typeparam name="T">The payload type of the response to return.</typeparam>
+        /// <param name="info">The match information, or null if not found.</param>
+        /// <param name="actorId">The identifier of the acting user.</param>
+        /// <param name="actorIsAdmin">Whether the requesting user is an administrator.</param>
+        /// <returns>A failure response (not-found, forbidden or conflict) if access is not allowed; otherwise null.</returns>
         private ServiceResponse<T>? CheckAccess<T>(
             AttendanceInfoRow? info,
             Guid actorId,

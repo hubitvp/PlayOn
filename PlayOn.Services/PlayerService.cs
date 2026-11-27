@@ -14,6 +14,9 @@ using static PlayOn.Common.ApplicationConstants.ParticipationRules;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Provides player profiles, profile editing data and profile updates including sport skill levels.
+    /// </summary>
     public class PlayerService : IPlayerService
     {
         private readonly IRepository<ApplicationUser> userRepository;
@@ -22,6 +25,14 @@ namespace PlayOn.Services
         private readonly IRepository<MatchParticipant> participantRepository;
         private readonly IRepository<PlayerRating> ratingRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlayerService"/> class.
+        /// </summary>
+        /// <param name="userRepository">Repository for users.</param>
+        /// <param name="sportRepository">Repository for sports.</param>
+        /// <param name="preferenceRepository">Repository for sport skill preferences.</param>
+        /// <param name="participantRepository">Repository for match participants.</param>
+        /// <param name="ratingRepository">Repository for player ratings.</param>
         public PlayerService(
             IRepository<ApplicationUser> userRepository,
             IRepository<Sport> sportRepository,
@@ -36,6 +47,12 @@ namespace PlayOn.Services
             this.ratingRepository = ratingRepository;
         }
 
+        /// <summary>
+        /// Builds the public profile of an active player, including attendance, no-show and late-cancel counts, average of visible ratings, skills and recent rated comments.
+        /// </summary>
+        /// <param name="userId">The identifier of the viewing user; used to flag the player's own profile.</param>
+        /// <param name="targetProfileId">The identifier of the player whose profile is requested.</param>
+        /// <returns>A service response with the profile, or not found if the player does not exist or is inactive.</returns>
         public async Task<ServiceResponse<PlayerProfileResponseModel>>
             GetProfileAsync(
                 Guid userId,
@@ -98,6 +115,11 @@ namespace PlayOn.Services
             return ServiceResponse<PlayerProfileResponseModel>.Success(responseData);
         }
 
+        /// <summary>
+        /// Loads the data needed to edit a player's profile, including a skill option for every sport.
+        /// </summary>
+        /// <param name="userId">The identifier of the user to edit.</param>
+        /// <returns>A service response with the edit model, or not found if the user does not exist.</returns>
         public async Task<ServiceResponse<PlayerEditResponseModel>>
             GetForEditAsync(Guid userId)
         {
@@ -121,6 +143,12 @@ namespace PlayOn.Services
             return ServiceResponse<PlayerEditResponseModel>.Success(responseData);
         }
 
+        /// <summary>
+        /// Updates the user's display name, city and sport skill levels after validating the request and the skills.
+        /// A null skill level removes the preference for that sport.
+        /// </summary>
+        /// <param name="request">The update request.</param>
+        /// <returns>A service response with the user identifier, validation errors, or not found if the user does not exist.</returns>
         public async Task<ServiceResponse<Guid>>
             UpdateAsync(PlayerUpdateRequestData request)
         {
@@ -159,6 +187,12 @@ namespace PlayOn.Services
             return ServiceResponse<Guid>.Success(request.UserId);
         }
 
+        /// <summary>
+        /// Loads the basic player row for a user.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="onlyActive">Whether to restrict the lookup to active users.</param>
+        /// <returns>The player row, or <c>null</c> if not found.</returns>
         private async Task<PlayerRow?> GetPlayerRowAsync(
             Guid userId,
             bool onlyActive)
@@ -177,6 +211,11 @@ namespace PlayOn.Services
                 .SingleOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Builds a skill option for every sport, filled with the user's current skill level where one is set.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <returns>A service response with the skill options ordered by sport name.</returns>
         private async Task<ServiceResponse<IReadOnlyList<PlayerSkillOptionResponseModel>>>
             GetSkillOptionsAsync(Guid userId)
         {
@@ -206,6 +245,11 @@ namespace PlayOn.Services
                 .Success(skillOptions);
         }
 
+        /// <summary>
+        /// Validates the submitted skills: each sport must exist, appear only once, and have a defined skill level if one is given.
+        /// </summary>
+        /// <param name="skills">The submitted skills.</param>
+        /// <returns>The validation errors, empty if the skills are valid.</returns>
         private async Task<IEnumerable<ValidationResult>> ValidateSkillsAsync(
             IReadOnlyList<PlayerSkillRequestData> skills)
         {
@@ -247,6 +291,11 @@ namespace PlayOn.Services
             return errors;
         }
 
+        /// <summary>
+        /// Applies the submitted skills to the user's preferences by updating existing ones, adding new ones and removing those with no skill level.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="skills">The submitted skills.</param>
         private async Task ApplySkillsAsync(
             Guid userId,
             IEnumerable<PlayerSkillRequestData> skills)
@@ -285,6 +334,12 @@ namespace PlayOn.Services
             }
         }
 
+        /// <summary>
+        /// Counts the user's participations that satisfy the filter.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="filter">The additional condition participations must satisfy.</param>
+        /// <returns>The number of matching participations.</returns>
         private async Task<int> CountParticipationsAsync(
             Guid userId,
             Expression<Func<MatchParticipant, bool>> filter)

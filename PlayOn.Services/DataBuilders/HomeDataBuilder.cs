@@ -5,9 +5,16 @@ using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
+/// <summary>
+/// Provides projections that map home page entities to response models.
+/// </summary>
 public static class HomeDataBuilder
 {
 
+    /// <summary>
+    /// Creates a projection from a sport to a home sport option containing its id and name.
+    /// </summary>
+    /// <returns>An expression projecting a <see cref="Sport"/> to a <see cref="HomeSportOptionsResponseModel"/>.</returns>
     public static Expression<Func<Sport, HomeSportOptionsResponseModel>>
         HomeSportOptionsProjection()
     {
@@ -21,6 +28,10 @@ public static class HomeDataBuilder
         return result;
     }
 
+    /// <summary>
+    /// Creates a projection from a match to a home match card, including sport, venue, schedule, joined and waitlisted participant counts, skill and price.
+    /// </summary>
+    /// <returns>An expression projecting a <see cref="Match"/> to a <see cref="HomeMatchCardResponseModel"/>.</returns>
     public static Expression<Func<Match, HomeMatchCardResponseModel>>
         HomeMatchCardProjection()
     {

@@ -4,8 +4,15 @@ using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
+/// <summary>
+/// Provides mapping between venue entities and response models.
+/// </summary>
 public static class VenueDataBuilder
 {
+    /// <summary>
+    /// Creates a projection from a venue to its response model, including schedule, court details and the related match.
+    /// </summary>
+    /// <returns>An expression projecting a <see cref="Venue"/> to a <see cref="VenueResponseModel"/>.</returns>
     public static Expression<Func<Venue, VenueResponseModel>> VenueProjection()
     {
         return source => new VenueResponseModel
@@ -31,6 +38,11 @@ public static class VenueDataBuilder
         };
     }
 
+    /// <summary>
+    /// Maps a venue entity, with its event, court and match loaded, to a response model.
+    /// </summary>
+    /// <param name="source">The venue entity.</param>
+    /// <returns>The mapped venue response model.</returns>
     public static VenueResponseModel VenueToResponseModel(Venue source)
     {
         return new VenueResponseModel
@@ -49,6 +61,11 @@ public static class VenueDataBuilder
         };
     }
 
+    /// <summary>
+    /// Maps an event to the court response model with court details and sport icon.
+    /// </summary>
+    /// <param name="source">The event whose court and sport are mapped.</param>
+    /// <returns>The mapped court response model.</returns>
     public static VenueCourtResponseModel CourtToResponseModel(Event source)
     {
         return new VenueCourtResponseModel

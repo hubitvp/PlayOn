@@ -8,8 +8,15 @@ using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
+/// <summary>
+/// Builds projections, response models and entities for match operations.
+/// </summary>
 internal static class MatchDataBuilder
 {
+    /// <summary>
+    /// Creates a projection from a match to the details row, including venue, court, organiser and non-cancelled participants in join order.
+    /// </summary>
+    /// <returns>An expression projecting a match to a details row.</returns>
     internal static Expression<Func<Match, DetailsRow>> MatchDetailsRowProjection()
     {
         return match => new DetailsRow
@@ -56,6 +63,10 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a projection from a match to a card for search results, with joined and waitlisted counts.
+    /// </summary>
+    /// <returns>An expression projecting a match to a card.</returns>
     internal static Expression<Func<Match, MatchCardResponseModel>> MatchCardProjection()
     {
         return source => new MatchCardResponseModel
@@ -78,6 +89,15 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Converts a details row to the details response model, computing the user's status and the available actions.
+    /// </summary>
+    /// <param name="source">The details row.</param>
+    /// <param name="userId">The identifier of the viewing user, or null for anonymous.</param>
+    /// <param name="isManager">Whether the viewer is the organiser or an administrator.</param>
+    /// <param name="isOpenForChanges">Whether the match is open and not time-locked.</param>
+    /// <param name="hasEnded">Whether the match has already ended.</param>
+    /// <returns>The match details response model.</returns>
     internal static MatchDetailsResponseModel MatchDetailsRowToResponseModel(
         DetailsRow source,
         Guid? userId,
@@ -152,6 +172,10 @@ internal static class MatchDataBuilder
     }
 
 
+    /// <summary>
+    /// Creates a projection from a match to its edit display data.
+    /// </summary>
+    /// <returns>An expression projecting a match to display data.</returns>
     internal static Expression<Func<Match, MatchEditDisplayDataResponseModel>> MatchEditDisplayDataProjection()
     {
         return source => new MatchEditDisplayDataResponseModel
@@ -172,6 +196,10 @@ internal static class MatchDataBuilder
 
 
 
+    /// <summary>
+    /// Creates a projection from a match to the edit row, including concurrency token and display data.
+    /// </summary>
+    /// <returns>An expression projecting a match to an edit row.</returns>
     internal static Expression<Func<Match, EditRow>> MatchEditRowProjection()
     {
         return source => new EditRow
@@ -207,6 +235,11 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Converts the display data portion of an edit row to a response model.
+    /// </summary>
+    /// <param name="source">The edit row.</param>
+    /// <returns>The edit display data response model.</returns>
     internal static MatchEditDisplayDataResponseModel
         MatchEditRowToDisplayDataResponseModel(EditRow source)
     {
@@ -225,6 +258,11 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Converts an edit row to the edit response model.
+    /// </summary>
+    /// <param name="source">The edit row.</param>
+    /// <returns>The match edit response model.</returns>
     internal static MatchEditResponseModel MatchEditRowToResponseModel(EditRow source)
     {
         var result = new MatchEditResponseModel
@@ -246,6 +284,10 @@ internal static class MatchDataBuilder
         return result;
     }
 
+    /// <summary>
+    /// Creates a projection from a court to a court option, including the supported sport identifiers.
+    /// </summary>
+    /// <returns>An expression projecting a court to a court option.</returns>
     internal static Expression<Func<Court, CourtOptionResponseModel>> MatchCourtOptionProjection()
     {
         return source => new CourtOptionResponseModel
@@ -258,6 +300,10 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a projection from a court to a court option, including the supported sport identifiers.
+    /// </summary>
+    /// <returns>An expression projecting a court to a court option.</returns>
     internal static Expression<Func<Court, CourtOptionResponseModel>> CourtToCourtOptionProjection()
     {
         return source => new CourtOptionResponseModel
@@ -270,6 +316,13 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Combines sport, court and venue options into one options response model.
+    /// </summary>
+    /// <param name="sportOptions">The sport options.</param>
+    /// <param name="courtOptions">The court options.</param>
+    /// <param name="venueOptions">The venue options.</param>
+    /// <returns>The combined options response model.</returns>
     internal static MatchOptionsResponseModel MatchOptionsToResponseModel(
         IReadOnlyList<SportOptionResponseModel> sportOptions,
         IReadOnlyList<CourtOptionResponseModel> courtOptions,
@@ -284,6 +337,12 @@ internal static class MatchDataBuilder
     }
 
 
+    /// <summary>
+    /// Combines a page of match cards and the options into the main response model.
+    /// </summary>
+    /// <param name="page">The page of match cards.</param>
+    /// <param name="options">The filter and creation options.</param>
+    /// <returns>The main match response model.</returns>
     internal static MatchResponseModel ToMatchResponseModel(
         PageResult<MatchCardResponseModel> page,
         MatchOptionsResponseModel options)
@@ -295,6 +354,10 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a projection from a venue to a venue slot option.
+    /// </summary>
+    /// <returns>An expression projecting a venue to a venue option.</returns>
     internal static Expression<Func<Venue, VenueOptionResponseModel>> VenueToVenueOptionProjection()
     {
         return source => new VenueOptionResponseModel
@@ -308,6 +371,10 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a projection from a venue to a slot row, indicating whether it is taken or deleted.
+    /// </summary>
+    /// <returns>An expression projecting a venue to a slot row.</returns>
     internal static Expression<Func<Venue, SlotRow>> SlotRowProjection()
     {
         return source => new SlotRow
@@ -322,6 +389,10 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a projection from a sport to a sport option.
+    /// </summary>
+    /// <returns>An expression projecting a sport to a sport option.</returns>
     internal static Expression<Func<Sport, SportOptionResponseModel>> SportToSportOptionProjection()
     {
         return source => new SportOptionResponseModel
@@ -331,6 +402,12 @@ internal static class MatchDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a new open match entity from the request, with its event and the organiser as the first joined participant.
+    /// </summary>
+    /// <param name="source">The create request data.</param>
+    /// <param name="nowUtc">The timestamp to record as the organiser's join time.</param>
+    /// <returns>The new match entity.</returns>
     internal static Match MatchCreateToEntity(
         MatchCreateRequestData source,
         DateTime nowUtc)
@@ -368,6 +445,11 @@ internal static class MatchDataBuilder
         return result;
     }
 
+    /// <summary>
+    /// Copies the editable fields from the update request to the match entity, trimming the title.
+    /// </summary>
+    /// <param name="target">The match entity to update.</param>
+    /// <param name="source">The update request data.</param>
     internal static void MatchUpdateApplyToEntity(
         Match target,
         MatchUpdateRequestData source)
@@ -382,6 +464,11 @@ internal static class MatchDataBuilder
         target.PricePerPlayer = source.PricePerPlayer;
     }
 
+    /// <summary>
+    /// Marks the match entity as cancelled and stores the trimmed cancellation reason.
+    /// </summary>
+    /// <param name="target">The match entity to cancel.</param>
+    /// <param name="source">The cancel request data.</param>
     internal static void MatchCancelApplyToEntity(
         Match target,
         MatchCancelRequestData source)

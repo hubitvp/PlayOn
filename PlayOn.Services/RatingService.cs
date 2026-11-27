@@ -13,6 +13,9 @@ using static PlayOn.Common.EntityConstants.PlayerRatingConstants;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Provides the rating form for a completed match and submission of ratings for fellow attendees.
+    /// </summary>
     public class RatingService : IRatingService
     {
         private readonly IRepository<Match> matchRepository;
@@ -21,6 +24,14 @@ namespace PlayOn.Services
         private readonly IRepository<Notification> notificationRepository;
         private readonly TimeProvider timeProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RatingService"/> class.
+        /// </summary>
+        /// <param name="matchRepository">Repository for matches.</param>
+        /// <param name="participantRepository">Repository for match participants.</param>
+        /// <param name="ratingRepository">Repository for player ratings.</param>
+        /// <param name="notificationRepository">Repository for notifications.</param>
+        /// <param name="timeProvider">Provider of the current local time.</param>
         public RatingService(
             IRepository<Match> matchRepository,
             IRepository<MatchParticipant> participantRepository,
@@ -35,6 +46,13 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
+        /// <summary>
+        /// Builds the rating form listing the attendees the rater has not rated yet.
+        /// Only attendees of a completed match can rate; others get not found, forbidden or a conflict.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="raterId">The identifier of the rating user.</param>
+        /// <returns>A service response with the form, or a failure if the match is missing or deleted, the rater did not attend, or the match is not completed.</returns>
         public async Task<ServiceResponse<RatingFormResponseModel>>
             GetFormAsync(
                 Guid matchId,
@@ -58,6 +76,12 @@ namespace PlayOn.Services
             return ServiceResponse<RatingFormResponseModel>.Success(responseData);
         }
 
+        /// <summary>
+        /// Validates and saves ratings from a rater for other attendees of a completed match and notifies each rated player.
+        /// Fails if no entries are given, access checks fail, or any entry has an out-of-range score, too long a comment, or a player who is not ratable or is duplicated.
+        /// </summary>
+        /// <param name="request">The rating request with the match, rater and entries.</param>
+        /// <returns>A service response with the number of ratings saved.</returns>
         public async Task<ServiceResponse<int>>
             SubmitAsync(RatingRequestData request)
         {
@@ -122,6 +146,11 @@ namespace PlayOn.Services
             return ServiceResponse<int>.Success(ratings.Count);
         }
 
+        /// <summary>
+        /// Loads the basic information of a match for rating.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <returns>The match information, or <c>null</c> if the match does not exist.</returns>
         private async Task<RatingInfoRow?> GetInfoAsync(Guid matchId)
         {
             return await matchRepository
@@ -131,6 +160,13 @@ namespace PlayOn.Services
                 .SingleOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Checks that the rater may rate in the match: it exists and is not deleted, the rater attended, and the match is completed.
+        /// </summary>
+        /// <typeparam name="T">The response data type of the service response.</typeparam>
+        /// <param name="info">The match information, or <c>null</c> if not found.</param>
+        /// <param name="raterId">The identifier of the rating user.</param>
+        /// <returns>A not found, forbidden or conflict failure, or <c>null</c> if access is allowed.</returns>
         private async Task<ServiceResponse<T>?> CheckAccessAsync<T>(
             RatingInfoRow? info,
             Guid raterId)
@@ -160,6 +196,12 @@ namespace PlayOn.Services
             return null;
         }
 
+        /// <summary>
+        /// Gets the attendees of a match, other than the rater, whom the rater has not rated yet, ordered by display name.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="raterId">The identifier of the rating user.</param>
+        /// <returns>The list of ratable players.</returns>
         private async Task<IReadOnlyList<RatingPlayerResponseModel>>
             GetRatablePlayersAsync(Guid matchId, Guid raterId)
         {
@@ -180,6 +222,12 @@ namespace PlayOn.Services
                 .ToListAsync();
         }
 
+        /// <summary>
+        /// Validates rating entries: the score must be in range, the comment within the maximum length, and each rated player must be ratable and appear only once.
+        /// </summary>
+        /// <param name="entries">The submitted rating entries.</param>
+        /// <param name="ratablePlayerIds">The identifiers of players the rater may rate.</param>
+        /// <returns>The validation errors, empty if all entries are valid.</returns>
         private static IReadOnlyList<ValidationResult> ValidateEntries(
             IReadOnlyList<RatingEntryRequestData> entries,
             HashSet<Guid> ratablePlayerIds)

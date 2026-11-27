@@ -16,16 +16,32 @@ using static PlayOn.Common.ApplicationConstants.ParticipationRules;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Handles joining and leaving matches, waitlist promotion and the "my matches" listing,
+    /// enforcing participation rules such as strikes, skill range and overlapping bookings.
+    /// </summary>
     public class ParticipationService : IParticipationService
     {
+        /// <summary>
+        /// The maximum number of retries after a concurrency or transient transaction conflict.
+        /// </summary>
         private const int MaxConcurrencyRetries = 5;
 
+        /// <summary>
+        /// Error message returned when the match is cancelled, finished or already started.
+        /// </summary>
         private const string MatchClosedMessage =
             "This match is cancelled, finished or already started.";
 
+        /// <summary>
+        /// Error message returned when retries are exhausted because the match keeps changing.
+        /// </summary>
         private const string ConcurrencyMessage =
             "The match changed while you were doing this. Please try again.";
 
+        /// <summary>
+        /// Error message returned when the user already has an active participation in the match.
+        /// </summary>
         private const string DuplicateJoinMessage =
             "You are already part of this match.";
 
@@ -35,6 +51,14 @@ namespace PlayOn.Services
         private readonly IRepository<Notification> notificationRepository;
         private readonly TimeProvider timeProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ParticipationService"/> class.
+        /// </summary>
+        /// <param name="matchRepository">Repository for matches.</param>
+        /// <param name="participantRepository">Repository for match participants.</param>
+        /// <param name="preferenceRepository">Repository for sport skill preferences.</param>
+        /// <param name="notificationRepository">Repository for notifications.</param>
+        /// <param name="timeProvider">Provider of the current local time.</param>
         public ParticipationService(
             IRepository<Match> matchRepository,
             IRepository<MatchParticipant> participantRepository,
@@ -49,6 +73,13 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
+        /// <summary>
+        /// Joins the user to a match inside a serializable transaction, retrying on concurrency conflicts.
+        /// The user is added as joined while spots remain, otherwise waitlisted; the match becomes confirmed (and participants are notified) once the minimum player count is reached.
+        /// Returns not found for missing or deleted matches and a conflict if the match is closed, the user is already part of it, or retries are exhausted; join-rule violations (strike block, skill range, overlapping booking) are returned as validation failures.
+        /// </summary>
+        /// <param name="request">The participation request containing the match and user identifiers.</param>
+        /// <returns>A service response with the resulting participant status, waitlist position and whether the match was confirmed.</returns>
         public async Task<ServiceResponse<JoinMatchResponseModel>>
             JoinAsync(
                 ParticipationRequestData request)
@@ -214,6 +245,13 @@ namespace PlayOn.Services
                 .Conflict(ConcurrencyMessage);
         }
 
+        /// <summary>
+        /// Removes the user from a match inside a serializable transaction, retrying on concurrency conflicts.
+        /// Leaving a joined spot less than the late-cancel threshold before the start counts as a late cancel (a strike) and notifies the user. A freed spot promotes the first eligible waitlisted player, and the match status is moved between open and confirmed according to the minimum player count.
+        /// Returns not found for missing or deleted matches and a conflict if the user is the organiser, the match is closed, or the user is not part of it.
+        /// </summary>
+        /// <param name="request">The participation request containing the match and user identifiers.</param>
+        /// <returns>A service response indicating whether the leave was a late cancel and whether another player was promoted.</returns>
         public async Task<ServiceResponse<LeaveMatchResponseModel>>
             LeaveAsync(ParticipationRequestData request)
         {
@@ -364,6 +402,13 @@ namespace PlayOn.Services
                 .Conflict(ConcurrencyMessage);
         }
 
+        /// <summary>
+        /// Returns one page of the user's matches for the selected tab (upcoming, waitlist, past or cancelled).
+        /// The page size is clamped to 1-50 and the page number to the valid range.
+        /// </summary>
+        /// <param name="requestData">The request containing the user and the selected tab.</param>
+        /// <param name="pageRequestData">The requested page number and page size.</param>
+        /// <returns>A service response with the page of matches, or validation errors if the request is invalid.</returns>
         public async Task<ServiceResponse<PageResult<MyMatchResponseModel>>>
             GetSinglePageAsync(
                 MyMatchesRequestData requestData,
@@ -389,6 +434,11 @@ namespace PlayOn.Services
             return ServiceResponse<PageResult<MyMatchResponseModel>>.Success(page);
         }
 
+        /// <summary>
+        /// Builds the base query of the user's participations in non-deleted matches that have an event, filtered for the requested tab.
+        /// </summary>
+        /// <param name="requestData">The request containing the user and the selected tab.</param>
+        /// <returns>A query of participations matching the tab.</returns>
         private IQueryable<MatchParticipant> BuildMyMatchesQuery(
             MyMatchesRequestData requestData)
         {
@@ -427,6 +477,14 @@ namespace PlayOn.Services
             };
         }
 
+        /// <summary>
+        /// Filters participations with the given status in non-cancelled matches that start now or later.
+        /// </summary>
+        /// <param name="query">The base participation query.</param>
+        /// <param name="status">The participant status to match.</param>
+        /// <param name="today">The current local date.</param>
+        /// <param name="nowTime">The current local time.</param>
+        /// <returns>The filtered query.</returns>
         private IQueryable<MatchParticipant> ApplyUpcomingTab(
             IQueryable<MatchParticipant> query,
             ParticipantStatus status,
@@ -441,6 +499,13 @@ namespace PlayOn.Services
                             && x.Match.Event.Venue.StartsAt >= nowTime)));
         }
 
+        /// <summary>
+        /// Filters participations in non-cancelled matches that were attended, were no-shows, or were joined in matches that have already started.
+        /// </summary>
+        /// <param name="query">The base participation query.</param>
+        /// <param name="today">The current local date.</param>
+        /// <param name="nowTime">The current local time.</param>
+        /// <returns>The filtered query.</returns>
         private IQueryable<MatchParticipant> ApplyPastTab(
             IQueryable<MatchParticipant> query,
             DateOnly today,
@@ -456,6 +521,11 @@ namespace PlayOn.Services
                                     && x.Match.Event.Venue.StartsAt < nowTime)))));
         }
 
+        /// <summary>
+        /// Filters participations that were cancelled by the user or belong to cancelled matches.
+        /// </summary>
+        /// <param name="query">The base participation query.</param>
+        /// <returns>The filtered query.</returns>
         private IQueryable<MatchParticipant> ApplyCancelledTab(
             IQueryable<MatchParticipant> query)
         {
@@ -464,6 +534,14 @@ namespace PlayOn.Services
                     || x.Match.Status == MatchStatus.Cancelled);
         }
 
+        /// <summary>
+        /// Counts, orders and pages the participations and projects them to response models.
+        /// Upcoming and waitlist tabs are ordered by start ascending; other tabs by start descending.
+        /// </summary>
+        /// <param name="query">The filtered participation query.</param>
+        /// <param name="tab">The selected tab, which determines the ordering.</param>
+        /// <param name="pageRequestData">The requested page number and page size.</param>
+        /// <returns>The page of matches with paging information.</returns>
         private async Task<PageResult<MyMatchResponseModel>>
             GetPageAsync(
                 IQueryable<MatchParticipant> query,
@@ -499,17 +577,31 @@ namespace PlayOn.Services
                 totalCount);
         }
 
+        /// <summary>
+        /// Marks the match as updated so that its concurrency token is checked when changes are saved.
+        /// </summary>
+        /// <param name="match">The match entity to mark.</param>
         private void MarkMatchForConcurrencyCheck(Match match)
         {
             matchRepository.Update(match);
         }
 
+        /// <summary>
+        /// Waits for a short randomized delay that grows with the attempt number before a retry.
+        /// </summary>
+        /// <param name="attempt">The zero-based retry attempt number.</param>
         private static async Task DelayRetryAsync(int attempt)
         {
             var jitterMs = Random.Shared.Next(10, 35) * (attempt + 1);
             await Task.Delay(jitterMs);
         }
 
+        /// <summary>
+        /// Determines whether the exception or any inner exception is a SQL Server exception with one of the given error numbers.
+        /// </summary>
+        /// <param name="exception">The exception to inspect.</param>
+        /// <param name="errorNumbers">The SQL error numbers to look for.</param>
+        /// <returns><c>true</c> if a matching SQL error is found; otherwise <c>false</c>.</returns>
         private static bool HasSqlErrorNumber(Exception exception, params int[] errorNumbers)
         {
             Exception? current = exception;
@@ -527,16 +619,32 @@ namespace PlayOn.Services
             return false;
         }
 
+        /// <summary>
+        /// Determines whether the exception was caused by a unique constraint or duplicate key violation.
+        /// </summary>
+        /// <param name="exception">The database update exception.</param>
+        /// <returns><c>true</c> for a unique constraint violation; otherwise <c>false</c>.</returns>
         private static bool IsUniqueConstraintViolation(DbUpdateException exception)
         {
             return HasSqlErrorNumber(exception, 2601, 2627);
         }
 
+        /// <summary>
+        /// Determines whether the exception was caused by a deadlock or lock timeout that may succeed on retry.
+        /// </summary>
+        /// <param name="exception">The exception to inspect.</param>
+        /// <returns><c>true</c> for a transient transaction conflict; otherwise <c>false</c>.</returns>
         private static bool IsTransientTransactionConflict(Exception exception)
         {
             return HasSqlErrorNumber(exception, 1205, 1222);
         }
 
+        /// <summary>
+        /// Loads the join-related information of a match that has an event.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The match information, or <c>null</c> if the match or its event does not exist.</returns>
         private async Task<JoinInfoRow?> GetInfoAsync(
             Guid matchId,
             CancellationToken cancellationToken = default)
@@ -548,6 +656,12 @@ namespace PlayOn.Services
                 .SingleOrDefaultAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// Determines whether the match is open or confirmed and has not started yet.
+        /// </summary>
+        /// <param name="info">The match information.</param>
+        /// <param name="nowLocal">The current local time.</param>
+        /// <returns><c>true</c> if users can still join or leave; otherwise <c>false</c>.</returns>
         private static bool IsOpenForParticipation(JoinInfoRow info, DateTime nowLocal)
         {
             return (info.Status == MatchStatus.Open
@@ -555,6 +669,14 @@ namespace PlayOn.Services
                 && info.Date.ToDateTime(info.StartsAt) > nowLocal;
         }
 
+        /// <summary>
+        /// Finds the user's joined or waitlisted participation in a match.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="asNoTracking">Whether the entity should be read without change tracking.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The active participation, or <c>null</c> if there is none.</returns>
         private async Task<MatchParticipant?> FindActiveParticipantAsync(
             Guid matchId,
             Guid userId,
@@ -570,6 +692,13 @@ namespace PlayOn.Services
                     cancellationToken);
         }
 
+        /// <summary>
+        /// Counts the participants of a match that have the given status.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="status">The participant status to count.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>The number of matching participants.</returns>
         private async Task<int> CountByStatusAsync(
             Guid matchId,
             ParticipantStatus status,
@@ -582,6 +711,13 @@ namespace PlayOn.Services
                     cancellationToken);
         }
 
+        /// <summary>
+        /// Adds a match-confirmed notification for every joined participant and the user who just joined.
+        /// </summary>
+        /// <param name="info">The match information.</param>
+        /// <param name="joiningUserId">The identifier of the user who is joining.</param>
+        /// <param name="nowLocal">The current local time.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
         private async Task AddMatchConfirmedNotificationsAsync(
             JoinInfoRow info,
             Guid joiningUserId,
@@ -610,6 +746,13 @@ namespace PlayOn.Services
             await notificationRepository.AddRangeAsync(notifications, cancellationToken);
         }
 
+        /// <summary>
+        /// Promotes the earliest waitlisted player who passes the join rules to joined status.
+        /// </summary>
+        /// <param name="info">The match information.</param>
+        /// <param name="nowLocal">The current local time.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>A promotion notification for the promoted player, or <c>null</c> if nobody could be promoted.</returns>
         private async Task<Notification?> PromoteFromWaitlistAsync(
             JoinInfoRow info,
             DateTime nowLocal,
@@ -645,6 +788,14 @@ namespace PlayOn.Services
             return null;
         }
 
+        /// <summary>
+        /// Checks the rules a user must satisfy to join a match: not blocked by strikes, skill level within the match range, and no overlapping booking.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="info">The match information.</param>
+        /// <param name="nowLocal">The current local time.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns>A validation error for the first violated rule, or <c>null</c> if the user may join.</returns>
         private async Task<ValidationResult?> CheckJoinRulesAsync(
             Guid userId,
             JoinInfoRow info,
@@ -672,6 +823,14 @@ namespace PlayOn.Services
             return null;
         }
 
+        /// <summary>
+        /// Determines whether the user has reached the strike limit within the strike window and is still inside the block period.
+        /// Strikes are late cancellations and no-shows.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="nowLocal">The current local time.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns><c>true</c> if the user is currently blocked from joining; otherwise <c>false</c>.</returns>
         private async Task<bool> IsBlockedByStrikesAsync(
             Guid userId,
             DateTime nowLocal,
@@ -691,6 +850,14 @@ namespace PlayOn.Services
                 && nowLocal < strikeDates.Max().AddDays(BlockDays);
         }
 
+        /// <summary>
+        /// Determines whether the user's skill level for the match sport is within the match skill range.
+        /// A user without a preference for the sport is treated as a beginner.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="info">The match information.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns><c>true</c> if the skill level is in range; otherwise <c>false</c>.</returns>
         private async Task<bool> IsSkillInRangeAsync(
             Guid userId,
             JoinInfoRow info,
@@ -707,6 +874,13 @@ namespace PlayOn.Services
             return skill >= info.MinSkill && skill <= info.MaxSkill;
         }
 
+        /// <summary>
+        /// Determines whether the user has another joined or waitlisted, non-cancelled match on the same date whose time span overlaps this match.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="info">The match information.</param>
+        /// <param name="cancellationToken">A token to cancel the operation.</param>
+        /// <returns><c>true</c> if an overlapping booking exists; otherwise <c>false</c>.</returns>
         private async Task<bool> HasOverlappingBookingAsync(
             Guid userId,
             JoinInfoRow info,

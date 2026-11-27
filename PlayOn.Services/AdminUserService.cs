@@ -13,6 +13,9 @@ using PlayOn.Services.DataBuilders;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Implements administrative management operations for users.
+    /// </summary>
     public class AdminUserService : IAdminUserService
     {
         private readonly IRepository<ApplicationUser> userRepository;
@@ -20,6 +23,13 @@ namespace PlayOn.Services
         private readonly IRepository<IdentityUserRole<Guid>> userRoleRepository;
         private readonly UserManager<ApplicationUser> userManager;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdminUserService"/> class.
+        /// </summary>
+        /// <param name="userRepository">The user repository.</param>
+        /// <param name="roleRepository">The role repository.</param>
+        /// <param name="userRoleRepository">The user-role link repository.</param>
+        /// <param name="userManager">The identity user manager.</param>
         public AdminUserService(
             IRepository<ApplicationUser> userRepository,
             IRepository<ApplicationRole> roleRepository,
@@ -32,6 +42,11 @@ namespace PlayOn.Services
             this.userManager = userManager;
         }
 
+        /// <summary>
+        /// Gets users filtered by an optional search term (name, city or email) and an active/inactive status, ordered by display name, and marks which are administrators.
+        /// </summary>
+        /// <param name="request">The search, status filter and paging options.</param>
+        /// <returns>A page of users, or a failure response when the request or status filter is invalid.</returns>
         public async Task<ServiceResponse<PageResult<AdminUserResponseModel>>>
             GetUsersAsync(AdminUserQueryRequestData request)
         {
@@ -93,6 +108,11 @@ namespace PlayOn.Services
             return ServiceResponse<PageResult<AdminUserResponseModel>>.Success(page);
         }
 
+        /// <summary>
+        /// Activates or deactivates a user. Administrators cannot deactivate themselves, and deactivation also refreshes the security stamp to invalidate existing sign-ins.
+        /// </summary>
+        /// <param name="request">The target user, the desired active state and the acting administrator.</param>
+        /// <returns>The user identifier (also when nothing changed), a not-found response when the user does not exist, a conflict response for self-deactivation, or a failure response when validation fails.</returns>
         public async Task<ServiceResponse<Guid>>
             SetActiveAsync(AdminUserStatusRequestData request)
         {
@@ -141,6 +161,11 @@ namespace PlayOn.Services
             return ServiceResponse<Guid>.Success(user.Id);
         }
 
+        /// <summary>
+        /// Grants or revokes the administrator role for a user. Administrators cannot remove their own rights.
+        /// </summary>
+        /// <param name="request">The target user, the desired administrator state and the acting administrator.</param>
+        /// <returns>The user identifier (also when nothing changed), a not-found response when the user does not exist, or a conflict response for self-removal or when the role change fails.</returns>
         public async Task<ServiceResponse<Guid>>
             SetAdministratorAsync(AdminUserRoleRequestData request)
         {
@@ -190,6 +215,11 @@ namespace PlayOn.Services
             return ServiceResponse<Guid>.Success(user.Id);
         }
 
+        /// <summary>
+        /// Finds which of the given users hold the administrator role.
+        /// </summary>
+        /// <param name="userIds">The user identifiers to check.</param>
+        /// <returns>The set of identifiers that are administrators; empty when no ids are given or the role does not exist.</returns>
         private async Task<HashSet<Guid>> GetAdministratorIdsAsync(IReadOnlyCollection<Guid> userIds)
         {
             if (userIds.Count == 0)

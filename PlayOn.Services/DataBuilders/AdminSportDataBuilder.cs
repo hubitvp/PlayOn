@@ -6,8 +6,15 @@ using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
+/// <summary>
+/// Builds sport projections, response models and entities for administration.
+/// </summary>
 public static class AdminSportDataBuilder
 {
+    /// <summary>
+    /// Creates a query projection from a sport to a row with usage counts.
+    /// </summary>
+    /// <returns>An expression that projects a sport to an admin sport row.</returns>
     internal static Expression<Func<Sport, AdminSportRow>>
         SportProjection()
     {
@@ -24,6 +31,11 @@ public static class AdminSportDataBuilder
         };
     }
 
+    /// <summary>
+    /// Maps a sport row to a list response model.
+    /// </summary>
+    /// <param name="source">The sport row.</param>
+    /// <returns>The sport response model.</returns>
     internal static AdminSportResponseModel
         SportToResponseModel(AdminSportRow source)
     {
@@ -42,6 +54,11 @@ public static class AdminSportDataBuilder
         return result;
     }
 
+    /// <summary>
+    /// Maps a sport entity to an edit response model.
+    /// </summary>
+    /// <param name="source">The sport entity.</param>
+    /// <returns>The sport edit response model.</returns>
     public static AdminSportEditResponseModel
         SportToEditResponseModel(Sport source)
     {
@@ -57,6 +74,11 @@ public static class AdminSportDataBuilder
         return result;
     }
 
+    /// <summary>
+    /// Creates a new sport entity from the create request.
+    /// </summary>
+    /// <param name="source">The create request data.</param>
+    /// <returns>A new sport populated from the request.</returns>
     public static Sport ToEntity(AdminSportCreateRequestData source)
     {
         var result = new Sport();
@@ -66,6 +88,11 @@ public static class AdminSportDataBuilder
         return result;
     }
 
+    /// <summary>
+    /// Copies the request values onto a sport entity, trimming the name.
+    /// </summary>
+    /// <param name="source">The request data.</param>
+    /// <param name="target">The sport entity to update.</param>
     public static void ApplyToEntity(AdminSportRequestDataBase source, Sport target)
     {
         target.Name = source.Name.Trim();

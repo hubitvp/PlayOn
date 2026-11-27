@@ -6,8 +6,15 @@ using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
+/// <summary>
+/// Builds projections and response models for match attendance.
+/// </summary>
 public static class AttendanceDataBuilder
 {
+    /// <summary>
+    /// Creates a projection from a match to the attendance information row, including venue, date, time and duration.
+    /// </summary>
+    /// <returns>An expression projecting a match to an attendance information row.</returns>
     internal static Expression<Func<Match, AttendanceInfoRow>>
         AttendanceInfoProjection()
     {
@@ -26,6 +33,10 @@ public static class AttendanceDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a projection from a match participant to an attendance player model.
+    /// </summary>
+    /// <returns>An expression projecting a participant to an attendance player model.</returns>
     public static Expression<Func<MatchParticipant, AttendancePlayerResponseModel>>
         AttendancePlayerProjection()
     {
@@ -37,6 +48,12 @@ public static class AttendanceDataBuilder
         };
     }
 
+    /// <summary>
+    /// Combines the match information row and the player list into the attendance response model.
+    /// </summary>
+    /// <param name="info">The match information row.</param>
+    /// <param name="players">The players on the attendance sheet.</param>
+    /// <returns>The attendance response model.</returns>
     internal static AttendanceResponseModel
         AttendanceToResponseModel(
             AttendanceInfoRow info,
@@ -58,6 +75,13 @@ public static class AttendanceDataBuilder
     }
 
 
+    /// <summary>
+    /// Calculates a player's reliability as the percentage of attended records among attended, no-show and late-cancel records, rounded to a whole number.
+    /// </summary>
+    /// <param name="attended">The number of matches attended.</param>
+    /// <param name="noShow">The number of no-shows.</param>
+    /// <param name="lateCancel">The number of late cancellations.</param>
+    /// <returns>The reliability percentage, or null if there are fewer records than the minimum required.</returns>
     public static int? ReliabilityScore(int attended, int noShow, int lateCancel)
     {
         var total = attended + noShow + lateCancel;

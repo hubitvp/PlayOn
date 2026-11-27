@@ -10,11 +10,19 @@ using PlayOn.Services.DataBuilders;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Provides paged access to upcoming venues that host open or confirmed matches.
+    /// </summary>
     public class VenueService : IVenueService
     {
         private readonly IRepository<Venue> venueRepository;
         private readonly TimeProvider timeProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="VenueService"/> class.
+        /// </summary>
+        /// <param name="venueRepository">The repository used to query venues.</param>
+        /// <param name="timeProvider">The time provider used to determine the current local date.</param>
         public VenueService(
             IRepository<Venue> venueRepository,
             TimeProvider timeProvider)
@@ -23,6 +31,11 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
+        /// <summary>
+        /// Validates the page request and returns one page of upcoming venues. Validation failures are returned as errors.
+        /// </summary>
+        /// <param name="pageRequestData">The requested page number and page size.</param>
+        /// <returns>A response with the page of venues, or the validation errors.</returns>
         public async Task<ServiceResponse<PageResult<VenueResponseModel>>>
             GetSinglePageAsync(PageRequestData pageRequestData)
         {
@@ -45,6 +58,10 @@ namespace PlayOn.Services
                 .Success(page);
         }
 
+        /// <summary>
+        /// Builds the venue query for venues that are not deleted, have an event with a non-deleted open or confirmed match, and are dated today or later.
+        /// </summary>
+        /// <returns>The filtered venue query.</returns>
         private IQueryable<Venue> BuildVenueQuery()
         {
             var today = DateOnly.FromDateTime(
@@ -60,6 +77,12 @@ namespace PlayOn.Services
                     && x.Date >= today);
         }
 
+        /// <summary>
+        /// Counts the venues, clamps the page size to 1-50 and the page number to the valid range, and loads that page ordered by date, times, name, city and id.
+        /// </summary>
+        /// <param name="query">The filtered venue query.</param>
+        /// <param name="pageRequestData">The requested page number and page size.</param>
+        /// <returns>The page of venues with paging metadata.</returns>
         private async Task<PageResult<VenueResponseModel>>
             GetPageAsync(
                 IQueryable<Venue> query,

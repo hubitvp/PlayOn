@@ -8,15 +8,26 @@ using PlayOn.Services.DataBuilders;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Provides access to the available sports.
+    /// </summary>
     public class SportService : ISportService
     {
         private readonly IRepository<Sport> sportRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SportService"/> class.
+        /// </summary>
+        /// <param name="sportRepository">The repository used to query sports.</param>
         public SportService(IRepository<Sport> sportRepository)
         {
             this.sportRepository = sportRepository;
         }
 
+        /// <summary>
+        /// Retrieves all sports ordered by name.
+        /// </summary>
+        /// <returns>A successful response with the sports ordered by name.</returns>
         public async Task<ServiceResponse<IReadOnlyList<SportResponseModel>>>
             GetSportOptionsAsync()
         {

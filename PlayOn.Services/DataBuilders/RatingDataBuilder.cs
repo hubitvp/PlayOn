@@ -6,8 +6,15 @@ using System.Linq.Expressions;
 
 namespace PlayOn.Services.DataBuilders;
 
+/// <summary>
+/// Builds projections, entities and response models for ratings.
+/// </summary>
 public static class RatingDataBuilder
 {
+    /// <summary>
+    /// Creates a projection from a match to the information needed for rating.
+    /// </summary>
+    /// <returns>The projection expression.</returns>
     internal static Expression<Func<Match, RatingInfoRow>>
         RatingInfoProjection()
     {
@@ -20,6 +27,10 @@ public static class RatingDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates a projection from a participation to a ratable player model.
+    /// </summary>
+    /// <returns>The projection expression.</returns>
     public static Expression<Func<MatchParticipant, RatingPlayerResponseModel>>
         RatingPlayerProjection()
     {
@@ -31,6 +42,13 @@ public static class RatingDataBuilder
         };
     }
 
+    /// <summary>
+    /// Creates the rating form response model.
+    /// </summary>
+    /// <param name="matchId">The identifier of the match.</param>
+    /// <param name="matchTitle">The title of the match.</param>
+    /// <param name="players">The players that can be rated.</param>
+    /// <returns>The rating form response model.</returns>
     public static RatingFormResponseModel
         RatingFormToResponseModel(
             Guid matchId,
@@ -47,6 +65,13 @@ public static class RatingDataBuilder
         return result;
     }
 
+    /// <summary>
+    /// Creates a visible rating entity from an entry; the comment is trimmed and blank comments become null.
+    /// </summary>
+    /// <param name="matchId">The identifier of the match.</param>
+    /// <param name="raterId">The identifier of the rating user.</param>
+    /// <param name="source">The rating entry.</param>
+    /// <returns>The new rating entity.</returns>
     public static PlayerRating
         RatingToEntity(
             Guid matchId,

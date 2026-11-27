@@ -9,16 +9,29 @@ using PlayOn.Services.DataBuilders;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Provides retrieval and read-state management of a user's notifications.
+    /// </summary>
     public class NotificationService : INotificationService
     {
         private readonly IRepository<Notification> notificationRepository;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="NotificationService"/> class.
+        /// </summary>
+        /// <param name="notificationRepository">The repository used to query and update notifications.</param>
         public NotificationService(
             IRepository<Notification> notificationRepository)
         {
             this.notificationRepository = notificationRepository;
         }
 
+        /// <summary>
+        /// Builds the notifications model containing one page of the user's notifications and their unread count. Fails with the underlying errors if either step fails.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="pageRequestData">The requested page number and page size.</param>
+        /// <returns>A response with the notifications model on success, or the errors of the failed step.</returns>
         public async Task<ServiceResponse<NotificationResponseModel>>
             GetMainResponseModelAsync(
                 Guid userId,
@@ -51,6 +64,12 @@ namespace PlayOn.Services
                 .Success(responseData);
         }
 
+        /// <summary>
+        /// Returns one page of the user's notifications, newest first.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <param name="pageRequestData">The requested page number and page size.</param>
+        /// <returns>A successful response with the page of notifications.</returns>
         public async Task<ServiceResponse<PageResult<NotificationResponseModelData>>>
             GetSinglePageAsync(
                 Guid userId,
@@ -68,6 +87,11 @@ namespace PlayOn.Services
                 .Success(page);
         }
 
+        /// <summary>
+        /// Counts the user's unread notifications.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <returns>A successful response with the number of unread notifications.</returns>
         public async Task<ServiceResponse<int>>
             GetUnreadCountAsync(Guid userId)
         {
@@ -79,6 +103,12 @@ namespace PlayOn.Services
                 .Success(unreadCount);
         }
 
+        /// <summary>
+        /// Marks a single notification as read, saving only if it was unread. Returns not found if it does not exist and forbidden if it belongs to another user.
+        /// </summary>
+        /// <param name="userId">The identifier of the requesting user.</param>
+        /// <param name="notificationId">The identifier of the notification to mark.</param>
+        /// <returns>A response with the updated notification, or a not found or forbidden result.</returns>
         public async Task<ServiceResponse<NotificationResponseModelData>>
             MarkAsReadAsync(
                 Guid userId,
@@ -113,6 +143,11 @@ namespace PlayOn.Services
                 .Success(responseData);
         }
 
+        /// <summary>
+        /// Marks all of the user's unread notifications as read and saves the changes.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <returns>A successful response with the number of notifications marked as read (0 if none).</returns>
         public async Task<ServiceResponse<int>>
             MarkAllAsReadAsync(Guid userId)
         {
@@ -137,6 +172,11 @@ namespace PlayOn.Services
                 .Success(unreadNotifications.Count);
         }
 
+        /// <summary>
+        /// Creates a query for the notifications that belong to the given user.
+        /// </summary>
+        /// <param name="userId">The identifier of the user.</param>
+        /// <returns>The user's notification query.</returns>
         private IQueryable<Notification> BuildNotificationQuery(
             Guid userId)
         {
@@ -145,6 +185,12 @@ namespace PlayOn.Services
                 .Where(x => x.UserId == userId);
         }
 
+        /// <summary>
+        /// Counts the notifications, clamps the page size to 1-50 and the page number to the valid range, and loads that page ordered by creation date then id, both descending.
+        /// </summary>
+        /// <param name="query">The notification query.</param>
+        /// <param name="pageRequestData">The requested page number and page size.</param>
+        /// <returns>The page of notifications with paging metadata.</returns>
         private async Task<PageResult<NotificationResponseModelData>>
             GetPageAsync(
                 IQueryable<Notification> query,

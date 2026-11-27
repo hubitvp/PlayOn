@@ -11,6 +11,9 @@ using PlayOn.Services.DataBuilders;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Implements match search, viewing, creation, editing and cancellation, including organiser permission and time-lock rules.
+    /// </summary>
     public class MatchService : IMatchService
     {
         private readonly IRepository<Match> matchRepository;
@@ -21,6 +24,16 @@ namespace PlayOn.Services
         private readonly IRepository<Notification> notificationRepository;
         private readonly TimeProvider timeProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MatchService"/> class.
+        /// </summary>
+        /// <param name="matchRepository">Repository for matches.</param>
+        /// <param name="sportRepository">Repository for sports.</param>
+        /// <param name="courtRepository">Repository for courts.</param>
+        /// <param name="venueRepository">Repository for venues.</param>
+        /// <param name="participantRepository">Repository for match participants.</param>
+        /// <param name="notificationRepository">Repository for notifications.</param>
+        /// <param name="timeProvider">Provider of the current time.</param>
         public MatchService(
             IRepository<Match> matchRepository,
             IRepository<Sport> sportRepository,
@@ -39,6 +52,12 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
+        /// <summary>
+        /// Validates the search request and returns one page of matches together with the sport, court and venue options.
+        /// </summary>
+        /// <param name="request">The search filters.</param>
+        /// <param name="pageRequestData">The paging parameters.</param>
+        /// <returns>A response with the page and options, or the first failure encountered.</returns>
         public async Task<ServiceResponse<MatchResponseModel>>
             GetMainResponseModelAsync(MatchSearchRequestData request, PageRequestData pageRequestData)
         {
@@ -67,6 +86,12 @@ namespace PlayOn.Services
             return ServiceResponse<MatchResponseModel>.Success(response);
         }
 
+        /// <summary>
+        /// Returns a page of upcoming, undeleted open or confirmed matches filtered by sport, city, search term, skill and free spots, and sorted as requested. Page size is limited to 1-50 and the page number is clamped to the valid range.
+        /// </summary>
+        /// <param name="searchRequestData">The search filters and sort order.</param>
+        /// <param name="pageRequestData">The paging parameters.</param>
+        /// <returns>A response with the page of match cards, or a failure for invalid filters or an unknown sport.</returns>
         public async Task<ServiceResponse<PageResult<MatchCardResponseModel>>>
             GetSinglePageAsync(
                 MatchSearchRequestData searchRequestData,
@@ -168,6 +193,10 @@ namespace PlayOn.Services
             return ServiceResponse<PageResult<MatchCardResponseModel>>.Success(page);
         }
 
+        /// <summary>
+        /// Gets all sports as options ordered by name.
+        /// </summary>
+        /// <returns>A response with the sport options.</returns>
         public async Task<ServiceResponse<IReadOnlyList<SportOptionResponseModel>>>
             GetSportOptionsAsync()
         {
@@ -180,6 +209,11 @@ namespace PlayOn.Services
             return ServiceResponse<IReadOnlyList<SportOptionResponseModel>>.Success(sportOptions);
         }
 
+        /// <summary>
+        /// Gets undeleted, unbooked venue slots dated at least three days ahead, or from the given date if later.
+        /// </summary>
+        /// <param name="from">The earliest date wanted, or null for the minimum allowed date.</param>
+        /// <returns>A response with the venue slot options ordered by date and start time.</returns>
         public async Task<ServiceResponse<IReadOnlyList<VenueOptionResponseModel>>>
             GetVenueOptionsAsync(DateOnly? from)
         {
@@ -201,6 +235,10 @@ namespace PlayOn.Services
             return ServiceResponse<IReadOnlyList<VenueOptionResponseModel>>.Success(venueOptions);
         }
 
+        /// <summary>
+        /// Gets all courts, with their supported sports, as options ordered by name.
+        /// </summary>
+        /// <returns>A response with the court options.</returns>
         public async Task<ServiceResponse<IReadOnlyList<CourtOptionResponseModel>>>
             GetCourtOptionsAsync()
         {
@@ -213,6 +251,11 @@ namespace PlayOn.Services
             return ServiceResponse<IReadOnlyList<CourtOptionResponseModel>>.Success(courtOptions);
         }
 
+        /// <summary>
+        /// Gets the sport, court and venue options together, stopping at the first failure.
+        /// </summary>
+        /// <param name="from">The earliest venue date wanted, or null for the default.</param>
+        /// <returns>A response with the combined options, or the first failure.</returns>
         public async Task<ServiceResponse<MatchOptionsResponseModel>>
             GetOptionsAsync(DateOnly? from)
         {
@@ -242,6 +285,13 @@ namespace PlayOn.Services
             return ServiceResponse<MatchOptionsResponseModel>.Success(response);
         }
 
+        /// <summary>
+        /// Gets the details of an undeleted match, including participants and which actions (manage, join, leave, take attendance, rate) are available to the viewer.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="userId">The identifier of the viewing user, or null for anonymous.</param>
+        /// <param name="isAdmin">Whether the viewer is an administrator.</param>
+        /// <returns>A response with the match details, or not-found if the match does not exist or is deleted.</returns>
         public async Task<ServiceResponse<MatchDetailsResponseModel>>
             GetDetailsAsync(Guid matchId, Guid? userId, bool isAdmin)
         {
@@ -275,6 +325,13 @@ namespace PlayOn.Services
             return ServiceResponse<MatchDetailsResponseModel>.Success(response);
         }
 
+        /// <summary>
+        /// Gets the editable data of a match for its organiser or an administrator.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="userId">The identifier of the requesting user.</param>
+        /// <param name="userIsAdmin">Whether the requesting user is an administrator.</param>
+        /// <returns>A response with the edit model; not-found, forbidden, or time-locked (carrying the model) when the match can no longer be changed.</returns>
         public async Task<ServiceResponse<MatchEditResponseModel>>
             GetForEditAsync(Guid matchId, Guid userId, bool userIsAdmin)
         {
@@ -304,6 +361,13 @@ namespace PlayOn.Services
             return ServiceResponse<MatchEditResponseModel>.Success(responseModel);
         }
 
+        /// <summary>
+        /// Gets the read-only display data of a match for its organiser or an administrator.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="userId">The identifier of the requesting user.</param>
+        /// <param name="userIsAdmin">Whether the requesting user is an administrator.</param>
+        /// <returns>A response with the display data, or a not-found or forbidden result.</returns>
         public async Task<ServiceResponse<MatchEditDisplayDataResponseModel>>
             GetEditDisplayDataAsync(
                 Guid matchId,
@@ -331,6 +395,11 @@ namespace PlayOn.Services
             return ServiceResponse<MatchEditDisplayDataResponseModel>.Success(displayData);
         }
 
+        /// <summary>
+        /// Updates a match after validating permissions, the time lock, and that the maximum players is not below the joined count nor above the court capacity. Uses the supplied row version for optimistic concurrency.
+        /// </summary>
+        /// <param name="request">The updated match data.</param>
+        /// <returns>A response with the match identifier on success; validation failure, not-found, forbidden or time-locked otherwise, or conflict if the match was modified concurrently.</returns>
         public async Task<ServiceResponse<Guid>>
             UpdateAsync(MatchUpdateRequestData request)
         {
@@ -397,6 +466,11 @@ namespace PlayOn.Services
             }
         }
 
+        /// <summary>
+        /// Creates a match after validating that the sport, court and slot exist, the court supports the sport and fits the maximum players, and the slot is free and not time-locked. The organiser joins automatically.
+        /// </summary>
+        /// <param name="request">The new match data.</param>
+        /// <returns>A response with the new match identifier; a validation failure for invalid references or limits, or conflict if the slot was just taken.</returns>
         public async Task<ServiceResponse<Guid>>
             CreateAsync(MatchCreateRequestData request)
         {
@@ -480,6 +554,13 @@ namespace PlayOn.Services
             }
         }
 
+        /// <summary>
+        /// Gets the summary for the cancel confirmation page of an open or confirmed match.
+        /// </summary>
+        /// <param name="matchId">The identifier of the match.</param>
+        /// <param name="userId">The identifier of the requesting user.</param>
+        /// <param name="userIsAdmin">Whether the requesting user is an administrator.</param>
+        /// <returns>A response with the cancellation summary; not-found, forbidden (including a match that is not open or confirmed), or time-locked (carrying the summary).</returns>
         public async Task<ServiceResponse<MatchCancelResponseModel>>
             GetForCancelAsync(Guid matchId, Guid userId, bool userIsAdmin)
         {
@@ -532,6 +613,11 @@ namespace PlayOn.Services
             return ServiceResponse<MatchCancelResponseModel>.Success(result);
         }
 
+        /// <summary>
+        /// Cancels an open or confirmed match, stores the reason and notifies every other joined or waitlisted participant.
+        /// </summary>
+        /// <param name="request">The cancellation data, including the reason.</param>
+        /// <returns>A response with the match identifier on success; validation failure, not-found, forbidden, time-locked or conflict (match not open or concurrent change) otherwise.</returns>
         public async Task<ServiceResponse<Guid>>
             CancelAsync(MatchCancelRequestData request)
         {
@@ -611,12 +697,23 @@ namespace PlayOn.Services
             }
         }
 
+        /// <summary>
+        /// Determines whether a match can still be changed: it must be open or confirmed and not time-locked.
+        /// </summary>
+        /// <param name="status">The current match status.</param>
+        /// <param name="date">The date of the match.</param>
+        /// <returns>True if the match can be changed; otherwise false.</returns>
         private bool IsOpenForChanges(MatchStatus status, DateOnly date)
         {
             return (status == MatchStatus.Open || status == MatchStatus.Confirmed)
                 && !IsTimeLocked(date);
         }
 
+        /// <summary>
+        /// Determines whether a date is within the three-day lock window before the match, or already past.
+        /// </summary>
+        /// <param name="date">The date of the match.</param>
+        /// <returns>True if the date is less than three days from today; otherwise false.</returns>
         private bool IsTimeLocked(DateOnly date)
         {
             DateOnly today = DateOnly.FromDateTime(timeProvider.GetLocalNow().LocalDateTime);

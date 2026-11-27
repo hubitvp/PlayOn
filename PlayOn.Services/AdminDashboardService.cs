@@ -9,6 +9,9 @@ using PlayOn.Services.DataBuilders;
 
 namespace PlayOn.Services
 {
+    /// <summary>
+    /// Implements the administration dashboard by aggregating counts from several repositories.
+    /// </summary>
     public class AdminDashboardService : IAdminDashboardService
     {
         private const int UpcomingMatchesToShow = 5;
@@ -20,6 +23,15 @@ namespace PlayOn.Services
         private readonly IRepository<PlayerRating> ratingRepository;
         private readonly TimeProvider timeProvider;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AdminDashboardService"/> class.
+        /// </summary>
+        /// <param name="userRepository">The user repository.</param>
+        /// <param name="matchRepository">The match repository.</param>
+        /// <param name="sportRepository">The sport repository.</param>
+        /// <param name="venueRepository">The venue repository.</param>
+        /// <param name="ratingRepository">The player rating repository.</param>
+        /// <param name="timeProvider">The time provider used to determine today's date.</param>
         public AdminDashboardService(
             IRepository<ApplicationUser> userRepository,
             IRepository<Match> matchRepository,
@@ -36,6 +48,10 @@ namespace PlayOn.Services
             this.timeProvider = timeProvider;
         }
 
+        /// <summary>
+        /// Counts users, non-deleted booked matches, sports, venues and ratings, and lists the next few open or confirmed matches starting today or later.
+        /// </summary>
+        /// <returns>A successful response containing the dashboard summary.</returns>
         public async Task<ServiceResponse<AdminDashboardResponseModel>>
             GetDashboardAsync()
         {
