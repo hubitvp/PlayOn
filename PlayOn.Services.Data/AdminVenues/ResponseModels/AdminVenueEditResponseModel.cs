@@ -12,7 +12,6 @@
         public required TimeOnly StartsAt { get; init; }
         public required TimeOnly OpensAt { get; init; }
         public required TimeOnly ClosesAt { get; init; }
-        public string? PhotoUrl { get; init; }
         public required bool IsDeleted { get; init; }
         public required bool IsBooked { get; init; }
     }

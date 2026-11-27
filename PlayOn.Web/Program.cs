@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Time.Testing;
@@ -88,27 +89,11 @@ namespace PlayOn.Web
                     CookieSecurePolicy.Always;
 
                 options.Cookie.SameSite = SameSiteMode.Strict;
+
+                options.TimeProvider = TimeProvider.System;
             });
 
-            TimeZoneInfo timeZone = TimeZoneInfo.Local;
-
-            var dateTime = new DateTime(
-                2026, 10, 1,
-                7, 0, 0,
-                DateTimeKind.Local);
-
-            var dateTimeOffset = new DateTimeOffset(dateTime, timeZone.GetUtcOffset(dateTime));
-
-
-            var timeProvider = new FakeTimeProvider(dateTimeOffset);
-
-            //builder.Services.AddSingleton<TimeProvider>(TimeProvider.System);
-
-            builder.Services.AddSingleton<TimeProvider>(timeProvider);
-
-
-            builder.Services.AddLocalResources(builder.Configuration);
-
+            builder.Services.AddLocalResources(builder.Configuration, builder.Environment);
 
             var app = builder.Build();
 
@@ -133,7 +118,7 @@ namespace PlayOn.Web
             app.UseHttpsRedirection();
             app.UseRouting();
 
-            app.UseStatusCodePagesWithRedirects("/Error/Index?statusCode={0}");
+            //app.UseStatusCodePagesWithRedirects("/Error/Index?statusCode={0}");
 
             app.UseAuthentication();
             app.UseAuthorization();

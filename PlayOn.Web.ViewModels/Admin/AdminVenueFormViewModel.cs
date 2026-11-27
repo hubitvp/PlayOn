@@ -51,9 +51,6 @@ namespace PlayOn.Web.ViewModels.Admin
         [Display(Name = "Venue closes at")]
         public TimeOnly ClosesAt { get; set; }
 
-        [StringLength(PhotoUrlMaxLength)]
-        [Display(Name = "Photo address (optional)")]
-        public string? PhotoUrl { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

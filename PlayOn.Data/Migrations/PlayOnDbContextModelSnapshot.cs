@@ -282,7 +282,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Courts", (string)null);
+                    b.ToTable("Courts");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.CourtSport", b =>
@@ -297,7 +297,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("SportId");
 
-                    b.ToTable("CourtSports", (string)null);
+                    b.ToTable("CourtSports");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Event", b =>
@@ -326,7 +326,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("CourtId", "SportId");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Match", b =>
@@ -389,7 +389,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("OrganiserId");
 
-                    b.ToTable("Matches", (string)null);
+                    b.ToTable("Matches");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.MatchParticipant", b =>
@@ -422,7 +422,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("MatchParticipants", (string)null);
+                    b.ToTable("MatchParticipants");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Notification", b =>
@@ -457,7 +457,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications", (string)null);
+                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.PlayerRating", b =>
@@ -493,7 +493,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("RaterId");
 
-                    b.ToTable("PlayerRatings", (string)null);
+                    b.ToTable("PlayerRatings");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Sport", b =>
@@ -521,7 +521,7 @@ namespace PlayOn.Data.Migrations
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Sports", (string)null);
+                    b.ToTable("Sports");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.SportPreference", b =>
@@ -539,7 +539,7 @@ namespace PlayOn.Data.Migrations
 
                     b.HasIndex("SportId");
 
-                    b.ToTable("SportPreferences", (string)null);
+                    b.ToTable("SportPreferences");
                 });
 
             modelBuilder.Entity("PlayOn.Data.Models.Venue", b =>
@@ -583,16 +583,12 @@ namespace PlayOn.Data.Migrations
                     b.Property<TimeOnly>("OpensAt")
                         .HasColumnType("time");
 
-                    b.Property<string>("PhotoUrl")
-                        .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)");
-
                     b.Property<TimeOnly>("StartsAt")
                         .HasColumnType("time");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Venues", (string)null);
+                    b.ToTable("Venues");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

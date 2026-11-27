@@ -44,8 +44,6 @@ namespace PlayOn.Data.Models
         [Required]
         public TimeOnly ClosesAt { get; set; }
 
-        [MaxLength(PhotoUrlMaxLength)]
-        public string? PhotoUrl { get; set; }
 
         [Required]
         public bool IsDeleted { get; set; }

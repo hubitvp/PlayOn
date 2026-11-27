@@ -39,7 +39,6 @@ namespace PlayOn.Data.Seeding
         string City,
         decimal Latitude,
         decimal Longitude,
-        string? PhotoUrl,
         TimeOnly OpensAt,
         TimeOnly ClosesAt,
         bool IsDeleted);
