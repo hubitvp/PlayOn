@@ -13,11 +13,24 @@ using System.Text.Json.Serialization;
 
 namespace PlayOn.Data.Seeding
 {
+    /// <summary>
+    /// Seeds the database with roles, demo users and sample data (sports, venues, courts, matches, events, participants, notifications and ratings).
+    /// </summary>
+    /// <remarks>
+    /// The data comes from a JSON seed file (<c>playon-seed.json</c>) that is created from built-in defaults on the first run and kept between runs.
+    /// The file contains the randomly generated passwords of the demo accounts in plain text, so it is intended for development and demo environments only.
+    /// </remarks>
     public static class PlayOnDataSeeder
     {
+        /// <summary>
+        /// Characters used when generating random passwords: Latin letters (upper and lower case) and digits.
+        /// </summary>
         private const string AlphanumericChars =
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
+        /// <summary>
+        /// JSON options for reading and writing the seed file: indented output, case-insensitive property names, relaxed escaping (so non-Latin text such as Cyrillic stays readable) and enums written as strings.
+        /// </summary>
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             WriteIndented = true,
@@ -26,6 +39,11 @@ namespace PlayOn.Data.Seeding
             Converters = { new JsonStringEnumConverter() }
         };
 
+        /// <summary>
+        /// Generates a random alphanumeric password using a cryptographically secure random number generator. It always contains at least one uppercase letter, one lowercase letter and one digit, and its characters are shuffled.
+        /// </summary>
+        /// <param name="length">Total length of the password; at least 3 characters are produced. Defaults to 14.</param>
+        /// <returns>The generated password.</returns>
         private static string GenerateAlphanumericPassword(int length = 14)
         {
             var upper = RandomNumberGenerator.GetItems("ABCDEFGHIJKLMNOPQRSTUVWXYZ".AsSpan(), 1)[0];
@@ -38,6 +56,16 @@ namespace PlayOn.Data.Seeding
             return new string(chars);
         }
 
+        /// <summary>
+        /// Seeds the database using repositories created over the given context. Convenience overload that creates a repository for every entity and delegates to the repository-based overload.
+        /// </summary>
+        /// <param name="context">The database context used to create the repositories.</param>
+        /// <param name="userManager">Manager used to create users and assign roles.</param>
+        /// <param name="roleManager">Manager used to create roles.</param>
+        /// <param name="hostEnvironment">The hosting environment, used to locate the content root for the default seed file.</param>
+        /// <param name="jsonFilePath">Optional path of the seed JSON file; defaults to <c>SeedData/playon-seed.json</c> under the content root.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="context"/> is <c>null</c>.</exception>
         public static async Task SeedAsync(
             PlayOnDbContext context,
             UserManager<ApplicationUser> userManager,
@@ -77,6 +105,25 @@ namespace PlayOn.Data.Seeding
                 cancellationToken);
         }
 
+        /// <summary>
+        /// Seeds the database with roles, users and sample data. It loads (or creates) the JSON seed bundle and then seeds roles, users, sports, venues, courts, sport preferences, court-sport mappings, matches, events, participants, notifications and player ratings, in dependency order. Seeding can be run repeatedly: entries that already exist are skipped.
+        /// </summary>
+        /// <param name="sportRepository">Repository used to access sports.</param>
+        /// <param name="venueRepository">Repository used to access venues.</param>
+        /// <param name="courtRepository">Repository used to access courts.</param>
+        /// <param name="sportPreferenceRepository">Repository used to access sport preferences.</param>
+        /// <param name="courtSportRepository">Repository used to access court-sport mappings.</param>
+        /// <param name="matchRepository">Repository used to access matches.</param>
+        /// <param name="eventRepository">Repository used to access events.</param>
+        /// <param name="matchParticipantRepository">Repository used to access match participants.</param>
+        /// <param name="notificationRepository">Repository used to access notifications.</param>
+        /// <param name="playerRatingRepository">Repository used to access player ratings.</param>
+        /// <param name="userManager">Manager used to create users and assign roles.</param>
+        /// <param name="roleManager">Manager used to create roles.</param>
+        /// <param name="hostEnvironment">The hosting environment, used to locate the content root for the default seed file.</param>
+        /// <param name="jsonFilePath">Optional path of the seed JSON file; defaults to <c>SeedData/playon-seed.json</c> under the content root.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
+        /// <exception cref="ArgumentNullException">Thrown when a required argument is <c>null</c>.</exception>
         public static async Task SeedAsync(
             IRepository<Sport> sportRepository,
             IRepository<Venue> venueRepository,
@@ -131,6 +178,13 @@ namespace PlayOn.Data.Seeding
             await SeedPlayerRatingsAsync(playerRatingRepository, matchesByTitle, usersByEmail, bundle.PlayerRatings, cancellationToken);
         }
 
+        /// <summary>
+        /// Registers a (match, user) key in the set of known keys.
+        /// </summary>
+        /// <param name="matchId">Identifier of the match.</param>
+        /// <param name="userId">Identifier of the user.</param>
+        /// <param name="knownIds">The set of (match, user) keys already registered; the new key is added to it.</param>
+        /// <returns><c>true</c> if the key was added; <c>false</c> if an identifier is empty or the key is already registered.</returns>
         private static bool TryRegisterGuid(Guid matchId, Guid userId, HashSet<(Guid, Guid)> knownIds)
         {
             if (matchId == Guid.Empty || userId == Guid.Empty)
@@ -141,6 +195,12 @@ namespace PlayOn.Data.Seeding
             return knownIds.Add((matchId, userId));
         }
 
+        /// <summary>
+        /// Registers an identifier in the set of known identifiers.
+        /// </summary>
+        /// <param name="id">The identifier to register.</param>
+        /// <param name="knownIds">The set of identifiers already registered; the new identifier is added to it.</param>
+        /// <returns><c>true</c> if the identifier was added; <c>false</c> if it is empty or already registered.</returns>
         private static bool TryRegisterGuid(Guid id, HashSet<Guid> knownIds)
         {
             if (id == Guid.Empty)
@@ -152,6 +212,14 @@ namespace PlayOn.Data.Seeding
         }
 
 
+        /// <summary>
+        /// Registers a (match, rater, rated user) key in the set of known keys.
+        /// </summary>
+        /// <param name="matchId">Identifier of the match.</param>
+        /// <param name="raterId">Identifier of the user giving the rating.</param>
+        /// <param name="ratedUserId">Identifier of the user being rated.</param>
+        /// <param name="knownIds">The set of (match, rater, rated user) keys already registered; the new key is added to it.</param>
+        /// <returns><c>true</c> if the key was added; <c>false</c> if an identifier is empty or the key is already registered.</returns>
         private static bool TryRegisterGuid(Guid matchId, Guid raterId, Guid ratedUserId, HashSet<(Guid, Guid, Guid)> knownIds)
         {
             if (matchId == Guid.Empty || raterId == Guid.Empty || ratedUserId == Guid.Empty)
@@ -164,6 +232,12 @@ namespace PlayOn.Data.Seeding
 
 
 
+        /// <summary>
+        /// Loads the seed bundle from the JSON file or creates it from the built-in defaults. When the file exists and contains data, the defaults are merged in (new demo users, missing sections and the generated six-month demo data) and the file is written back. Otherwise, including when the file cannot be parsed, the default bundle is created and written to the file.
+        /// </summary>
+        /// <param name="filePath">Path of the seed JSON file.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
+        /// <returns>The seed bundle to use.</returns>
         private static async Task<SeedDataBundle> LoadOrCreateSeedBundleAsync(
             string filePath,
             CancellationToken cancellationToken)
@@ -236,6 +310,12 @@ namespace PlayOn.Data.Seeding
             return defaultBundle;
         }
 
+        /// <summary>
+        /// Writes the seed bundle to the given JSON file, creating its directory if needed. An existing file is overwritten.
+        /// </summary>
+        /// <param name="filePath">Path of the seed JSON file.</param>
+        /// <param name="bundle">The seed data bundle.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
         private static async Task WriteSeedBundleAsync(
             string filePath,
             SeedDataBundle bundle,
@@ -251,6 +331,10 @@ namespace PlayOn.Data.Seeding
             await JsonSerializer.SerializeAsync(writeStream, bundle, JsonOptions, cancellationToken);
         }
 
+        /// <summary>
+        /// Creates the built-in seed bundle: roles, demo users (with randomly generated passwords), sports, venues, sport preferences, courts, court-sport mappings, matches, events, participants, notifications and ratings, plus the generated six-month demo data.
+        /// </summary>
+        /// <returns>The default seed bundle.</returns>
         private static SeedDataBundle CreateDefaultSeedBundle()
         {
             var bundle = new SeedDataBundle
@@ -519,6 +603,10 @@ namespace PlayOn.Data.Seeding
             return bundle;
         }
 
+        /// <summary>
+        /// Extends the bundle with generated demo data so that every account has player-facing sample data: sport preferences, upcoming matches scheduled twice a week for the next six months (each with its own venue and event), shared community, waitlist and cancelled matches, completed history matches with attendance and ratings, and notifications. It can be run repeatedly: existing titles are preserved and no new future schedule is generated once enough demo matches exist.
+        /// </summary>
+        /// <param name="bundle">The bundle to extend with demo data.</param>
         private static void AddSixMonthDemoData(SeedDataBundle bundle)
         {
             // Every account in the seed bundle receives player-facing sample data,
@@ -803,6 +891,13 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Makes sure every user organises at least one match by generating an upcoming match, with its venue and event, for each user who has none.
+        /// </summary>
+        /// <param name="bundle">The seed data bundle.</param>
+        /// <param name="users">The seed users.</param>
+        /// <param name="sports">The seed sports.</param>
+        /// <param name="futureSlots">Available future date and time slots.</param>
         private static void EnsureEachUserHasCreatedMatch(
             SeedDataBundle bundle,
             IReadOnlyList<SeedUserDto> users,
@@ -879,6 +974,11 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Gets the approximate coordinates of a known city; unknown cities default to the coordinates of Sofia.
+        /// </summary>
+        /// <param name="city">Name of the city.</param>
+        /// <returns>The latitude and longitude of the city.</returns>
         private static (decimal Latitude, decimal Longitude) GetCityCoordinates(string city)
         {
             return city.ToLowerInvariant() switch
@@ -892,6 +992,15 @@ namespace PlayOn.Data.Seeding
             };
         }
 
+        /// <summary>
+        /// Adds every user to the match with the given status, skipping users who are already participants.
+        /// </summary>
+        /// <param name="bundle">The seed data bundle.</param>
+        /// <param name="matchTitle">Title of the match.</param>
+        /// <param name="users">The users to add as participants.</param>
+        /// <param name="status">Participation status to assign.</param>
+        /// <param name="joinedOn">Date and time the users joined the match.</param>
+        /// <param name="statusChangedOn">Date and time the status last changed.</param>
         private static void AddParticipants(
             SeedDataBundle bundle,
             string matchTitle,
@@ -917,6 +1026,14 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Adds every user to the match: the users at the given indexes as joined and all others as waitlisted. Users who are already participants are skipped.
+        /// </summary>
+        /// <param name="bundle">The seed data bundle.</param>
+        /// <param name="matchTitle">Title of the match.</param>
+        /// <param name="users">The users to add as participants.</param>
+        /// <param name="joinedIndexes">Indexes (in the users list) of the users who get a place in the match; everyone else is waitlisted.</param>
+        /// <param name="now">The reference date and time used to compute the participation dates.</param>
         private static void AddWaitlistParticipants(
             SeedDataBundle bundle,
             string matchTitle,
@@ -945,6 +1062,12 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Adds ratings between users arranged in a circle (each user rates the next one) with scores that vary by position. Does nothing for fewer than two users.
+        /// </summary>
+        /// <param name="bundle">The seed data bundle.</param>
+        /// <param name="matchTitle">Title of the match the ratings are for.</param>
+        /// <param name="users">The users arranged in a circle.</param>
         private static void AddCyclicRatings(
             SeedDataBundle bundle,
             string matchTitle,
@@ -964,6 +1087,14 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Adds a rating unless one already exists for the same match, rater and rated user.
+        /// </summary>
+        /// <param name="bundle">The seed data bundle.</param>
+        /// <param name="matchTitle">Title of the match the rating is for.</param>
+        /// <param name="raterEmail">Email address of the user giving the rating.</param>
+        /// <param name="ratedEmail">Email address of the user being rated.</param>
+        /// <param name="score">Score of the rating.</param>
         private static void AddRatingIfMissing(
             SeedDataBundle bundle,
             string matchTitle,
@@ -985,6 +1116,15 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Adds an unread notification unless one of the same type already exists for the user and match.
+        /// </summary>
+        /// <param name="bundle">The seed data bundle.</param>
+        /// <param name="userEmail">Email address of the user.</param>
+        /// <param name="type">Type of the notification.</param>
+        /// <param name="message">Text of the notification.</param>
+        /// <param name="matchTitle">Title of the match the notification relates to.</param>
+        /// <param name="createdOn">Date and time the notification was created.</param>
         private static void AddNotificationIfMissing(
             SeedDataBundle bundle,
             string userEmail,
@@ -1008,6 +1148,13 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Creates the given roles that do not exist yet.
+        /// </summary>
+        /// <param name="roleManager">Manager used to create roles.</param>
+        /// <param name="roles">Names of the roles to create.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
+        /// <exception cref="InvalidOperationException">Thrown when a role cannot be created.</exception>
         private static async Task SeedRolesAsync(
             RoleManager<ApplicationRole> roleManager,
             IReadOnlyList<string> roles,
@@ -1034,6 +1181,14 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Creates the seed users that do not exist yet (with a confirmed email and lockout disabled) and assigns their roles. A user that does not exist and has no password is skipped.
+        /// </summary>
+        /// <param name="userManager">Manager used to create users and assign roles.</param>
+        /// <param name="seedUsers">The users to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
+        /// <returns>The users keyed by email address (case-insensitive).</returns>
+        /// <exception cref="InvalidOperationException">Thrown when a user cannot be created or a role cannot be assigned.</exception>
         private static async Task<Dictionary<string, ApplicationUser>> SeedUsersAndRolesAsync(
             UserManager<ApplicationUser> userManager,
             IReadOnlyList<SeedUserDto> seedUsers,
@@ -1106,6 +1261,13 @@ namespace PlayOn.Data.Seeding
             return resultMap;
         }
 
+        /// <summary>
+        /// Adds the sports that do not exist yet (matched by name).
+        /// </summary>
+        /// <param name="sportRepository">Repository used to access sports.</param>
+        /// <param name="seedSports">The sports to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
+        /// <returns>All sports keyed by name (case-insensitive).</returns>
         private static async Task<Dictionary<string, Sport>> SeedSportsAsync(
             IRepository<Sport> sportRepository,
             IReadOnlyList<SeedSportDto> seedSports,
@@ -1151,6 +1313,13 @@ namespace PlayOn.Data.Seeding
             return map;
         }
 
+        /// <summary>
+        /// Adds the venues that do not exist yet (matched by name, address, city, date and start time).
+        /// </summary>
+        /// <param name="venueRepository">Repository used to access venues.</param>
+        /// <param name="seedVenues">The venues to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
+        /// <returns>The venues in the order of the seed venue list, so that events can refer to them by position.</returns>
         private static async Task<List<Venue>> SeedVenuesAsync(
             IRepository<Venue> venueRepository,
             IReadOnlyList<SeedVenueDto> seedVenues,
@@ -1206,6 +1375,14 @@ namespace PlayOn.Data.Seeding
             return ordered;
         }
 
+        /// <summary>
+        /// Adds the user sport preferences that do not exist yet. Entries whose user or sport cannot be resolved are skipped.
+        /// </summary>
+        /// <param name="sportPreferenceRepository">Repository used to access sport preferences.</param>
+        /// <param name="usersByEmail">Users keyed by email address.</param>
+        /// <param name="sportsByName">Sports keyed by name.</param>
+        /// <param name="preferences">The sport preferences to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
         private static async Task SeedSportPreferencesAsync(
             IRepository<SportPreference> sportPreferenceRepository,
             Dictionary<string, ApplicationUser> usersByEmail,
@@ -1257,6 +1434,13 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Adds the courts that do not exist yet (matched by name).
+        /// </summary>
+        /// <param name="courtRepository">Repository used to access courts.</param>
+        /// <param name="seedCourts">The courts to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
+        /// <returns>All courts keyed by name (case-insensitive).</returns>
         private static async Task<Dictionary<string, Court>> SeedCourtsAsync(
             IRepository<Court> courtRepository,
             IReadOnlyList<SeedCourtDto> seedCourts,
@@ -1302,6 +1486,14 @@ namespace PlayOn.Data.Seeding
             return map;
         }
 
+        /// <summary>
+        /// Adds the court-sport mappings that do not exist yet. Entries whose court or sport cannot be resolved are skipped.
+        /// </summary>
+        /// <param name="courtSportRepository">Repository used to access court-sport mappings.</param>
+        /// <param name="courtsByName">Courts keyed by name.</param>
+        /// <param name="sportsByName">Sports keyed by name.</param>
+        /// <param name="pairs">The court-sport mappings to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
         private static async Task SeedCourtSportsAsync(
             IRepository<CourtSport> courtSportRepository,
             Dictionary<string, Court> courtsByName,
@@ -1352,6 +1544,14 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Adds the matches that do not exist yet (matched by title). Matches whose organiser cannot be resolved are skipped.
+        /// </summary>
+        /// <param name="matchRepository">Repository used to access matches.</param>
+        /// <param name="usersByEmail">Users keyed by email address.</param>
+        /// <param name="seedMatches">The matches to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
+        /// <returns>All matches keyed by title (case-insensitive).</returns>
         private static async Task<Dictionary<string, Match>> SeedMatchesAsync(
             IRepository<Match> matchRepository,
             Dictionary<string, ApplicationUser> usersByEmail,
@@ -1406,6 +1606,16 @@ namespace PlayOn.Data.Seeding
             return map;
         }
 
+        /// <summary>
+        /// Adds the events that link matches to a sport, a court and a venue (the venue is picked by its position in the venue list). Events that cannot be resolved, that already exist or whose venue is already used by another event are skipped.
+        /// </summary>
+        /// <param name="eventRepository">Repository used to access events.</param>
+        /// <param name="matchesByTitle">Matches keyed by title.</param>
+        /// <param name="courtsByName">Courts keyed by name.</param>
+        /// <param name="sportsByName">Sports keyed by name.</param>
+        /// <param name="venues">The persisted venues, in the order of the seed venue list; events refer to them by position.</param>
+        /// <param name="seedEvents">The events to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
         private static async Task SeedEventsAsync(
             IRepository<Event> eventRepository,
             Dictionary<string, Match> matchesByTitle,
@@ -1488,6 +1698,14 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Adds the match participants that do not exist yet. Entries whose match or user cannot be resolved are skipped.
+        /// </summary>
+        /// <param name="matchParticipantRepository">Repository used to access match participants.</param>
+        /// <param name="matchesByTitle">Matches keyed by title.</param>
+        /// <param name="usersByEmail">Users keyed by email address.</param>
+        /// <param name="seedParticipants">The participants to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
         private static async Task SeedMatchParticipantsAsync(
             IRepository<MatchParticipant> matchParticipantRepository,
             Dictionary<string, Match> matchesByTitle,
@@ -1548,6 +1766,14 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Adds the notifications that do not exist yet. Entries whose user or match cannot be resolved are skipped.
+        /// </summary>
+        /// <param name="notificationRepository">Repository used to access notifications.</param>
+        /// <param name="matchesByTitle">Matches keyed by title.</param>
+        /// <param name="usersByEmail">Users keyed by email address.</param>
+        /// <param name="seedNotifications">The notifications to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
         private static async Task SeedNotificationsAsync(
             IRepository<Notification> notificationRepository,
             Dictionary<string, Match> matchesByTitle,
@@ -1607,6 +1833,14 @@ namespace PlayOn.Data.Seeding
             }
         }
 
+        /// <summary>
+        /// Adds the player ratings that do not exist yet. Entries whose match, rater or rated user cannot be resolved are skipped.
+        /// </summary>
+        /// <param name="playerRatingRepository">Repository used to access player ratings.</param>
+        /// <param name="matchesByTitle">Matches keyed by title.</param>
+        /// <param name="usersByEmail">Users keyed by email address.</param>
+        /// <param name="seedRatings">The ratings to seed.</param>
+        /// <param name="cancellationToken">A token to observe while waiting for the operation to complete.</param>
         private static async Task SeedPlayerRatingsAsync(
             IRepository<PlayerRating> playerRatingRepository,
             Dictionary<string, Match> matchesByTitle,
