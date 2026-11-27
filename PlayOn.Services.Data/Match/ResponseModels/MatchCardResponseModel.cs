@@ -2,22 +2,70 @@
 
 namespace PlayOn.Services.Data.Match.ResponseModels
 {
+    /// <summary>
+    /// Summary card of a match shown in match lists.
+    /// </summary>
     public class MatchCardResponseModel
     {
+        /// <summary>
+        /// Unique identifier of the match.
+        /// </summary>
         public required Guid Id { get; init; }
+        /// <summary>
+        /// Title of the match.
+        /// </summary>
         public required string Title { get; init; }
+        /// <summary>
+        /// Name of the sport.
+        /// </summary>
         public required string SportName { get; init; }
+        /// <summary>
+        /// Icon representing the sport.
+        /// </summary>
         public required SportIcon SportIcon { get; init; }
+        /// <summary>
+        /// Name of the venue.
+        /// </summary>
         public required string VenueName { get; init; }
+        /// <summary>
+        /// City in which the venue is located.
+        /// </summary>
         public required string City { get; init; } = null!;
+        /// <summary>
+        /// Date on which the match takes place.
+        /// </summary>
         public required DateOnly Date { get; init; }
+        /// <summary>
+        /// Time the match starts.
+        /// </summary>
         public required TimeOnly StartsAt { get; init; }
+        /// <summary>
+        /// Duration of the match in minutes.
+        /// </summary>
         public required int DurationMinutes { get; init; }
+        /// <summary>
+        /// Number of players who have joined the match.
+        /// </summary>
         public required int Joined { get; init; }
+        /// <summary>
+        /// Maximum number of players allowed to join the match.
+        /// </summary>
         public required int MaxPlayers { get; init; }
+        /// <summary>
+        /// Number of players on the waiting list of the match.
+        /// </summary>
         public required int Waitlisted { get; init; }
+        /// <summary>
+        /// Minimum skill level required to join the match.
+        /// </summary>
         public required SkillLevel? MinSkill { get; init; }
+        /// <summary>
+        /// Price each player pays to join the match.
+        /// </summary>
         public required decimal PricePerPlayer { get; init; }
+        /// <summary>
+        /// Current status of the match.
+        /// </summary>
         public required MatchStatus Status { get; init; }
     }
 }
