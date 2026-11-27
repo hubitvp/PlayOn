@@ -4,8 +4,15 @@ using PlayOn.Data.Models;
 
 namespace PlayOn.Data.Configurations
 {
+    /// <summary>
+    /// Entity Framework Core configuration for the <see cref="SportPreference"/> entity.
+    /// </summary>
     public class SportPreferenceConfiguration : IEntityTypeConfiguration<SportPreference>
     {
+        /// <summary>
+        /// Configures the <see cref="SportPreference"/> entity: defines the composite primary key (user and sport) and the relationships to <see cref="ApplicationUser"/> and <see cref="Sport"/>, using restricted delete behavior.
+        /// </summary>
+        /// <param name="builder">The builder used to configure the <see cref="SportPreference"/> entity type.</param>
         public void Configure(EntityTypeBuilder<SportPreference> builder)
         {
             builder.HasKey(x => new { x.UserId, x.SportId });

@@ -4,8 +4,15 @@ using PlayOn.Data.Models;
 
 namespace PlayOn.Data.Configurations
 {
+    /// <summary>
+    /// Entity Framework Core configuration for the <see cref="Event"/> entity.
+    /// </summary>
     public class EventConfiguration : IEntityTypeConfiguration<Event>
     {
+        /// <summary>
+        /// Configures the <see cref="Event"/> entity: defines the composite primary key (match, sport, court and venue), the one-to-one relationships with <see cref="Match"/> and <see cref="Venue"/>, the relationships with <see cref="Sport"/>, <see cref="Court"/> and <see cref="CourtSport"/>, all with restricted delete behavior.
+        /// </summary>
+        /// <param name="builder">The builder used to configure the <see cref="Event"/> entity type.</param>
         public void Configure(EntityTypeBuilder<Event> builder)
         {
             builder

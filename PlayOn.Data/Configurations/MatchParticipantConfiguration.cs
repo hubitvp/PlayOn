@@ -4,8 +4,15 @@ using PlayOn.Data.Models;
 
 namespace PlayOn.Data.Configurations
 {
+    /// <summary>
+    /// Entity Framework Core configuration for the <see cref="MatchParticipant"/> entity.
+    /// </summary>
     public class MatchParticipantConfiguration : IEntityTypeConfiguration<MatchParticipant>
     {
+        /// <summary>
+        /// Configures the <see cref="MatchParticipant"/> entity: defines the composite primary key (match and user) and the relationships to <see cref="Match"/> and <see cref="ApplicationUser"/>, using restricted delete behavior.
+        /// </summary>
+        /// <param name="builder">The builder used to configure the <see cref="MatchParticipant"/> entity type.</param>
         public void Configure(EntityTypeBuilder<MatchParticipant> builder)
         {
 
