@@ -187,11 +187,45 @@ namespace PlayOn.Data.Seeding
             {
                 var defaults = CreateDefaultSeedBundle();
 
+                var hadMatches = loaded.Matches.Count > 0;
+                var hadVenues = loaded.Venues.Count > 0;
+
+                // Merge newly introduced demo accounts into an existing JSON bundle.
+                // This matters because playon-seed.json is persisted after its first run.
+                var knownUserEmails = loaded.Users
+                    .Select(x => x.Email)
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                loaded.Users.AddRange(defaults.Users.Where(x =>
+                    !string.IsNullOrWhiteSpace(x.Email) && knownUserEmails.Add(x.Email)));
                 if (loaded.Sports.Count == 0) loaded.Sports = defaults.Sports;
-                if (loaded.Venues.Count == 0) loaded.Venues = defaults.Venues;
+                if (loaded.Venues.Count == 0)
+                {
+                    // Copy only the original venue catalogue. The default bundle also
+                    // contains generated PlayOn venues, which are added below.
+                    loaded.Venues = defaults.Venues
+                        .Where(x => !x.Name.StartsWith("PlayOn ", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                }
+                if (loaded.Courts.Count == 0) loaded.Courts = defaults.Courts;
                 if (loaded.SportPreferences.Count == 0) loaded.SportPreferences = defaults.SportPreferences;
                 if (loaded.CourtSports.Count == 0) loaded.CourtSports = defaults.CourtSports;
-                if (loaded.Events.Count == 0) loaded.Events = defaults.Events;
+
+                if (!hadMatches)
+                {
+                    loaded.Matches = defaults.Matches
+                        .Where(x => !x.Title.StartsWith("PlayOn ", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    if (loaded.Events.Count == 0 && !hadVenues)
+                    {
+                        // These event indexes correspond to the original venue catalogue.
+                        loaded.Events = defaults.Events;
+                    }
+                }
+
+                // Do not copy defaults.Events into an existing venue list: VenueIndex is
+                // positional, so those indexes would point at unrelated venues.
+                AddSixMonthDemoData(loaded);
 
                 await WriteSeedBundleAsync(filePath, loaded, cancellationToken);
                 return loaded;
@@ -217,10 +251,12 @@ namespace PlayOn.Data.Seeding
             await JsonSerializer.SerializeAsync(writeStream, bundle, JsonOptions, cancellationToken);
         }
 
-        private static SeedDataBundle CreateDefaultSeedBundle() => new()
+        private static SeedDataBundle CreateDefaultSeedBundle()
         {
-            Roles = RoleNames.All.ToList(),
-            Users =
+            var bundle = new SeedDataBundle
+            {
+                Roles = RoleNames.All.ToList(),
+                Users =
             [
                 new("alex.morgan@example.com","alex.morgan@example.com", "Alex Morgan", "Alex Morgan", "бул. Витоша 45", new DateOnly(2025, 1, 1), "Sofia", true, 100, 4, RoleNames.User, GenerateAlphanumericPassword()),
                 new("jordan.lee@example.com","jordan.lee@example.com", "Jordan Lee", "Jordan Lee", "ул. Иван Вазов 12", new DateOnly(2025, 1, 1), "Plovdiv", true, 100, 3, RoleNames.User, GenerateAlphanumericPassword()),
@@ -232,11 +268,21 @@ namespace PlayOn.Data.Seeding
                 new("jamie.davis@example.com","jamie.davis@example.com", "Jamie Davis", "Jamie Davis", "ул. Христо Г. Данов 27", new DateOnly(2025, 1, 1), "Plovdiv", true, 0, 0, RoleNames.User, GenerateAlphanumericPassword()),
                 new("quinn.clark@example.com","quinn.clark@example.com", "Quinn Clark", "Quinn Clark", "ул. Преслав 16", new DateOnly(2025, 1, 1), "Varna", true, 100, 4, RoleNames.User, GenerateAlphanumericPassword()),
                 new("drew.hall@example.com", "drew.hall@example.com", "Drew Hall", "Drew Hall", "ул. Борисова 54", new DateOnly(2025, 1, 1), "Ruse", true, 100, 4, RoleNames.User, GenerateAlphanumericPassword()),
+                new("olivia.ross@example.com", "olivia.ross@example.com", "Olivia Ross", "Olivia Ross", "ул. Шипка 18", new DateOnly(2026, 1, 1), "Sofia", true, 100, 2, RoleNames.User, GenerateAlphanumericPassword()),
+                new("noah.wright@example.com", "noah.wright@example.com", "Noah Wright", "Noah Wright", "ул. Капитан Райчо 22", new DateOnly(2026, 1, 1), "Plovdiv", true, 100, 3, RoleNames.User, GenerateAlphanumericPassword()),
+                new("ava.mitchell@example.com", "ava.mitchell@example.com", "Ava Mitchell", "Ava Mitchell", "ул. Генерал Колев 31", new DateOnly(2026, 1, 1), "Varna", true, 100, 2, RoleNames.User, GenerateAlphanumericPassword()),
+                new("ethan.scott@example.com", "ethan.scott@example.com", "Ethan Scott", "Ethan Scott", "ул. Александровска 41", new DateOnly(2026, 1, 1), "Burgas", true, 100, 4, RoleNames.User, GenerateAlphanumericPassword()),
+                new("sophia.green@example.com", "sophia.green@example.com", "Sophia Green", "Sophia Green", "ул. Оборище 9", new DateOnly(2026, 1, 1), "Sofia", true, 100, 3, RoleNames.User, GenerateAlphanumericPassword()),
+                new("lucas.baker@example.com", "lucas.baker@example.com", "Lucas Baker", "Lucas Baker", "ул. Борисова 67", new DateOnly(2026, 1, 1), "Ruse", true, 100, 2, RoleNames.User, GenerateAlphanumericPassword()),
+                new("mia.turner@example.com", "mia.turner@example.com", "Mia Turner", "Mia Turner", "ул. Преслав 28", new DateOnly(2026, 1, 1), "Varna", true, 100, 3, RoleNames.User, GenerateAlphanumericPassword()),
+                new("mason.carter@example.com", "mason.carter@example.com", "Mason Carter", "Mason Carter", "ул. Христо Г. Данов 14", new DateOnly(2026, 1, 1), "Plovdiv", true, 100, 2, RoleNames.User, GenerateAlphanumericPassword()),
+                new("isabella.phillips@example.com", "isabella.phillips@example.com", "Isabella Phillips", "Isabella Phillips", "ул. Цар Асен 33", new DateOnly(2026, 1, 1), "Sofia", true, 100, 3, RoleNames.User, GenerateAlphanumericPassword()),
+                new("logan.parker@example.com", "logan.parker@example.com", "Logan Parker", "Logan Parker", "ул. Борисова 19", new DateOnly(2026, 1, 1), "Ruse", true, 100, 2, RoleNames.User, GenerateAlphanumericPassword()),
                 new("ivan.petrov@example.com","ivan.petrov@example.com", "Ivan Petrov", "Ivan Petrov", "бул. България 12", new DateOnly(2025, 1, 1), "Sofia", true, 100, 0, RoleNames.Administrator, GenerateAlphanumericPassword()),
                 new("maria.ivanova@example.com","maria.ivanova@example.com", "Maria Ivanova", "Maria Ivanova", "ул. Граф Игнатиев 28", new DateOnly(2025, 1, 1), "Plovdiv", true, 100, 0, RoleNames.Administrator, GenerateAlphanumericPassword()),
                 new("georgi.dimitrov@example.com","georgi.dimitrov@example.com", "Georgi Dimitrov", "Georgi Dimitrov", "ул. Александровска 15", new DateOnly(2025, 1, 1), "Varna", true, 100, 0, RoleNames.Administrator, GenerateAlphanumericPassword())
             ],
-            Sports =
+                Sports =
             [
                 new("Football", SportIcon.Football, 6, 22),
                 new("Basketball", SportIcon.Basketball, 4, 10),
@@ -249,7 +295,7 @@ namespace PlayOn.Data.Seeding
                 new("Hockey", SportIcon.HockeyPuck, 6, 22),
                 new("Baseball", SportIcon.Baseball, 6, 18)
             ],
-            Venues =
+                Venues =
             [
                 new(new DateOnly(2026, 10, 13), new TimeOnly(18, 0), "Central Sports Park", "1 Main Street", "Sofia", 42.697700m, 23.321900m,  new TimeOnly(7, 0), new TimeOnly(23, 0), false),
                 new(new DateOnly(2026, 10, 14), new TimeOnly(19, 0), "Eastside Arena", "12 East Boulevard", "Plovdiv", 42.135400m, 24.745300m,  new TimeOnly(8, 0), new TimeOnly(22, 0), false),
@@ -274,7 +320,7 @@ namespace PlayOn.Data.Seeding
                 new(new DateOnly(2026, 12, 3), new TimeOnly(18, 0), "Danube Sports Hub", "16 Harbor Avenue", "Ruse", 43.848000m, 25.960000m, new TimeOnly(8, 30), new TimeOnly(22, 30), false),
                 new(new DateOnly(2026, 12, 5), new TimeOnly(15, 0), "West End Club", "44 West Street", "Sofia", 42.705000m, 23.270000m, new TimeOnly(9, 0), new TimeOnly(22, 0), false)
             ],
-            SportPreferences =
+                SportPreferences =
             [
                 new("alex.morgan@example.com", "Football", SkillLevel.Intermediate),
                 new("jordan.lee@example.com", "Basketball", SkillLevel.Advanced),
@@ -296,7 +342,7 @@ namespace PlayOn.Data.Seeding
                 new("quinn.clark@example.com", "Handball", SkillLevel.Intermediate),
                 new("drew.hall@example.com", "Handball", SkillLevel.Intermediate)
             ],
-            Courts =
+                Courts =
             [
                 new("Main Football Pitch", Surface.Artificial, 22, 80m),
                 new("Arena Basketball 1", Surface.Hardwood, 10, 45m),
@@ -309,7 +355,7 @@ namespace PlayOn.Data.Seeding
                 new("Green Hockey Field", Surface.Artificial, 22, 75m),
                 new("Danube Baseball Field", Surface.Grass, 18, 65m)
             ],
-            CourtSports =
+                CourtSports =
             [
                 new("Main Football Pitch", "Football"),
                 new("Arena Basketball 1", "Basketball"),
@@ -326,7 +372,7 @@ namespace PlayOn.Data.Seeding
                 new("Sea Handball Court", "Basketball"),
                 new("Main Football Pitch", "Hockey")
             ],
-            Matches =
+                Matches =
             [
                 new("Tuesday Evening Football", "alex.morgan@example.com", "Casual five-a-side football.", 90, 6, 22, SkillLevel.Beginner, SkillLevel.Advanced, 8m, MatchStatus.Completed, null),
                 new("Downtown Basketball", "jordan.lee@example.com", "Competitive five-on-five game.", 90, 4, 10, SkillLevel.Intermediate, SkillLevel.Advanced, 5m, MatchStatus.Completed, null),
@@ -344,7 +390,7 @@ namespace PlayOn.Data.Seeding
                 new("Padel Doubles Evening", "morgan.kim@example.com", "Four players, rotating partners.", 90, 4, 4, SkillLevel.Beginner, SkillLevel.Advanced, 9m, MatchStatus.Open, null),
                 new("Sunday Tennis Singles", "sam.taylor@example.com", "Friendly singles on clay, bring your racket.", 60, 2, 4, SkillLevel.Beginner, SkillLevel.Intermediate, 6m, MatchStatus.Confirmed, null)
             ],
-            Events =
+                Events =
             [
                 new("Tuesday Evening Football", "Football", "Main Football Pitch", 0),
                 new("Downtown Basketball", "Basketball", "Arena Basketball 1", 1),
@@ -362,7 +408,7 @@ namespace PlayOn.Data.Seeding
                 new("Padel Doubles Evening", "Padel", "Mountain Padel 1", 13),
                 new("Sunday Tennis Singles", "Tennis", "Riverside Tennis 1", 14)
             ],
-            MatchParticipants =
+                MatchParticipants =
             [
                 new("Tuesday Evening Football", "alex.morgan@example.com", ParticipantStatus.Attended, new DateTime(2026, 9, 29, 9, 0, 0), new DateTime(2026, 10, 13, 19, 30, 0), false),
                 new("Tuesday Evening Football", "jordan.lee@example.com", ParticipantStatus.Attended, new DateTime(2026, 10, 4, 0, 0, 0), new DateTime(2026, 10, 13, 19, 30, 0), false),
@@ -440,7 +486,7 @@ namespace PlayOn.Data.Seeding
                 new("Sunday Tennis Singles", "sam.taylor@example.com", ParticipantStatus.Joined, new DateTime(2026, 10, 20, 9, 0, 0), new DateTime(2026, 10, 20, 9, 0, 0), false),
                 new("Sunday Tennis Singles", "taylor.brown@example.com", ParticipantStatus.Joined, new DateTime(2026, 10, 30, 7, 0, 0), new DateTime(2026, 10, 30, 7, 0, 0), false)
             ],
-            Notifications =
+                Notifications =
             [
                 new("drew.hall@example.com", NotificationType.MatchCancelled, "Baseball Practice Game was cancelled: Venue maintenance.", "Baseball Practice Game", false, new DateTime(2026, 10, 30, 9, 0, 0)),
                 new("taylor.brown@example.com", NotificationType.MatchCancelled, "Baseball Practice Game was cancelled: Venue maintenance.", "Baseball Practice Game", false, new DateTime(2026, 10, 30, 9, 0, 0)),
@@ -453,7 +499,7 @@ namespace PlayOn.Data.Seeding
                 new("jordan.lee@example.com", NotificationType.RatingReceived, "Alex Morgan rated you 5/5 after Tuesday Evening Football.", "Tuesday Evening Football", true, new DateTime(2026, 10, 14, 1, 30, 0)),
                 new("alex.morgan@example.com", NotificationType.RatingReceived, "Jordan Lee rated you 3/5 after Downtown Basketball.", "Downtown Basketball", false, new DateTime(2026, 10, 15, 2, 30, 0))
             ],
-            PlayerRatings =
+                PlayerRatings =
             [
                 new("Tuesday Evening Football", "alex.morgan@example.com", "jordan.lee@example.com", 5, "Superb teammate, great energy."),
                 new("Tuesday Evening Football", "jordan.lee@example.com", "sam.taylor@example.com", 3, "Decent game, nothing special."),
@@ -466,7 +512,501 @@ namespace PlayOn.Data.Seeding
                 new("Beach Volleyball Morning", "sam.taylor@example.com", "morgan.kim@example.com", 5, "Superb teammate, great energy."),
                 new("Hockey Training Game", "quinn.clark@example.com", "taylor.brown@example.com", 5, "Superb teammate, great energy.")
             ]
-        };
+            };
+
+            AddSixMonthDemoData(bundle);
+
+            return bundle;
+        }
+
+        private static void AddSixMonthDemoData(SeedDataBundle bundle)
+        {
+            // Every account in the seed bundle receives player-facing sample data,
+            // including administrator accounts, so every seeded profile can be tested.
+            var users = bundle.Users
+                .Where(user => !string.IsNullOrWhiteSpace(user.Email))
+                .ToArray();
+
+            var sports = bundle.Sports.ToArray();
+            if (users.Length == 0 || sports.Length == 0 || bundle.Courts.Count == 0)
+            {
+                return;
+            }
+
+            // Give each account several sport preferences.
+            for (var userIndex = 0; userIndex < users.Length; userIndex++)
+            {
+                for (var offset = 0; offset < Math.Min(3, sports.Length); offset++)
+                {
+                    var sport = sports[(userIndex + offset) % sports.Length];
+                    if (!bundle.SportPreferences.Any(x =>
+                        string.Equals(x.UserEmail, users[userIndex].Email, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(x.SportName, sport.Name, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        bundle.SportPreferences.Add(new SeedSportPreferenceDto(
+                            users[userIndex].Email,
+                            sport.Name,
+                            (SkillLevel)((userIndex + offset) % Enum.GetValues<SkillLevel>().Length)));
+                    }
+                }
+            }
+
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var endDate = today.AddMonths(6);
+            var futureSlots = new List<(DateOnly Date, TimeOnly Time)>();
+
+            // Two events per week, up to (and never beyond) six months from today.
+            for (var week = 0; ; week++)
+            {
+                var firstDate = today.AddDays(1 + (week * 7));
+                if (firstDate > endDate)
+                {
+                    break;
+                }
+
+                futureSlots.Add((firstDate, new TimeOnly(18, 0)));
+
+                var secondDate = firstDate.AddDays(3);
+                if (secondDate <= endDate)
+                {
+                    futureSlots.Add((secondDate, new TimeOnly(10, 0)));
+                }
+            }
+
+            // The first thirteen future matches are organised by the thirteen
+            // seeded accounts. The next three provide shared upcoming, waitlist,
+            // and cancelled examples. Remaining slots broaden the match catalogue.
+            // The JSON bundle is persisted between application starts. Avoid
+            // appending another six-month schedule on every subsequent day.
+            var existingFutureDemoMatchCount = bundle.Matches.Count(x =>
+                x.Title.StartsWith("PlayOn ", StringComparison.OrdinalIgnoreCase) &&
+                !x.Title.StartsWith("PlayOn History ", StringComparison.OrdinalIgnoreCase));
+            var futureMatchCount = existingFutureDemoMatchCount >= 52
+                ? 0
+                : Math.Min(52, futureSlots.Count);
+            var football = sports.FirstOrDefault(x => x.Name.Equals("Football", StringComparison.OrdinalIgnoreCase)) ?? sports[0];
+            var tennis = sports.FirstOrDefault(x => x.Name.Equals("Tennis", StringComparison.OrdinalIgnoreCase)) ?? sports[0];
+
+            var communityTitle = "PlayOn Community Football Meetup";
+            var waitlistTitleA = "PlayOn Popular Tennis Session A";
+            var waitlistTitleB = "PlayOn Popular Tennis Session B";
+            var cancelledTitle = "PlayOn Cancelled Community Session";
+
+            for (var i = 0; i < futureMatchCount; i++)
+            {
+                var slot = futureSlots[i];
+                var city = users[i % users.Length].City;
+                var sport = i switch
+                {
+                    13 => football,
+                    14 or 15 => tennis,
+                    _ => sports[i % sports.Length]
+                };
+
+                var courtSport = bundle.CourtSports.FirstOrDefault(x =>
+                    x.SportName.Equals(sport.Name, StringComparison.OrdinalIgnoreCase));
+                if (courtSport is null)
+                {
+                    // A missing court/sport mapping should not produce an Event
+                    // that violates the Event -> CourtSport relationship.
+                    continue;
+                }
+
+                var organiser = users[i % users.Length];
+                var title = i switch
+                {
+                    13 => communityTitle,
+                    14 => waitlistTitleA,
+                    15 => waitlistTitleB,
+                    16 => cancelledTitle,
+                    _ when i < users.Length => $"PlayOn {organiser.DisplayName} Match {slot.Date:yyyyMMdd}",
+                    _ => $"PlayOn {sport.Name} Session {slot.Date:yyyyMMdd} {i + 1}"
+                };
+
+                // Preserve an existing title if this method is run again against
+                // a previously generated JSON bundle.
+                if (bundle.Matches.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                var isCancelled = title == cancelledTitle;
+                var isWaitlistMatch = title == waitlistTitleA || title == waitlistTitleB;
+                var maxPlayers = isWaitlistMatch
+                    ? 4
+                    : title == communityTitle || isCancelled
+                        ? Math.Max(22, sport.DefaultMaxPlayers)
+                        : Math.Max(sport.DefaultMinPlayers, sport.DefaultMaxPlayers);
+                var minPlayers = isWaitlistMatch
+                    ? 2
+                    : Math.Min(sport.DefaultMinPlayers, maxPlayers);
+                var status = isCancelled
+                    ? MatchStatus.Cancelled
+                    : (i % 3 == 0 ? MatchStatus.Confirmed : MatchStatus.Open);
+
+                bundle.Matches.Add(new SeedMatchDto(
+                    title,
+                    organiser.Email,
+                    isCancelled
+                        ? "This demo match was cancelled so the cancelled-match views can be tested."
+                        : $"Friendly {sport.Name.ToLowerInvariant()} session. All skill levels welcome.",
+                    90,
+                    minPlayers,
+                    maxPlayers,
+                    SkillLevel.Beginner,
+                    SkillLevel.Advanced,
+                    sport.Name.Equals("Football", StringComparison.OrdinalIgnoreCase) ? 8m : 6m,
+                    status,
+                    isCancelled ? "Organiser unavailable" : null));
+
+                var venueIndex = bundle.Venues.Count;
+                var (latitude, longitude) = GetCityCoordinates(city);
+                bundle.Venues.Add(new SeedVenueDto(
+                    slot.Date,
+                    slot.Time,
+                    $"PlayOn {city} Sports Centre {i + 1}",
+                    $"Sports Complex {i + 1}, {city}",
+                    city,
+                    latitude,
+                    longitude,
+                    new TimeOnly(7, 0),
+                    new TimeOnly(23, 0),
+                    false));
+
+                bundle.Events.Add(new SeedEventDto(
+                    title,
+                    sport.Name,
+                    courtSport.CourtName,
+                    venueIndex));
+            }
+
+            if (users.Length == 0)
+            {
+                return;
+            }
+
+            EnsureEachUserHasCreatedMatch(bundle, users, sports, futureSlots);
+
+            var now = DateTime.Now;
+
+            // All users join one upcoming match, so each account has an upcoming
+            // participation in addition to the match they organise themselves.
+            AddParticipants(
+                bundle,
+                communityTitle,
+                users,
+                ParticipantStatus.Joined,
+                now.AddDays(-2),
+                now.AddDays(-2));
+
+            // Two full tennis matches distribute waitlist membership across all
+            // accounts while keeping the four confirmed places within capacity.
+            AddWaitlistParticipants(bundle, waitlistTitleA, users, joinedIndexes: [0, 1, 2, 3], now);
+            AddWaitlistParticipants(bundle, waitlistTitleB, users, joinedIndexes: [4, 5, 6, 7], now);
+
+            // Every account appears on a cancelled match as a cancelled participant.
+            AddParticipants(
+                bundle,
+                cancelledTitle,
+                users,
+                ParticipantStatus.Cancelled,
+                now.AddDays(-5),
+                now.AddDays(-1));
+
+            // Add two completed matches with all seeded accounts in attendance.
+            var historyTitles = new[]
+            {
+                "PlayOn History Football",
+                "PlayOn History Rugby"
+            };
+            var historySports = new[] { football, sports.FirstOrDefault(x => x.Name.Equals("Rugby", StringComparison.OrdinalIgnoreCase)) ?? football };
+
+            for (var historyIndex = 0; historyIndex < historyTitles.Length; historyIndex++)
+            {
+                var title = historyTitles[historyIndex];
+                if (!bundle.Matches.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase)))
+                {
+                    var sport = historySports[historyIndex];
+                    var courtSport = bundle.CourtSports.FirstOrDefault(x =>
+                        x.SportName.Equals(sport.Name, StringComparison.OrdinalIgnoreCase));
+
+                    if (courtSport is not null)
+                    {
+                        var organiser = users[historyIndex % users.Length];
+                        bundle.Matches.Add(new SeedMatchDto(
+                            title,
+                            organiser.Email,
+                            "Completed demo match used for player history and rating examples.",
+                            90,
+                            Math.Min(sport.DefaultMinPlayers, sport.DefaultMaxPlayers),
+                            Math.Max(22, sport.DefaultMaxPlayers),
+                            SkillLevel.Beginner,
+                            SkillLevel.Advanced,
+                            7m,
+                            MatchStatus.Completed,
+                            null));
+
+                        var date = today.AddDays(historyIndex == 0 ? -14 : -35);
+                        var venueIndex = bundle.Venues.Count;
+                        var (latitude, longitude) = GetCityCoordinates(organiser.City);
+                        bundle.Venues.Add(new SeedVenueDto(
+                            date,
+                            new TimeOnly(18, 0),
+                            $"PlayOn History Venue {historyIndex + 1}",
+                            $"History Sports Ground {historyIndex + 1}, {organiser.City}",
+                            organiser.City,
+                            latitude,
+                            longitude,
+                            new TimeOnly(7, 0),
+                            new TimeOnly(23, 0),
+                            false));
+                        bundle.Events.Add(new SeedEventDto(title, sport.Name, courtSport.CourtName, venueIndex));
+                    }
+                }
+
+                AddParticipants(
+                    bundle,
+                    title,
+                    users,
+                    ParticipantStatus.Attended,
+                    now.AddDays(historyIndex == 0 ? -16 : -37),
+                    now.AddDays(historyIndex == 0 ? -14 : -35));
+
+                AddCyclicRatings(bundle, title, users);
+            }
+
+            // Give each account notifications for confirmation, cancellation,
+            // and a rating received. Existing notifications are retained.
+            foreach (var user in users)
+            {
+                AddNotificationIfMissing(
+                    bundle,
+                    user.Email,
+                    NotificationType.MatchConfirmed,
+                    "Your PlayOn Community Football Meetup is confirmed.",
+                    communityTitle,
+                    now.AddMinutes(-user.Email.Length));
+                AddNotificationIfMissing(
+                    bundle,
+                    user.Email,
+                    NotificationType.MatchCancelled,
+                    "PlayOn Cancelled Community Session was cancelled: Organiser unavailable.",
+                    cancelledTitle,
+                    now.AddMinutes(-30 - user.Email.Length));
+                AddNotificationIfMissing(
+                    bundle,
+                    user.Email,
+                    NotificationType.RatingReceived,
+                    "You received a player rating after a completed PlayOn match.",
+                    historyTitles[0],
+                    now.AddMinutes(-60 - user.Email.Length));
+            }
+        }
+
+        private static void EnsureEachUserHasCreatedMatch(
+            SeedDataBundle bundle,
+            IReadOnlyList<SeedUserDto> users,
+            IReadOnlyList<SeedSportDto> sports,
+            IReadOnlyList<(DateOnly Date, TimeOnly Time)> futureSlots)
+        {
+            if (futureSlots.Count == 0 || sports.Count == 0)
+            {
+                return;
+            }
+
+            var slotIndex = 0;
+
+            foreach (var user in users)
+            {
+                if (bundle.Matches.Any(x =>
+                    x.OrganiserEmail.Equals(user.Email, StringComparison.OrdinalIgnoreCase)))
+                {
+                    continue;
+                }
+
+                var sport = sports[slotIndex % sports.Count];
+                var courtSport = bundle.CourtSports.FirstOrDefault(x =>
+                    x.SportName.Equals(sport.Name, StringComparison.OrdinalIgnoreCase));
+
+                if (courtSport is null)
+                {
+                    slotIndex++;
+                    continue;
+                }
+
+                var slot = futureSlots[slotIndex % futureSlots.Count];
+                var title = $"PlayOn {user.DisplayName} Match {slot.Date:yyyyMMdd}";
+                var suffix = 2;
+                while (bundle.Matches.Any(x => x.Title.Equals(title, StringComparison.OrdinalIgnoreCase)))
+                {
+                    title = $"PlayOn {user.DisplayName} Match {slot.Date:yyyyMMdd} ({suffix++})";
+                }
+
+                bundle.Matches.Add(new SeedMatchDto(
+                    title,
+                    user.Email,
+                    $"Friendly {sport.Name.ToLowerInvariant()} session organised by {user.DisplayName}.",
+                    90,
+                    sport.DefaultMinPlayers,
+                    sport.DefaultMaxPlayers,
+                    SkillLevel.Beginner,
+                    SkillLevel.Advanced,
+                    sport.Name.Equals("Football", StringComparison.OrdinalIgnoreCase) ? 8m : 6m,
+                    MatchStatus.Open,
+                    null));
+
+                var (latitude, longitude) = GetCityCoordinates(user.City);
+                var venueIndex = bundle.Venues.Count;
+                bundle.Venues.Add(new SeedVenueDto(
+                    slot.Date,
+                    slot.Time,
+                    $"PlayOn {user.City} Community Venue {user.Email.Split('@')[0]}",
+                    $"Community Sports Ground, {user.City}",
+                    user.City,
+                    latitude,
+                    longitude,
+                    new TimeOnly(7, 0),
+                    new TimeOnly(23, 0),
+                    false));
+
+                bundle.Events.Add(new SeedEventDto(
+                    title,
+                    sport.Name,
+                    courtSport.CourtName,
+                    venueIndex));
+
+                slotIndex++;
+            }
+        }
+
+        private static (decimal Latitude, decimal Longitude) GetCityCoordinates(string city)
+        {
+            return city.ToLowerInvariant() switch
+            {
+                "sofia" => (42.6977m, 23.3219m),
+                "plovdiv" => (42.1354m, 24.7453m),
+                "varna" => (43.2141m, 27.9147m),
+                "burgas" => (42.5048m, 27.4626m),
+                "ruse" => (43.8350m, 25.9650m),
+                _ => (42.6977m, 23.3219m)
+            };
+        }
+
+        private static void AddParticipants(
+            SeedDataBundle bundle,
+            string matchTitle,
+            IReadOnlyList<SeedUserDto> users,
+            ParticipantStatus status,
+            DateTime joinedOn,
+            DateTime statusChangedOn)
+        {
+            foreach (var user in users)
+            {
+                if (!bundle.MatchParticipants.Any(x =>
+                    x.MatchTitle.Equals(matchTitle, StringComparison.OrdinalIgnoreCase) &&
+                    x.UserEmail.Equals(user.Email, StringComparison.OrdinalIgnoreCase)))
+                {
+                    bundle.MatchParticipants.Add(new SeedMatchParticipantDto(
+                        matchTitle,
+                        user.Email,
+                        status,
+                        joinedOn,
+                        statusChangedOn,
+                        false));
+                }
+            }
+        }
+
+        private static void AddWaitlistParticipants(
+            SeedDataBundle bundle,
+            string matchTitle,
+            IReadOnlyList<SeedUserDto> users,
+            IReadOnlyCollection<int> joinedIndexes,
+            DateTime now)
+        {
+            for (var i = 0; i < users.Count; i++)
+            {
+                var status = joinedIndexes.Contains(i)
+                    ? ParticipantStatus.Joined
+                    : ParticipantStatus.Waitlisted;
+
+                if (!bundle.MatchParticipants.Any(x =>
+                    x.MatchTitle.Equals(matchTitle, StringComparison.OrdinalIgnoreCase) &&
+                    x.UserEmail.Equals(users[i].Email, StringComparison.OrdinalIgnoreCase)))
+                {
+                    bundle.MatchParticipants.Add(new SeedMatchParticipantDto(
+                        matchTitle,
+                        users[i].Email,
+                        status,
+                        now.AddDays(-3),
+                        now.AddDays(-3),
+                        false));
+                }
+            }
+        }
+
+        private static void AddCyclicRatings(
+            SeedDataBundle bundle,
+            string matchTitle,
+            IReadOnlyList<SeedUserDto> users)
+        {
+            if (users.Count < 2)
+            {
+                return;
+            }
+
+            for (var i = 0; i < users.Count; i++)
+            {
+                var next = users[(i + 1) % users.Count];
+                var previous = users[(i + users.Count - 1) % users.Count];
+                AddRatingIfMissing(bundle, matchTitle, users[i].Email, next.Email, 4 + (i % 2));
+                AddRatingIfMissing(bundle, matchTitle, previous.Email, users[i].Email, 3 + (i % 3));
+            }
+        }
+
+        private static void AddRatingIfMissing(
+            SeedDataBundle bundle,
+            string matchTitle,
+            string raterEmail,
+            string ratedEmail,
+            int score)
+        {
+            if (!bundle.PlayerRatings.Any(x =>
+                x.MatchTitle.Equals(matchTitle, StringComparison.OrdinalIgnoreCase) &&
+                x.RaterEmail.Equals(raterEmail, StringComparison.OrdinalIgnoreCase) &&
+                x.RatedEmail.Equals(ratedEmail, StringComparison.OrdinalIgnoreCase)))
+            {
+                bundle.PlayerRatings.Add(new SeedPlayerRatingDto(
+                    matchTitle,
+                    raterEmail,
+                    ratedEmail,
+                    score,
+                    "Good teammate. Enjoyed playing together."));
+            }
+        }
+
+        private static void AddNotificationIfMissing(
+            SeedDataBundle bundle,
+            string userEmail,
+            NotificationType type,
+            string message,
+            string matchTitle,
+            DateTime createdOn)
+        {
+            if (!bundle.Notifications.Any(x =>
+                x.UserEmail.Equals(userEmail, StringComparison.OrdinalIgnoreCase) &&
+                x.Type == type &&
+                x.MatchTitle.Equals(matchTitle, StringComparison.OrdinalIgnoreCase)))
+            {
+                bundle.Notifications.Add(new SeedNotificationDto(
+                    userEmail,
+                    type,
+                    message,
+                    matchTitle,
+                    false,
+                    createdOn));
+            }
+        }
 
         private static async Task SeedRolesAsync(
             RoleManager<ApplicationRole> roleManager,
@@ -523,7 +1063,6 @@ namespace PlayOn.Data.Seeding
 
                     user = new ApplicationUser
                     {
-                        UserName = item.Email,
                         Email = item.Email,
                         FullName = item.FullName,
                         DisplayName = item.DisplayName,
@@ -542,6 +1081,7 @@ namespace PlayOn.Data.Seeding
                         continue;
                     }
 
+                    await userManager.SetUserNameAsync(user, item.Email);
                     var createResult = await userManager.CreateAsync(user, item.Password);
                     if (!createResult.Succeeded)
                     {
@@ -1135,5 +1675,3 @@ namespace PlayOn.Data.Seeding
         }
     }
 }
-
-

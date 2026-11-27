@@ -4,6 +4,7 @@ using PlayOn.Data.RepositoryImplementation;
 using PlayOn.Services;
 using PlayOn.Services.Contracts;
 using PlayOn.Validation;
+using PlayOn.Web.Clock;
 using PlayOn.Web.DataBuilders;
 using PlayOn.Web.DataBuilders.Formatting;
 
@@ -13,8 +14,12 @@ namespace PlayOn.Web.Extensions
     {
         public static IServiceCollection AddLocalResources(
             this IServiceCollection services,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IHostEnvironment environment)
         {
+
+            services.AddAppTimeProvider(configuration, environment);
+
 
             services.AddSingleton<IDisplayFormatter, DisplayFormatter>();
 
@@ -54,6 +59,28 @@ namespace PlayOn.Web.Extensions
             services.AddScoped<AdminUserDataBuilder>();
             services.AddScoped<AdminSportDataBuilder>();
             services.AddScoped<AdminVenueDataBuilder>();
+
+
+            return services;
+        }
+
+
+        public static IServiceCollection AddAppTimeProvider(
+            this IServiceCollection services,
+            IConfiguration configuration,
+            IHostEnvironment environment)
+        {
+            services.Configure<ClockOptions>(configuration.GetSection("Clock"));
+
+            if (!environment.IsDevelopment())
+            {
+                services.PostConfigure<ClockOptions>(options =>
+                {
+                    options.Mode = ClockMode.System;
+                });
+            }
+
+            services.AddSingleton<AppTimeProvider>();
 
             return services;
         }

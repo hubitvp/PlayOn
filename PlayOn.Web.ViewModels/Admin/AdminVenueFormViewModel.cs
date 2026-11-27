@@ -51,6 +51,7 @@ namespace PlayOn.Web.ViewModels.Admin
         [Display(Name = "Venue closes at")]
         public TimeOnly ClosesAt { get; set; }
 
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if ((Name ?? string.Empty).Trim().Length < NameMinLength)

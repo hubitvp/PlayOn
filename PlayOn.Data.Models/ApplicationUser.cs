@@ -14,32 +14,40 @@ namespace PlayOn.Data.Models
 
 
         [Required]
+        [PersonalData]
         [StringLength(FullNameMaxLength)]
         [Comment("Full name of the member")]
         public string FullName { get; set; } = null!;
 
+        [PersonalData]
         [StringLength(AddressMaxLength)]
         [Comment("Optional home address of the member")]
         public string? Address { get; set; }
 
         [Required]
+        [PersonalData]
         [Comment("Date the member joined")]
         public DateOnly JoinDate { get; set; }
 
         [Required]
+        [PersonalData]
         [MaxLength(DisplayNameMaxLength)]
         public string DisplayName { get; set; } = null!;
 
         [Required]
+        [PersonalData]
         [MaxLength(CityMaxLength)]
         public string City { get; set; } = null!;
 
         [Required]
+        [PersonalData]
         public bool IsActive { get; set; }
 
+        [PersonalData]
         public int? ReliabilityScore { get; set; }
 
         [Required]
+        [PersonalData]
         public int MatchesPlayed { get; set; }
     }
 }

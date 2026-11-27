@@ -44,6 +44,7 @@ namespace PlayOn.Data.Models
         [Required]
         public TimeOnly ClosesAt { get; set; }
 
+
         [Required]
         public bool IsDeleted { get; set; }
 
