@@ -60,7 +60,7 @@ namespace PlayOn.Services
 
             var notificationQuery = BuildNotificationQuery(userId);
 
-            var page = await GetSinglePageAsync(
+            var page = await GetPageAsync(
                 notificationQuery,
                 pageRequestData);
 
@@ -137,18 +137,17 @@ namespace PlayOn.Services
                 .Success(unreadNotifications.Count);
         }
 
-        private IOrderedQueryable<Notification> BuildNotificationQuery(
+        private IQueryable<Notification> BuildNotificationQuery(
             Guid userId)
         {
             return notificationRepository
                 .Query()
-                .Where(x => x.UserId == userId)
-                .OrderByDescending(x => x.CreatedOn);
+                .Where(x => x.UserId == userId);
         }
 
         private async Task<PageResult<NotificationResponseModelData>>
-            GetSinglePageAsync(
-                IOrderedQueryable<Notification> query,
+            GetPageAsync(
+                IQueryable<Notification> query,
                 PageRequestData pageRequestData)
         {
             var totalCount = await query.CountAsync();
@@ -164,6 +163,7 @@ namespace PlayOn.Services
                 pageRequestData.Page, 1, totalPages);
 
             var items = await query
+                .OrderByDescending(x => x.CreatedOn)
                 .ThenByDescending(x => x.Id)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

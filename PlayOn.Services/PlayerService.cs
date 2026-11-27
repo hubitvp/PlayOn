@@ -259,7 +259,7 @@ namespace PlayOn.Services
             foreach (var skill in skills)
             {
                 var current = currentPreferences
-                    .FirstOrDefault(x => x.SportId == skill.SportId);
+                    .SingleOrDefault(x => x.SportId == skill.SportId);
 
                 if (skill.SkillLevel == null)
                 {

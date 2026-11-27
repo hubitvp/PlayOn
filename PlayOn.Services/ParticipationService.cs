@@ -534,7 +534,6 @@ namespace PlayOn.Services
 
         private static bool IsTransientTransactionConflict(Exception exception)
         {
-            // SQL Server: 1205 = deadlock victim, 1222 = lock request timeout.
             return HasSqlErrorNumber(exception, 1205, 1222);
         }
 
